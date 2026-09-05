@@ -49,3 +49,15 @@ every wheel — updated automatically on each release.
 
 This mirror is for reading and reference; it is not an installable
 package. Install from PyPI or the releases above.
+
+## License
+
+Dual-licensed:
+
+- **Contents of this repository** (the mirrored `.py` sources and docs) —
+  [MIT](LICENSE). Read them, copy them into your code, subclass freely.
+- **The distributed Software** (wheels on PyPI and in the releases,
+  including the compiled modules, and the viewer) —
+  [DEPZ Camera SDK License Agreement](EULA.txt): free to use with DEPZ
+  cameras and to embed in your own products; no standalone redistribution
+  or reverse engineering of the compiled modules.

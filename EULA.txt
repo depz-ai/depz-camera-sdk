@@ -1,0 +1,48 @@
+DEPZ Camera SDK License Agreement
+Version 1.0, September 2026
+
+This license agreement ("Agreement") governs the DEPZ Camera SDK and the
+DEPZ Camera Viewer, including their compiled modules, bundled assets and
+documentation (together, the "Software"), published by DEPZ ("we", "us").
+By installing or using the Software you agree to this Agreement.
+
+1. License grant. We grant you a free, worldwide, non-exclusive,
+   non-transferable license to install and use the Software, and to
+   distribute unmodified copies of it solely as an embedded part of your
+   own application or product that operates DEPZ camera hardware.
+
+2. Restrictions. Except as expressly allowed above or by applicable law,
+   you may not: (a) redistribute, sell, rent or sublicense the Software on
+   a standalone basis; (b) decompile, disassemble, extract or otherwise
+   reverse-engineer the compiled modules of the Software, except to the
+   extent such restriction is prohibited by applicable law; (c) remove or
+   alter proprietary notices; (d) use the Software to develop a product
+   whose primary purpose is to replace the Software for third parties.
+
+3. Open-source portions. Portions of the Software that are published in
+   source form at https://github.com/depz-ai/depz-camera-sdk are
+   additionally available under the MIT License stated there; for those
+   files you may choose either license. Third-party dependencies and
+   downloadable neural-network models are licensed under their own terms.
+
+4. Ownership. The Software is licensed, not sold. We and our licensors
+   retain all right, title and interest in the Software.
+
+5. Updates. We may provide updates at our discretion and have no
+   obligation to maintain availability of any version or service.
+
+6. No warranty. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+   KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NON-INFRINGEMENT.
+
+7. Limitation of liability. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE
+   LAW, IN NO EVENT SHALL WE BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+   SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS,
+   DATA OR GOODWILL, ARISING FROM OR RELATED TO YOUR USE OF THE SOFTWARE.
+
+8. Termination. This Agreement terminates automatically if you breach it.
+   Upon termination you must stop using and delete the Software. Sections
+   4, 6, 7 and 8 survive termination.
+
+Contact: https://depz.ai
