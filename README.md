@@ -22,6 +22,8 @@ irm https://github.com/depz-ai/depz-camera-sdk/releases/latest/download/Install-
 ```sh
 # Linux x86_64
 curl -fsSL https://github.com/depz-ai/depz-camera-sdk/releases/latest/download/Install-CameraViewer-Ubuntu-x86_64.sh | sh
+# Linux ARM64 (aarch64; CPU inference)
+curl -fsSL https://github.com/depz-ai/depz-camera-sdk/releases/latest/download/Install-CameraViewer-Ubuntu-aarch64.sh | sh
 # macOS 11+ (Intel + Apple Silicon)
 curl -fsSL https://github.com/depz-ai/depz-camera-sdk/releases/latest/download/Install-CameraViewer-macOS.sh | sh
 ```
