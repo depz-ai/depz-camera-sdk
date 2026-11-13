@@ -106,6 +106,20 @@ class _TriggerSnapshotCommand(_Command):
 
 
 @dataclass
+class _SetRecalibrationControlCommand(_Command):
+    """Mutate one :class:`RecalibrationController` control (e.g. ``ok_px``
+    or the ``enabled`` on/off). Routed through the worker so the
+    controller's ``control_set`` side effects (rebuilding the health
+    monitor on a ``window``/``ok_px`` change) run off the API thread.
+    Mirrors :class:`_SetInferenceControlCommand`.
+    No-op target (``self._recal_controller is None``) raises in
+    :meth:`DepthPipeline.set_recalibration_control` before enqueuing."""
+    name: str = ""
+    value: Any = None
+    applied_value: Any = None
+
+
+@dataclass
 class _SetPipelineControlCommand(_Command):
     """Generic pipeline-control mutation. Worker resolves ``name`` against
     :meth:`DepthPipeline.controls`, coerces via the descriptor, stores,

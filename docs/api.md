@@ -9,21 +9,22 @@ docstrings in the source, not this file.
 
 - **Pipeline**: [`DepthPipeline`](#depthpipeline), [`FramePacket`](#framepacket), [`RecordingStatus`](#recordingstatus), [`RecordingResult`](#recordingresult), [`PipelineMetrics`](#pipelinemetrics)
 - **Sources**: [`FrameSource`](#framesource), [`CameraSource`](#camerasource), [`MkvSource`](#mkvsource), [`CameraInfo`](#camerainfo), [`RawFrame`](#rawframe), [`resolve_source_arg`](#resolve_source_arg)
-- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`available_inferences`](#available_inferences), [`register_inference`](#register_inference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`get_inference`](#get_inference), [`cache_root`](#cache_root)
-- **Engines**: [`available_engines`](#available_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug)
+- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`available_inferences`](#available_inferences), [`register_inference`](#register_inference), [`DepzStereoInference`](#depzstereoinference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`get_inference`](#get_inference), [`cache_root`](#cache_root)
+- **Engines**: [`available_engines`](#available_engines), [`list_engines`](#list_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`ENGINE_CLASSES`](#engine_classes), [`class_rank`](#class_rank), [`classify_engine`](#classify_engine), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug), [`priority_rank`](#priority_rank)
 - **Calibration**: [`Calibration`](#calibration), [`CanvasLayout`](#canvaslayout), [`OpenCVBasicCalibration`](#opencvbasiccalibration), [`OpenCVFisheyeCalibration`](#opencvfisheyecalibration), [`register_calibration`](#register_calibration), [`registered_polymorphic_names`](#registered_polymorphic_names)
 - **Filters**: [`Filter`](#filter), [`DisparityFilter`](#disparityfilter), [`DepthFilter`](#depthfilter), [`PointCloudFilter`](#pointcloudfilter), [`SpeckleFilter`](#specklefilter), [`ZClipFilter`](#zclipfilter), [`EdgeFilter`](#edgefilter), [`TemporalEmaFilter`](#temporalemafilter), [`BoundingBoxFilter`](#boundingboxfilter), [`StatisticalOutlierFilter`](#statisticaloutlierfilter), [`default_filter_chain`](#default_filter_chain)
-- **Cameras**: [`fetch_camera_info_json`](#fetch_camera_info_json), [`DepzCameraInfo`](#depzcamerainfo), [`list_connected_depz_cameras`](#list_connected_depz_cameras), [`get_first_connected_depz_camera`](#get_first_connected_depz_camera), [`get_connected_depz_camera_by_serial`](#get_connected_depz_camera_by_serial), [`CaptureMode`](#capturemode), [`CameraControl`](#cameracontrol), [`CameraSpec`](#cameraspec), [`DEPZ_VARIUS`](#depz_varius), [`DEPZ_MINIMA`](#depz_minima), [`DEPZ_CLARITY`](#depz_clarity), [`REGISTRY`](#registry), [`spec_by_sku`](#spec_by_sku)
+- **Cameras**: [`fetch_camera_info_json`](#fetch_camera_info_json), [`DepzCameraInfo`](#depzcamerainfo), [`list_connected_depz_cameras`](#list_connected_depz_cameras), [`get_first_connected_depz_camera`](#get_first_connected_depz_camera), [`get_connected_depz_camera_by_serial`](#get_connected_depz_camera_by_serial), [`CaptureMode`](#capturemode), [`CameraControl`](#cameracontrol), [`CameraSpec`](#cameraspec), [`DEPZ_VARIUS`](#depz_varius), [`DEPZ_MINIMA`](#depz_minima), [`DEPZ_CLARITY`](#depz_clarity), [`REGISTRY`](#registry), [`spec_by_sku`](#spec_by_sku), [`list_connected_depz_cameras_detailed`](#list_connected_depz_cameras_detailed)
 - **Platform**: [`PlatformBackend`](#platformbackend), [`CameraControls`](#cameracontrols), [`VideoDeviceInfo`](#videodeviceinfo), [`current_backend`](#current_backend)
 - **Controls**: [`Control`](#control)
 - **Cache**: [`get_cache_dir`](#get_cache_dir), [`set_cache_dir`](#set_cache_dir)
+- **Logging_Setup**: [`configure_logging`](#configure_logging), [`enable_default_logging`](#enable_default_logging)
 
 ## Pipeline
 
 ### DepthPipeline
 
 ```python
-class DepthPipeline(source: 'FrameSource | str | Path | Any | None' = None, *, inference: 'DepthInferenceBase | tuple[str, str] | None' = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False) -> None
+class DepthPipeline(source: 'FrameSource | str | Path | Any | None' = None, *, inference: 'DepthInferenceBase | tuple[str, str] | None' = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False, recalibration_enabled: bool = False) -> None
 ```
 
 Depth SDK pipeline. Single-shot lifecycle. Drives any
@@ -57,6 +58,14 @@ cascade semantics don't fit a flat coerce-and-clamp descriptor.
 
 #### DepthPipeline.is_running *(property)*
 
+#### DepthPipeline.last_error *(property)*
+
+Crash detail of the worker thread — ``{"message", "traceback"}``
+— or ``None`` while healthy. Set when the worker dies on an
+unhandled exception; cleared by :meth:`start`. Poll together with
+:attr:`is_running` to distinguish "stopped on request" from
+"crashed" (UI surfaces the latter as a pipeline_error toast).
+
 #### DepthPipeline.camera_info *(property)*
 
 #### DepthPipeline.list_filters
@@ -84,6 +93,24 @@ Returns ``{"slug", "label", "input_size", "controls", "state"}``.
 ``controls`` is the static descriptor list (drives UI rendering);
 ``state`` is the live control values. Use
 :meth:`set_inference_control` to mutate.
+
+#### DepthPipeline.recalibration_info
+
+```python
+recalibration_info(self) -> Optional[dict]
+```
+
+Self-describing snapshot of the online-recalibration controller, or
+``None`` when the pipeline is mono / recalibration is unsupported.
+
+Mirrors :meth:`inference_info` / :meth:`list_filters` shape:
+``{"slug", "controls", "state"}``. ``controls`` is the static
+descriptor list (drives UI rendering — the tuning knobs + the
+``enabled`` on/off); ``state`` is the live control values. Use
+:meth:`set_recalibration_control` to mutate. The *runtime* state
+(state machine, health, last_event) is the separate
+:attr:`recalibration_status` surface — config here, observability
+there, the same split as ``pipeline_info`` vs ``metrics``.
 
 #### DepthPipeline.control_set
 
@@ -142,6 +169,46 @@ geometry / projection question.
 
 #### DepthPipeline.recording_status *(property)*
 
+#### DepthPipeline.recalibration_status *(property)*
+
+Snapshot of the background online-recalibration loop, or None when
+the pipeline is mono / recalibration is unsupported. Read-only; the
+returned dataclass is reachable via attribute access (no import needed
+— concealed, not exported in ``__init__``).
+
+#### DepthPipeline.recalibration_history
+
+```python
+recalibration_history(self, since: float = 0.0)
+```
+
+#### DepthPipeline.recalibration_buffer_meta
+
+```python
+recalibration_buffer_meta(self)
+```
+
+#### DepthPipeline.recalibration_buffer_points
+
+```python
+recalibration_buffer_points(self, slot: int)
+```
+
+#### DepthPipeline.recalibration_buffer_jpeg
+
+```python
+recalibration_buffer_jpeg(self, slot: int, eye: str = 'l', max_w: int = 0)
+```
+
+#### DepthPipeline.recalibration_clear_service
+
+```python
+recalibration_clear_service(self)
+```
+
+Manual override: clear the sticky service_advised flag + failure
+count (the panel's "needs service" label click).
+
 #### DepthPipeline.start
 
 ```python
@@ -178,7 +245,7 @@ performed.
 #### DepthPipeline.get
 
 ```python
-get(self, timeout: float | None = None) -> depz_camera_sdk.pipeline.types.FramePacket | None
+get(self, timeout: Optional[float] = None) -> Optional[depz_camera_sdk.pipeline.types.FramePacket]
 ```
 
 Pop the next :class:`FramePacket` from the output queue.
@@ -196,7 +263,7 @@ collision.
 #### DepthPipeline.get_snapshot
 
 ```python
-get_snapshot(self, timeout: float | None = None) -> depz_camera_sdk.pipeline.types.FramePacket | None
+get_snapshot(self, timeout: Optional[float] = None) -> Optional[depz_camera_sdk.pipeline.types.FramePacket]
 ```
 
 Wait for the result of a photo-mode snapshot, dropping any
@@ -242,6 +309,23 @@ Routed through the worker so backends rebuild their internal
 state (cv2.StereoSGBM matcher) on the worker thread, never on
 the API thread. Returns the value actually stored (after
 coercion + clamp by the inference).
+
+#### DepthPipeline.set_recalibration_control
+
+```python
+set_recalibration_control(self, name: str, value: Any) -> Any
+```
+
+Mutate one online-recalibration control, e.g.
+``set_recalibration_control("enabled", False)`` to pause the loop or
+``set_recalibration_control("ok_px", 0.8)`` to retune the trigger.
+Routed through the worker so the controller's ``control_set`` side
+effects (rebuilding the health monitor on a ``window``/``ok_px``
+change) run off the API thread. Returns the value actually stored
+(after coercion + clamp by the controller). Mirrors
+:meth:`set_inference_control`. Raises ``RuntimeError`` when the
+pipeline is mono / recalibration is unsupported (the controller is
+``None``) — introspect via :meth:`recalibration_info` first.
 
 #### DepthPipeline.set_calibration_control
 
@@ -329,7 +413,7 @@ if `source.is_seekable=False`.
 #### DepthPipeline.seek
 
 ```python
-seek(self, *, monotonic_ns: int | None = None, utc_ns: int | None = None, relative_us: int | None = None, fraction: float | None = None) -> None
+seek(self, *, monotonic_ns: Optional[int] = None, utc_ns: Optional[int] = None, relative_us: Optional[int] = None, fraction: Optional[float] = None) -> None
 ```
 
 #### DepthPipeline.is_pausable *(property)*
@@ -378,7 +462,7 @@ the recording's metadata.
 #### DepthPipeline.pts_to_monotonic_ns
 
 ```python
-pts_to_monotonic_ns(self, pts_us: int) -> int | None
+pts_to_monotonic_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert a packet's pts_us to absolute CLOCK_MONOTONIC
@@ -387,7 +471,7 @@ nanoseconds. Returns None when no anchor is available.
 #### DepthPipeline.pts_to_utc_ns
 
 ```python
-pts_to_utc_ns(self, pts_us: int) -> int | None
+pts_to_utc_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert a packet's pts_us to absolute UTC nanoseconds.
@@ -407,7 +491,7 @@ replay sources (no live fd to write to).
 #### DepthPipeline.get_camera_control
 
 ```python
-get_camera_control(self, name: str) -> float | None
+get_camera_control(self, name: str) -> Optional[float]
 ```
 
 Read one named camera-control value.
@@ -438,7 +522,7 @@ Re-call to refresh — values are point-in-time snapshots.
 #### DepthPipeline.start_recording
 
 ```python
-start_recording(self, path: str | pathlib.Path, camera_controls: dict | None = None) -> None
+start_recording(self, path: str | pathlib.Path, camera_controls: Optional[dict] = None) -> None
 ```
 
 Start recording an MKV at ``path``.
@@ -518,7 +602,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### FramePacket
 
 ```python
-class FramePacket(frame_number: int, pts_us: int, source_frame_idx: int | None = None, left: numpy.ndarray | None = None, right: numpy.ndarray | None = None, rectified_left: numpy.ndarray | None = None, rectified_right: numpy.ndarray | None = None, disparity: numpy.ndarray | None = None, depth: numpy.ndarray | None = None, point_cloud: numpy.ndarray | None = None, is_snapshot: bool = False) -> None
+class FramePacket(frame_number: int, pts_us: int, source_frame_idx: Optional[int] = None, left: Optional[numpy.ndarray] = None, right: Optional[numpy.ndarray] = None, rectified_left: Optional[numpy.ndarray] = None, rectified_right: Optional[numpy.ndarray] = None, disparity: Optional[numpy.ndarray] = None, depth: Optional[numpy.ndarray] = None, point_cloud: Optional[numpy.ndarray] = None, is_snapshot: bool = False) -> None
 ```
 
 One processed stereo frame — what `pipeline.get()` returns.
@@ -530,13 +614,13 @@ on each field.
 ### RecordingStatus
 
 ```python
-class RecordingStatus(is_recording: bool, path: str | None, frames_written: int, bytes_written: int, dropped: int, duration_s: float, is_paused: bool = False) -> None
+class RecordingStatus(is_recording: bool, path: Optional[str], frames_written: int, bytes_written: int, dropped: int, duration_s: float, is_paused: bool = False, error: Optional[str] = None) -> None
 ```
 
 ### RecordingResult
 
 ```python
-class RecordingResult(path: str, frames: int, bytes: int, duration_s: float, dropped: int) -> None
+class RecordingResult(path: str, frames: int, bytes: int, duration_s: float, dropped: int, error: Optional[str] = None) -> None
 ```
 
 ### PipelineMetrics
@@ -577,7 +661,7 @@ Raises on failure.
 #### FrameSource.grab
 
 ```python
-grab(self, timeout: float = 1.0) -> depz_camera_sdk.sources.types.RawFrame | None
+grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFrame]
 ```
 
 Return next packet. None signals EOF (only for bounded sources
@@ -612,7 +696,7 @@ Sources producing other byte layouts (YUYV, NV12, ...) override.
 #### FrameSource.decode_to_bgr
 
 ```python
-decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> numpy.ndarray | None
+decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> Optional[numpy.ndarray]
 ```
 
 Decode the wire bytes into a BGR HxWx3 uint8 array.
@@ -746,7 +830,7 @@ without a wall-clock anchor return ``None``.
 #### FrameSource.pts_to_monotonic_ns
 
 ```python
-pts_to_monotonic_ns(self, pts_us: int) -> int | None
+pts_to_monotonic_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert a stream-relative `pts_us` to absolute CLOCK_MONOTONIC
@@ -760,7 +844,7 @@ a non-linear mapping (none currently do).
 #### FrameSource.pts_to_utc_ns
 
 ```python
-pts_to_utc_ns(self, pts_us: int) -> int | None
+pts_to_utc_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert pts_us to absolute UTC nanoseconds. Default impl uses
@@ -804,7 +888,7 @@ Inverse of `pause()`. Default raises.
 ### CameraSource
 
 ```python
-class CameraSource(camera_info: 'DepzCameraInfo', mode: 'CaptureMode | None' = None, initial_controls: 'dict[str, float] | None' = None) -> None
+class CameraSource(camera_info: 'DepzCameraInfo', mode: 'CaptureMode | None' = None, initial_controls: 'dict[str, float] | None' = None, output_eye: 'tuple[int, int] | None' = None) -> None
 ```
 
 Live camera capture. Constructor parameters describe the desired
@@ -899,10 +983,21 @@ even when inference can't keep up.
 remove_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> None
 ```
 
+#### CameraSource.decode_to_bgr
+
+```python
+decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> 'Optional[np.ndarray]'
+```
+
+Decode wire bytes to BGR, then resize to the delivered size
+when an ``output_eye`` target is set. Overrides the base impl
+because YUYV reshape must use the CAPTURED dims (``_info`` may
+already report the scaled size).
+
 #### CameraSource.grab
 
 ```python
-grab(self, timeout: float = 1.0) -> depz_camera_sdk.sources.types.RawFrame | None
+grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFrame]
 ```
 
 Pop the latest available frame (drops older ones).
@@ -910,6 +1005,13 @@ Pop the latest available frame (drops older ones).
 Blocks up to `timeout` seconds for a frame to appear if buffer
 empty. Returns None on timeout (camera silent for `timeout`
 seconds — likely device error).
+
+During a :meth:`DepthPipeline.reset_camera_source` reopen gap the
+source is transiently closed — grab() returns ``None`` then (the
+worker already tolerates None), it does NOT raise. Raising here
+killed the worker whenever the startup wedge-recovery reset the
+device mid-stream. A never-opened source still raises — that's a
+caller bug, not a transient state.
 
 #### CameraSource.get_pump_stats
 
@@ -936,21 +1038,6 @@ split). Live cameras read this from the active
 calibration's :attr:`Calibration.is_stereo` (inverted). Default
 False keeps existing stereo sources unaffected.
 
-#### CameraSource.decode_to_bgr
-
-```python
-decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> numpy.ndarray | None
-```
-
-Decode the wire bytes into a BGR HxWx3 uint8 array.
-
-Default implementation handles MJPG (cv2.imdecode reads dims
-from the JPEG header) and YUYV (raw layout — frame size taken
-from the source's :attr:`_info`, populated in ``open()``).
-Sources with non-standard byte layouts override.
-
-Returns None on decode failure (caller skips the frame).
-
 #### CameraSource.duration_us *(property)*
 
 Total duration in microseconds, or None for unbounded (live) sources.
@@ -968,7 +1055,7 @@ without a wall-clock anchor return ``None``.
 #### CameraSource.pts_to_monotonic_ns
 
 ```python
-pts_to_monotonic_ns(self, pts_us: int) -> int | None
+pts_to_monotonic_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert a stream-relative `pts_us` to absolute CLOCK_MONOTONIC
@@ -982,7 +1069,7 @@ a non-linear mapping (none currently do).
 #### CameraSource.pts_to_utc_ns
 
 ```python
-pts_to_utc_ns(self, pts_us: int) -> int | None
+pts_to_utc_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert pts_us to absolute UTC nanoseconds. Default impl uses
@@ -1026,7 +1113,7 @@ Inverse of `pause()`. Default raises.
 ### MkvSource
 
 ```python
-class MkvSource(path: str | pathlib.Path, replay_mode: str = 'realtime', loop: bool = False, build_frame_index: bool = True) -> None
+class MkvSource(path: str | pathlib.Path, replay_mode: str = 'realtime', loop: bool = False, build_frame_index: bool = True, pace_playback: bool = True) -> None
 ```
 
 Replay an SDK-recorded MKV as a `FrameSource`.
@@ -1078,6 +1165,16 @@ the step methods — consumers read it after those calls.
 
 #### MkvSource.duration_us *(property)*
 
+#### MkvSource.fps_target *(property)*
+
+Rate requested when the file was recorded (FPS_TARGET tag).
+Aspirational — playback does not use it.
+
+#### MkvSource.fps_measured *(property)*
+
+Rate the file actually plays at, derived from the frame-pts
+index. ``None`` when the index was not built.
+
 #### MkvSource.t0_monotonic_ns *(property)*
 
 #### MkvSource.t0_utc_ns *(property)*
@@ -1127,7 +1224,7 @@ resume(self) -> None
 #### MkvSource.grab
 
 ```python
-grab(self, timeout: float = 1.0) -> depz_camera_sdk.sources.types.RawFrame | None
+grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFrame]
 ```
 
 #### MkvSource.add_fanout
@@ -1209,7 +1306,7 @@ False keeps existing stereo sources unaffected.
 #### MkvSource.decode_to_bgr
 
 ```python
-decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> numpy.ndarray | None
+decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> Optional[numpy.ndarray]
 ```
 
 Decode the wire bytes into a BGR HxWx3 uint8 array.
@@ -1232,7 +1329,7 @@ CaptureMode the source was configured with. None when irrelevant.
 #### MkvSource.pts_to_monotonic_ns
 
 ```python
-pts_to_monotonic_ns(self, pts_us: int) -> int | None
+pts_to_monotonic_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert a stream-relative `pts_us` to absolute CLOCK_MONOTONIC
@@ -1246,7 +1343,7 @@ a non-linear mapping (none currently do).
 #### MkvSource.pts_to_utc_ns
 
 ```python
-pts_to_utc_ns(self, pts_us: int) -> int | None
+pts_to_utc_ns(self, pts_us: int) -> Optional[int]
 ```
 
 Convert pts_us to absolute UTC nanoseconds. Default impl uses
@@ -1255,7 +1352,7 @@ Convert pts_us to absolute UTC nanoseconds. Default impl uses
 ### CameraInfo
 
 ```python
-class CameraInfo(os_id: str, camera_name: str, camera_serial: str, width: int, height: int, fps: float, is_live: bool, clock_domain: str, sku: str | None = None) -> None
+class CameraInfo(os_id: str, camera_name: str, camera_serial: str, width: int, height: int, fps: float, is_live: bool, clock_domain: str, sku: Optional[str] = None) -> None
 ```
 
 Geometry + identity descriptor for a live or replayed source.
@@ -1263,7 +1360,7 @@ Geometry + identity descriptor for a live or replayed source.
 ### RawFrame
 
 ```python
-class RawFrame(payload: bytes, pts_us: int, sequence: int, source_frame_idx: int | None = None) -> None
+class RawFrame(payload: bytes, pts_us: int, sequence: int, source_frame_idx: Optional[int] = None) -> None
 ```
 
 Raw frame straight from a FrameSource — packet bytes + a single
@@ -1393,14 +1490,26 @@ Pre-compile / pre-allocate. Default no-op (classical
 backends usually have nothing to warm); neural backends
 override to compile the engine.
 
+#### DepthInferenceBase.abort
+
+```python
+abort(self) -> None
+```
+
+Abort the in-flight inference NOW (stop/cancel path).
+Default no-op — classical backends run synchronously; neural
+backends delegate to the engine (see
+:class:`~depz_camera_sdk.engines.base.AbortedInference`).
+
 #### DepthInferenceBase.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 Release native resources. Default no-op; override only when
-a backend holds GPU/NPU contexts.
+a backend holds GPU/NPU contexts. ``abandon=True`` (stop path)
+must not block on in-flight work.
 
 #### DepthInferenceBase.set_intrinsics
 
@@ -1516,10 +1625,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### NeuralStereoInferenceBase.abort
+
+```python
+abort(self) -> None
+```
+
 #### NeuralStereoInferenceBase.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### NeuralStereoInferenceBase.set_intrinsics
@@ -1677,10 +1792,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### NeuralMonoInferenceBase.abort
+
+```python
+abort(self) -> None
+```
+
 #### NeuralMonoInferenceBase.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### NeuralMonoInferenceBase.set_intrinsics
@@ -1872,14 +1993,26 @@ Pre-compile / pre-allocate. Default no-op (classical
 backends usually have nothing to warm); neural backends
 override to compile the engine.
 
+#### SgbmInference.abort
+
+```python
+abort(self) -> None
+```
+
+Abort the in-flight inference NOW (stop/cancel path).
+Default no-op — classical backends run synchronously; neural
+backends delegate to the engine (see
+:class:`~depz_camera_sdk.engines.base.AbortedInference`).
+
 #### SgbmInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 Release native resources. Default no-op; override only when
-a backend holds GPU/NPU contexts.
+a backend holds GPU/NPU contexts. ``abandon=True`` (stop path)
+must not block on in-flight work.
 
 #### SgbmInference.set_intrinsics
 
@@ -2009,14 +2142,26 @@ Pre-compile / pre-allocate. Default no-op (classical
 backends usually have nothing to warm); neural backends
 override to compile the engine.
 
+#### StereoBMInference.abort
+
+```python
+abort(self) -> None
+```
+
+Abort the in-flight inference NOW (stop/cancel path).
+Default no-op — classical backends run synchronously; neural
+backends delegate to the engine (see
+:class:`~depz_camera_sdk.engines.base.AbortedInference`).
+
 #### StereoBMInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 Release native resources. Default no-op; override only when
-a backend holds GPU/NPU contexts.
+a backend holds GPU/NPU contexts. ``abandon=True`` (stop path)
+must not block on in-flight work.
 
 #### StereoBMInference.set_intrinsics
 
@@ -2138,14 +2283,26 @@ Pre-compile / pre-allocate. Default no-op (classical
 backends usually have nothing to warm); neural backends
 override to compile the engine.
 
+#### RectifyOnlyInference.abort
+
+```python
+abort(self) -> None
+```
+
+Abort the in-flight inference NOW (stop/cancel path).
+Default no-op — classical backends run synchronously; neural
+backends delegate to the engine (see
+:class:`~depz_camera_sdk.engines.base.AbortedInference`).
+
 #### RectifyOnlyInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 Release native resources. Default no-op; override only when
-a backend holds GPU/NPU contexts.
+a backend holds GPU/NPU contexts. ``abandon=True`` (stop path)
+must not block on in-flight work.
 
 #### RectifyOnlyInference.set_intrinsics
 
@@ -2212,7 +2369,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### build_inference
 
 ```python
-build_inference(inference_slug: str, inference_variant_slug: str, *, engine_slug: str | None = None, extra_engine_kwargs: dict | None = None, extra_inference_kwargs: dict | None = None, download_progress_cb: Callable[[int, int], NoneType] | bool | None = None) -> depz_camera_sdk.inference.base.DepthInferenceBase
+build_inference(inference_slug: str, inference_variant_slug: str, *, engine_slug: Optional[str] = None, extra_engine_kwargs: dict | None = None, extra_inference_kwargs: dict | None = None, download_progress_cb: Union[Callable[[int, int], NoneType], bool, NoneType] = None) -> depz_camera_sdk.inference.base.DepthInferenceBase
 ```
 
 One-shot: ``(inference_slug, variant_slug)`` → fully-initialized
@@ -2254,6 +2411,142 @@ subclass under ``slug``. Stamps :attr:`SLUG`, wraps
 :meth:`variants` to bind the slug onto each yielded
 :class:`InferenceVariant`, and adds the class to
 :data:`_INFERENCE_REGISTRY`.
+
+### DepzStereoInference
+
+```python
+class DepzStereoInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
+```
+
+DEPZ Stereo — fast disparity stereo, DEPZ's own model. ImageNet-
+norm preprocess, squeeze-and-crop postprocess. ONNX exports pin
+(H, W) in the graph, so no INPUT_SIZE override needed.
+
+#### DepzStereoInference.variants *(classmethod)*
+
+```python
+variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+#### DepzStereoInference.preprocess
+
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+```
+
+#### DepzStereoInference.postprocess
+
+```python
+postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
+```
+
+#### DepzStereoInference.architecture_slug *(property)*
+
+Network identity slug (e.g. ``"lightstereo"``). Set by the
+``@register_inference("...")`` decorator on the concrete
+subclass.
+
+#### DepzStereoInference.engine_slug *(property)*
+
+Engine slug (e.g. ``"openvino-CPU"``). Read from the engine
+instance, which :func:`make_engine` stamps at construction.
+
+#### DepzStereoInference.model_path *(property)*
+
+Resolved absolute path of the .onnx file.
+
+#### DepzStereoInference.input_size *(property)*
+
+#### DepzStereoInference.label *(property)*
+
+#### DepzStereoInference.warmup
+
+```python
+warmup(self) -> None
+```
+
+#### DepzStereoInference.abort
+
+```python
+abort(self) -> None
+```
+
+#### DepzStereoInference.shutdown
+
+```python
+shutdown(self, abandon: bool = False) -> None
+```
+
+#### DepzStereoInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Optional hook — focus-aware mono networks (e.g. Metric3D
+V2) override to remember the values for use in
+:meth:`preprocess`. Default no-op.
+
+#### DepzStereoInference.submit
+
+```python
+submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
+```
+
+#### DepzStereoInference.get_variant *(classmethod)*
+
+```python
+get_variant(cls, slug: str)
+```
+
+Look up a single variant by slug. Convenience over
+``next(v for v in cls.variants() if v.slug == slug)``. Raises
+``KeyError`` with a helpful message listing the inference's
+known variant slugs.
+
+#### DepzStereoInference.control_get
+
+```python
+control_get(self, name: str) -> Any
+```
+
+Return the current value of one control by name — reads its
+``_control_<name>`` backing attribute. Equivalent to ``host.<name>``
+(the descriptor) but takes the name as a string.
+
+#### DepzStereoInference.control_set
+
+```python
+control_set(self, name: str, value: Any) -> Any
+```
+
+Apply one control update: look up descriptor, coerce + clamp by
+``kind``/``value_type``/``min``/``max``/``step``, ``setattr``
+onto ``_control_<name>``. Returns the value actually stored.
+
+Subclasses override to add side effects (e.g. SGBM rebuilds
+its matcher when controls change) — call ``super().control_set(...)``
+for the coerce/store, then act on the new value.
+
+#### DepzStereoInference.controls_to_dict
+
+```python
+controls_to_dict(self) -> dict
+```
+
+Snapshot every current control value — for the UI live-state
+pane, recorder sidecar, etc.
+
+#### DepzStereoInference.controls
+
+```python
+controls(self) -> tuple[depz_camera_sdk._controls.Control, ...]
+```
+
+This host's control descriptors — the class-level
+:data:`_CONTROL_SPECS` tuple (same object every call, no per-call
+allocation). The single public accessor shared by every
+ControlOwner: filters, inference, calibration, pipeline.
 
 ### LightStereoInference
 
@@ -2308,10 +2601,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### LightStereoInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### LightStereoInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### LightStereoInference.set_intrinsics
@@ -2436,10 +2735,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### CREStereoInitialInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### CREStereoInitialInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### CREStereoInitialInference.set_intrinsics
@@ -2564,10 +2869,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### CREStereoCombinedInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### CREStereoCombinedInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### CREStereoCombinedInference.set_intrinsics
@@ -2696,10 +3007,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### CFastFoundationStereoInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### CFastFoundationStereoInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### CFastFoundationStereoInference.set_intrinsics
@@ -2832,10 +3149,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### DepthAnythingV2SmallInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### DepthAnythingV2SmallInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### DepthAnythingV2SmallInference.set_intrinsics
@@ -2974,10 +3297,16 @@ Resolved absolute path of the .onnx file.
 warmup(self) -> None
 ```
 
+#### Metric3DV2VitSmallInference.abort
+
+```python
+abort(self) -> None
+```
+
 #### Metric3DV2VitSmallInference.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
 
 #### Metric3DV2VitSmallInference.submit
@@ -3102,7 +3431,7 @@ with matching size + sha256 (when declared).
 #### InferenceVariant.resolve_files
 
 ```python
-resolve_files(self, *, download_progress_cb: Callable[[int, int], NoneType] | bool | None = None) -> list[pathlib.Path]
+resolve_files(self, *, download_progress_cb: Union[Callable[[int, int], NoneType], bool, NoneType] = None) -> list[pathlib.Path]
 ```
 
 Ensure the variant's cache directory is populated, then
@@ -3112,7 +3441,7 @@ return absolute paths of every file in
 ### ModelFile
 
 ```python
-class ModelFile(slug: str, filename: str, sha256: str | None = None, size_bytes: int | None = None, archive_member: str | None = None) -> None
+class ModelFile(slug: str, filename: str, sha256: Optional[str] = None, size_bytes: Optional[int] = None, archive_member: Optional[str] = None) -> None
 ```
 
 One file an :class:`InferenceVariant` needs at runtime.
@@ -3152,7 +3481,7 @@ it surfaces as an ONNX-load error one layer up.
 #### ModelFile.resolve
 
 ```python
-resolve(self, target: pathlib.Path, download_progress_cb: Callable[[int, int], NoneType] | None = None) -> None
+resolve(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> None
 ```
 
 Ensure the file is on disk at ``target``: no-op if
@@ -3161,7 +3490,7 @@ Ensure the file is on disk at ``target``: no-op if
 #### ModelFile.download
 
 ```python
-download(self, target: pathlib.Path, download_progress_cb: Callable[[int, int], NoneType] | None = None) -> None
+download(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> None
 ```
 
 Resolve :attr:`slug` to a URL, fetch it, and land the result
@@ -3197,20 +3526,39 @@ every consumer benefits from the same redirect. Created lazily by
 available_engines() -> list[str]
 ```
 
-Probe the host: enumerate every loadable backend × device/EP.
+Alias of ``list_engines("available")`` — the host's usable
+engines, priority-sorted. Kept as the short name for the
+overwhelmingly common case; see :func:`list_engines` for the other
+scopes.
 
-Returned list is **sorted by priority** — `available_engines()[0]` is
-the recommended choice (also returned by `recommend_engine()`).
-A discovered combination not in :data:`_PRIORITY_ORDER` is kept but
-sorted last (see :func:`_priority_rank`).
+### list_engines
 
-Non-Intel OV GPUs are filtered out — see :func:`_iter_ov_devices`
-for the reason.
+```python
+list_engines(scope: str = 'available') -> list[str]
+```
+
+Engine slugs for the requested `scope`, **sorted by priority**.
+
+scope="available" (default)
+    Loadable on this host right now, minus policy-hidden engines —
+    what UIs should offer and recommenders should pick from.
+    ``[0]`` is the best choice (== :func:`recommend_engine`).
+scope="detected"
+    Loadable on this host *including* hidden engines — for
+    diagnostics ("what did the probe actually see?").
+scope="full"
+    Every (kind, device/EP) combination the SDK supports, straight
+    from :data:`_PRIORITY_ORDER` — static, no host probing. Includes
+    hidden entries; a slug's absence here means the SDK has no code
+    path for it at all.
+scope="hidden"
+    The policy-hidden slugs (see :data:`_HIDDEN_ENGINES`) — what
+    separates "detected" from "available".
 
 ### recommend_engine
 
 ```python
-recommend_engine() -> str | None
+recommend_engine() -> Optional[str]
 ```
 
 Best available engine slug for this host, or None if none loadable.
@@ -3265,11 +3613,27 @@ submit(self, *blobs: numpy.ndarray) -> depz_camera_sdk.engines.base.InferenceFut
 Submit one inference. The number/shape of blobs must match
 :attr:`input_shapes` in declared order.
 
+#### InferenceEngine.abort
+
+```python
+abort(self) -> None
+```
+
+Abort the in-flight inference NOW (milliseconds, not minutes).
+Terminal for the engine instance — only the stop/cancel path
+calls it, right before :meth:`shutdown`. The aborted future
+fails with :class:`AbortedInference`. Default no-op (classical
+backends run synchronously and have nothing in flight).
+
 #### InferenceEngine.shutdown
 
 ```python
-shutdown(self) -> None
+shutdown(self, abandon: bool = False) -> None
 ```
+
+Release resources. ``abandon=True`` (the stop path, after
+:meth:`abort`) must NOT block on in-flight work — the process
+is about to exit and any straggler native thread dies with it.
 
 #### InferenceEngine.warmup
 
@@ -3299,11 +3663,10 @@ done(self) -> bool
 #### InferenceFuture.wait
 
 ```python
-wait(self, timeout: float | None = None) -> bool
+wait(self, timeout: Optional[float] = None) -> bool
 ```
 
-Block up to `timeou
-kwargs.pop("cache_dir", None)t` seconds. Return True if completed.
+Block up to `timeout` seconds. Return True if completed.
 
 #### InferenceFuture.result
 
@@ -3340,7 +3703,7 @@ done(self) -> bool
 #### EventFuture.wait
 
 ```python
-wait(self, timeout: float | None = None) -> bool
+wait(self, timeout: Optional[float] = None) -> bool
 ```
 
 #### EventFuture.result
@@ -3364,6 +3727,38 @@ set_error(self, exc: BaseException) -> None
 ```
 
 Mark the future failed. Engine-side.
+
+### ENGINE_CLASSES
+
+`tuple` constant.
+
+Built-in immutable sequence.
+
+If no argument is given, the constructor returns an empty tuple.
+If iterable is specified the tuple is initialized from iterable's items.
+
+If the argument is a tuple, the return value is the same object.
+
+### class_rank
+
+```python
+class_rank(klass: str) -> int
+```
+
+Sort key for engine classes — higher = more capable. Raises
+:class:`ValueError` on a class not in :data:`ENGINE_CLASSES` (bad
+model metadata should fail loudly, not sort arbitrarily).
+
+### classify_engine
+
+```python
+classify_engine(slug: str) -> str
+```
+
+Coarse hardware class (see :data:`ENGINE_CLASSES`) for an engine
+slug. OpenVINO multi-device suffixes (``GPU.0``) strip before
+lookup; unknown slugs default to ``"cpu"`` — the conservative floor
+for capability matching.
 
 ### make_engine
 
@@ -3406,6 +3801,18 @@ the expected `kind-tail` shape.
 Traceback (most recent call last):
     ...
 ValueError: engine slug must look like '<kind>-<device_or_ep>', got 'bogus'
+
+### priority_rank
+
+```python
+priority_rank(slug: str) -> int
+```
+
+Public alias of :func:`_priority_rank` — the canonical engine
+priority for a slug. Exposed so downstream consumers (notably
+``depz_camera_viewer.model_selector``) can rank engines without
+duplicating :data:`_PRIORITY_ORDER` (and the ARM swap). Returns are
+sort keys (lower = higher priority); only relative order matters.
 
 ## Calibration
 
@@ -3611,7 +4018,7 @@ and :meth:`canvas_remap` returns ``(canvas_l, None)``.
 #### Calibration.canvas_remap
 
 ```python
-canvas_remap(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Rectify + scale-to-canvas in one cv2.remap pass per eye.
@@ -3639,7 +4046,7 @@ explicit `.copy()` before going into the inflight slot).
 #### Calibration.canvas_remap_copy
 
 ```python
-canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Safe variant of `canvas_remap` — returns fresh
@@ -3654,7 +4061,7 @@ correctness-critical or low-fps consumers.
 #### Calibration.rectify
 
 ```python
-rectify(self, left: numpy.ndarray, right: numpy.ndarray | None = None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Native-res rectified pair. Fresh arrays each call.
@@ -3906,7 +4313,7 @@ and :meth:`canvas_remap` returns ``(canvas_l, None)``.
 #### OpenCVBasicCalibration.canvas_remap
 
 ```python
-canvas_remap(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Rectify + scale-to-canvas in one cv2.remap pass per eye.
@@ -3934,7 +4341,7 @@ explicit `.copy()` before going into the inflight slot).
 #### OpenCVBasicCalibration.canvas_remap_copy
 
 ```python
-canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Safe variant of `canvas_remap` — returns fresh
@@ -3949,7 +4356,7 @@ correctness-critical or low-fps consumers.
 #### OpenCVBasicCalibration.rectify
 
 ```python
-rectify(self, left: numpy.ndarray, right: numpy.ndarray | None = None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Native-res rectified pair. Fresh arrays each call.
@@ -4214,7 +4621,7 @@ set_canvas_fit_mode(self, mode: str) -> None
 #### OpenCVFisheyeCalibration.canvas_remap
 
 ```python
-canvas_remap(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Rectify + scale-to-canvas in one cv2.remap pass per eye.
@@ -4242,7 +4649,7 @@ explicit `.copy()` before going into the inflight slot).
 #### OpenCVFisheyeCalibration.canvas_remap_copy
 
 ```python
-canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: numpy.ndarray | None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+canvas_remap_copy(self, raw_l: numpy.ndarray, raw_r: Optional[numpy.ndarray]) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Safe variant of `canvas_remap` — returns fresh
@@ -4257,7 +4664,7 @@ correctness-critical or low-fps consumers.
 #### OpenCVFisheyeCalibration.rectify
 
 ```python
-rectify(self, left: numpy.ndarray, right: numpy.ndarray | None = None) -> tuple[numpy.ndarray, numpy.ndarray | None]
+rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
 ```
 
 Native-res rectified pair. Fresh arrays each call.
@@ -5154,7 +5561,7 @@ Construct via :meth:`from_dict` (or via :func:`list_connected_depz_cameras`
 #### DepzCameraInfo.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, payload: dict, *, os_id: str) -> ForwardRef('DepzCameraInfo') | None
+from_dict(cls, payload: dict, *, os_id: str) -> Optional[ForwardRef('DepzCameraInfo')]
 ```
 
 Build from a SDK-shape camera-info JSON payload + the OS-side
@@ -5195,7 +5602,9 @@ recognizes as a registered DEPZ camera class.
 
 Iterates :meth:`PlatformBackend.list_cameras`, fetches
 device-info for each serial, and keeps only those entries where
-:meth:`DepzCameraInfo.from_dict` succeeds.
+:meth:`DepzCameraInfo.from_dict` succeeds. Devices that fail are
+logged and dropped — use :func:`list_connected_depz_cameras_detailed`
+when the caller wants the failures as data (UI source lists).
 
 ### get_first_connected_depz_camera
 
@@ -5214,7 +5623,7 @@ than the ``IndexError`` you'd get from indexing an empty list.
 ### get_connected_depz_camera_by_serial
 
 ```python
-get_connected_depz_camera_by_serial(serial: str) -> depz_camera_sdk.cameras.camera_info.DepzCameraInfo | None
+get_connected_depz_camera_by_serial(serial: str) -> Optional[depz_camera_sdk.cameras.camera_info.DepzCameraInfo]
 ```
 
 Like :func:`list_connected_depz_cameras` but bounded to one serial — runs a
@@ -5294,7 +5703,7 @@ values double as round-trip keys without a separate id table.
 ### CameraControl
 
 ```python
-class CameraControl(kind: str, value_type: str, default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '', current_value: float | None = None, auto_companion: str | None = None, updatable_by_auto: bool = True, writable: bool = True) -> None
+class CameraControl(kind: str, value_type: str, default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '', current_value: Optional[float] = None, auto_companion: Optional[str] = None, updatable_by_auto: bool = True, writable: bool = True) -> None
 ```
 
 Camera-control descriptor — :class:`~depz_camera_sdk._controls.Control`
@@ -5405,7 +5814,7 @@ If the argument is a tuple, the return value is the same object.
 ### spec_by_sku
 
 ```python
-spec_by_sku(sku: str, registry: tuple[depz_camera_sdk.cameras.camera_spec.CameraSpec, ...] = (CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-VARIUS-ULTRA-SHORT-NARROW-21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-REGULAR-21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-WIDE-21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-ULTRA-WIDE-21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-FISHEYE-21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-ULTRA-FISHEYE-21', 'STEREO-CAMERA-VARIUS-SHORT-NARROW-21', 'STEREO-CAMERA-VARIUS-SHORT-REGULAR-21', 'STEREO-CAMERA-VARIUS-SHORT-WIDE-21', 'STEREO-CAMERA-VARIUS-SHORT-ULTRA-WIDE-21', 'STEREO-CAMERA-VARIUS-SHORT-FISHEYE-21', 'STEREO-CAMERA-VARIUS-SHORT-ULTRA-FISHEYE-21', 'STEREO-CAMERA-VARIUS-REGULAR-NARROW-21', 'STEREO-CAMERA-VARIUS-REGULAR-REGULAR-21', 'STEREO-CAMERA-VARIUS-REGULAR-WIDE-21', 'STEREO-CAMERA-VARIUS-REGULAR-ULTRA-WIDE-21', 'STEREO-CAMERA-VARIUS-REGULAR-FISHEYE-21', 'STEREO-CAMERA-VARIUS-REGULAR-ULTRA-FISHEYE-21', 'STEREO-CAMERA-VARIUS-LONG-NARROW-21', 'STEREO-CAMERA-VARIUS-LONG-REGULAR-21', 'STEREO-CAMERA-VARIUS-LONG-WIDE-21', 'STEREO-CAMERA-VARIUS-LONG-ULTRA-WIDE-21', 'STEREO-CAMERA-VARIUS-LONG-FISHEYE-21', 'STEREO-CAMERA-VARIUS-LONG-ULTRA-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-NARROW-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-REGULAR-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-ULTRA-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-ULTRA-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-NARROW-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-REGULAR-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-ULTRA-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-ULTRA-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-NARROW-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-REGULAR-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-ULTRA-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-ULTRA-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-NARROW-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-REGULAR-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-ULTRA-WIDE-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-FISHEYE-21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-ULTRA-FISHEYE-21')), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-MINIMA-REGULAR-21', 'STEREO-CAMERA-MINIMA-NARROW-21', 'STEREO-CAMERA-MINIMA-WIDE-21', 'STEREO-CAMERA-MINIMA-FISHEYE-21', 'STEREO-CAMERA-MODULE-MINIMA-NO-MOUNT-REGULAR-21', 'STEREO-CAMERA-MODULE-MINIMA-NO-MOUNT-NARROW-21', 'STEREO-CAMERA-MODULE-MINIMA-NO-MOUNT-WIDE-21', 'STEREO-CAMERA-MODULE-MINIMA-NO-MOUNT-FISHEYE-21', 'STEREO-CAMERA-MODULE-MINIMA-SIDE-MOUNTS-REGULAR-21', 'STEREO-CAMERA-MODULE-MINIMA-SIDE-MOUNTS-NARROW-21', 'STEREO-CAMERA-MODULE-MINIMA-SIDE-MOUNTS-WIDE-21', 'STEREO-CAMERA-MODULE-MINIMA-SIDE-MOUNTS-FISHEYE-21')), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-CLARITY-REGULAR-21', 'STEREO-CAMERA-CLARITY-NARROW-21', 'STEREO-CAMERA-CLARITY-WIDE-21', 'STEREO-CAMERA-CLARITY-ULTRA-WIDE-21', 'STEREO-CAMERA-CLARITY-FISHEYE-21', 'STEREO-CAMERA-MODULE-CLARITY-REGULAR-21', 'STEREO-CAMERA-MODULE-CLARITY-NARROW-21', 'STEREO-CAMERA-MODULE-CLARITY-WIDE-21', 'STEREO-CAMERA-MODULE-CLARITY-ULTRA-WIDE-21', 'STEREO-CAMERA-MODULE-CLARITY-FISHEYE-21')), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('CAMERA-MONO-REGULAR',)), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('CAMERA-MONO-MINI-REGULAR',)))) -> depz_camera_sdk.cameras.camera_spec.CameraSpec | None
+spec_by_sku(sku: str, registry: tuple[depz_camera_sdk.cameras.camera_spec.CameraSpec, ...] = (CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-ULTRA-SHORT-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-SHORT-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-REGULAR-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-VARIUS-LONG-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-ULTRA-SHORT-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-SHORT-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-REGULAR-BASELINE-PANOPTIC-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-NARROW-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-REGULAR-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-VARIUS-LONG-BASELINE-PANOPTIC-LENSES-V21')), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-MINIMA-REGULAR-LENSES-V21', 'STEREO-CAMERA-MINIMA-WIDE-LENSES-V21', 'STEREO-CAMERA-MINIMA-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MINIMA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-MINIMA-REGULAR-LENSES-NO-MOUNT-V21', 'STEREO-CAMERA-MODULE-MINIMA-REGULAR-LENSES-SIDE-MOUNTS-V21', 'STEREO-CAMERA-MODULE-MINIMA-WIDE-LENSES-NO-MOUNT-V21', 'STEREO-CAMERA-MODULE-MINIMA-WIDE-LENSES-SIDE-MOUNTS-V21', 'STEREO-CAMERA-MODULE-MINIMA-ULTRA-WIDE-LENSES-NO-MOUNT-V21', 'STEREO-CAMERA-MODULE-MINIMA-ULTRA-WIDE-LENSES-SIDE-MOUNTS-V21', 'STEREO-CAMERA-MODULE-MINIMA-FISHEYE-LENSES-NO-MOUNT-V21', 'STEREO-CAMERA-MODULE-MINIMA-FISHEYE-LENSES-SIDE-MOUNTS-V21')), CameraSpec(modes=(CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=True, is_default=True, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=3840, height=1080, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1600, height=600, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1600, height=600, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=30, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=25, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=20, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=15, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=10, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=7.5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=5, fourcc='MJPG', stereo=True, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=3840, height=1080, fps=2.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=2.5, fourcc='YUYV', stereo=True, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1920, height=1080, fps=2.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1600, height=600, fps=10, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=640, height=240, fps=30, fourcc='YUYV', stereo=True, is_default=False, is_supported=False), CaptureMode(width=800, height=600, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=240, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1920, height=1072, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=800, height=592, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=320, height=232, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('STEREO-CAMERA-CLARITY-REGULAR-LENSES-V21', 'STEREO-CAMERA-CLARITY-WIDE-LENSES-V21', 'STEREO-CAMERA-CLARITY-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-CLARITY-FISHEYE-LENSES-V21', 'STEREO-CAMERA-CLARITY-ULTRA-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-CLARITY-REGULAR-LENSES-V21', 'STEREO-CAMERA-MODULE-CLARITY-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-CLARITY-ULTRA-WIDE-LENSES-V21', 'STEREO-CAMERA-MODULE-CLARITY-FISHEYE-LENSES-V21', 'STEREO-CAMERA-MODULE-CLARITY-ULTRA-FISHEYE-LENSES-V21')), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('CAMERA-MONO-REGULAR',)), CameraSpec(modes=(CaptureMode(width=1280, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=2560, height=720, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=30, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=30, fourcc='MJPG', stereo=False, is_default=True, is_supported=True), CaptureMode(width=1280, height=360, fps=25, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='MJPG', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=480, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=360, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=640, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=712, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=712, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=472, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=30, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=640, height=352, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=2560, height=720, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=480, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=480, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=False), CaptureMode(width=1280, height=360, fps=25, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=20, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=15, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=10, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=7.5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True), CaptureMode(width=1280, height=360, fps=5, fourcc='YUYV', stereo=False, is_default=False, is_supported=True)), controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=312, label='Exposure', min=1, max=80000, step=1, enum_values=(), unit='100us', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='enum', value_type='int', default=1, label='Power-line frequency', min=0, max=2, step=1, enum_values=((0, 'Disabled'), (1, '50 Hz'), (2, '60 Hz')), unit='', name='power_line_frequency', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), windows_controls=(CameraControl(kind='enum', value_type='int', default=3, label='Auto exposure', min=0, max=3, step=1, enum_values=((1, 'Manual'), (3, 'Aperture Priority')), unit='', name='auto_exposure', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=-5, label='Exposure', min=-13, max=3, step=1, enum_values=(), unit='log2(s)', name='exposure', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=32, label='Gain', min=0, max=130, step=1, enum_values=(), unit='', name='gain', current_value=None, auto_companion='auto_exposure', updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Brightness', min=-64, max=64, step=1, enum_values=(), unit='', name='brightness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=34, label='Contrast', min=0, max=64, step=1, enum_values=(), unit='', name='contrast', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=62, label='Saturation', min=0, max=78, step=1, enum_values=(), unit='', name='saturation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Hue', min=-2000, max=2000, step=1, enum_values=(), unit='', name='hue', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=150, label='Gamma', min=100, max=300, step=1, enum_values=(), unit='', name='gamma', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4, label='Sharpness', min=1, max=7, step=1, enum_values=(), unit='', name='sharpness', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='boolean', value_type='bool', default=1, label='Auto white balance', min=0, max=1, step=1, enum_values=(), unit='', name='white_balance_auto', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True), CameraControl(kind='number', value_type='int', default=4600, label='White balance (K)', min=2800, max=6500, step=1, enum_values=(), unit='K', name='white_balance', current_value=None, auto_companion='white_balance_auto', updatable_by_auto=False, writable=True), CameraControl(kind='number', value_type='int', default=0, label='Backlight compensation', min=0, max=1, step=1, enum_values=(), unit='', name='backlight_compensation', current_value=None, auto_companion=None, updatable_by_auto=True, writable=True)), skus=('CAMERA-MONO-MINI-REGULAR',)))) -> Optional[depz_camera_sdk.cameras.camera_spec.CameraSpec]
 ```
 
 Return the spec whose :attr:`CameraSpec.skus` contains ``sku``.
@@ -5414,6 +5823,22 @@ The single detection path: the server's camera-info endpoint
 returns a SKU for a given serial; this function maps that to the
 corresponding :class:`CameraSpec`. ``None`` if no spec claims
 that SKU.
+
+### list_connected_depz_cameras_detailed
+
+```python
+list_connected_depz_cameras_detailed() -> tuple[list[depz_camera_sdk.cameras.camera_info.DepzCameraInfo], list[dict]]
+```
+
+Like :func:`list_connected_depz_cameras`, but failures become DATA
+instead of silently shrinking the list.
+
+Returns ``(resolved, failed)`` where each ``failed`` entry is
+``{"serial", "os_id", "error"}`` for a physically-attached DEPZ
+device whose device-info fetch / SKU resolution / calibration parse
+failed. UI layers use this to show a degraded entry ("camera seen
+but info fetch failed") rather than pretending the camera isn't
+plugged in.
 
 ## Platform
 
@@ -5440,7 +5865,7 @@ iProduct via :func:`parse_depz_iproduct`.
 #### PlatformBackend.open_controls
 
 ```python
-open_controls(self, os_id: str, serial: str | None = None) -> depz_camera_sdk.platform.base.CameraControls
+open_controls(self, os_id: str, serial: Optional[str] = None) -> depz_camera_sdk.platform.base.CameraControls
 ```
 
 Open a control handle for the camera identifier returned by
@@ -5519,7 +5944,7 @@ is a thin pipe for live get/set only.
 #### CameraControls.get
 
 ```python
-get(self, name: str) -> float | None
+get(self, name: str) -> Optional[float]
 ```
 
 Return current value of a canonical-name control, or None if
@@ -5542,7 +5967,7 @@ close(self) -> None
 ### VideoDeviceInfo
 
 ```python
-class VideoDeviceInfo(os_id: str, name: str, serial: str | None) -> None
+class VideoDeviceInfo(os_id: str, name: str, serial: Optional[str]) -> None
 ```
 
 Discovery result for one DEPZ camera attached to the host.
@@ -5561,6 +5986,9 @@ current_backend() -> depz_camera_sdk.platform.base.PlatformBackend
 ```
 
 Return the singleton backend for the current OS.
+
+Lazily imports the concrete backend module so the wrong platform's
+module (with its OS-only deps) is never touched.
 
 ## Controls
 
@@ -5600,10 +6028,46 @@ if it doesn't exist (it's lazy).
 ### set_cache_dir
 
 ```python
-set_cache_dir(path: str | pathlib.Path) -> None
+set_cache_dir(path: Union[str, pathlib.Path]) -> None
 ```
 
 Override the SDK-default cache root for the current process.
 Hosting apps (e.g. the web viewer) call this at startup to redirect
 cache into a platform-standard application data dir. Pass an
 absolute path; ``~``-prefix expanded automatically.
+
+## Logging_Setup
+
+### configure_logging
+
+```python
+configure_logging(*, component: str, level: Union[str, int] = 'INFO', log_dir: Union[str, pathlib.Path, NoneType] = None, session: Optional[str] = None, console: bool = True) -> pathlib.Path
+```
+
+Configure root logging for this process. Idempotent — the first
+call wins; later calls return the active session dir unchanged.
+
+``component`` names this process's log file (``"server"``,
+``"pipeline-host"`` — pid-suffixed, ``"sdk"``). ``level`` sets the
+CONSOLE threshold; the file handler always records DEBUG. ``session``
+lets a child process join its parent's session directory (see
+:func:`get_child_log_config`).
+
+Returns the session directory in use. If the log directory cannot be
+created (read-only install, exotic sandbox), logging degrades to
+console-only rather than failing startup — that failure itself is
+logged.
+
+### enable_default_logging
+
+```python
+enable_default_logging(level: Union[str, int] = 'INFO') -> pathlib.Path
+```
+
+Opt-in convenience for SDK-standalone users::
+
+    import depz_camera_sdk
+    depz_camera_sdk.enable_default_logging()
+
+Console + ``<log_root>/<session>/sdk.log``. Returns the session dir.
+Nothing is configured at import time — this call is the opt-in.

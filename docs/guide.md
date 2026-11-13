@@ -79,8 +79,8 @@ inference, hand both to a pipeline.
 
 ## Installation
 
-The SDK ships on PyPI as `depz-camera-sdk` for Windows x64, Linux x86_64 and
-macOS 11+ (Intel + Apple Silicon, one universal2 wheel), any Python ≥ 3.11
+The SDK ships on PyPI as `depz-camera-sdk` for Windows x64, Linux x86_64,
+Linux ARM64 (aarch64) and macOS 11+ (Intel + Apple Silicon, one universal2 wheel), any Python ≥ 3.11
 (stable-ABI wheels). A bare install is "pure" — no inference engines at all;
 add extras for your hardware. `[openvino]` covers Intel CPU/iGPU/NPU and
 AMD CPU (Windows/Linux x86_64 only). The ONNX Runtime extras are mutually
@@ -93,7 +93,7 @@ pip install depz-camera-sdk[openvino,cuda-bundled] # + NVIDIA GPU, self-containe
 pip install depz-camera-sdk[openvino,cuda]        # + NVIDIA GPU, you provide the CUDA 12 runtime
 pip install depz-camera-sdk[openvino,dml]         # + AMD GPU on Windows (any DX12 GPU)
 pip install depz-camera-sdk[openvino,migraphx]    # + AMD GPU on Linux (system ROCm + MIGraphX)
-pip install depz-camera-sdk[cpu]                  # ARM / macOS baseline
+pip install depz-camera-sdk[cpu]                  # Linux ARM64 / macOS baseline
 ```
 
 On macOS there is no CUDA/DirectML/OpenVINO: `[cpu]` installs the stock

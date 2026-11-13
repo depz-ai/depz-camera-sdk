@@ -12,6 +12,13 @@ Discovery helpers (use these to wire up a fresh pipeline):
     recommend_engine()            → str | None (best slug for this host)
 """
 
+# Flattened multi-module extensions: must be wired BEFORE any subpackage
+# import so member modules resolve from their fat .so when one is present
+# (no-op in pure-python checkouts). See _flatten.py.
+from . import _flatten as _flatten_mod
+_flatten_mod.install()
+del _flatten_mod
+
 from . import platform as _platform  # triggers env-var + CUDA setup at import time
 del _platform
 
