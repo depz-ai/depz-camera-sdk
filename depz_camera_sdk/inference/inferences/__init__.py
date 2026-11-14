@@ -25,7 +25,7 @@ from . import sgbm  # noqa: F401
 from . import stereo_bm  # noqa: F401
 from . import rectify_only  # noqa: F401
 
-from .lite_any_stereo import LiteAnyStereoInference
+from .lite_any_stereo import LiteAnyStereoInference, LiteAnyStereoMInference
 from .depz_stereo import DepzStereoInference
 from .lightstereo import LightStereoInference
 from .crestereo_initial import CREStereoInitialInference
@@ -39,6 +39,7 @@ from .rectify_only import RectifyOnlyInference
 
 __all__ = [
     "LiteAnyStereoInference",
+    "LiteAnyStereoMInference",
     "DepzStereoInference",
     "LightStereoInference",
     "CREStereoInitialInference",

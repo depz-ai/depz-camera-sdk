@@ -1,8 +1,9 @@
 """Platform abstraction.
 
-Two real backends today: :class:`LinuxBackend` (V4L2 ioctl + sysfs
-USB iProduct) and :class:`WindowsBackend` (WMI enumeration + DirectShow
-``IAMVideoProcAmp``/``IAMCameraControl``). macOS is stubbed.
+Three backends: :class:`LinuxBackend` (V4L2 ioctl + sysfs USB
+iProduct), :class:`WindowsBackend` (DirectShow enumeration +
+``IAMVideoProcAmp``/``IAMCameraControl``) and :class:`DarwinBackend`
+(AVFoundation capture + UVC control transfers through IOUSBHost).
 
 Concrete impl is selected by :func:`current_backend` and cached for
 the process lifetime.

@@ -32,6 +32,30 @@ from ..engines import InferenceFuture
 class _Command:
     event: threading.Event = field(default_factory=threading.Event)
     error: Optional[BaseException] = None
+    # "queued" → "running" (worker took it) or "cancelled" (the caller
+    # gave up waiting). The transition is exclusive, so a command the
+    # caller was told timed out can never be applied afterwards.
+    _state: str = field(default="queued", repr=False)
+    _state_lock: threading.Lock = field(
+        default_factory=threading.Lock, repr=False)
+
+    def claim(self) -> bool:
+        """Worker side: take the command for execution. False when the
+        caller already cancelled it — skip it."""
+        with self._state_lock:
+            if self._state != "queued":
+                return False
+            self._state = "running"
+            return True
+
+    def cancel(self) -> bool:
+        """Caller side: withdraw a command that is still queued. False
+        when the worker already took it (it is executing, or done)."""
+        with self._state_lock:
+            if self._state != "queued":
+                return False
+            self._state = "cancelled"
+            return True
 
 
 @dataclass
@@ -77,10 +101,8 @@ class _SetStreamEnabledCommand(_Command):
     enabled: bool = True
     cascade: bool = False
     applied: bool = False
+    # Why a disable was refused (``applied`` False); "" otherwise.
     reason: str = ""
-    # Names that were also flipped because of cascade (excluding `name`
-    # itself). Empty when cascade=False or no extra streams matched.
-    cascaded_names: tuple = ()
 
 
 @dataclass

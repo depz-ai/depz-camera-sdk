@@ -11,17 +11,23 @@ for its lifetime. Layout:
   ``@register_inference`` decorator, ``cache_root``.
 - :mod:`.inferences` — concrete :class:`DepthInferenceBase`
   subclasses, one file per network. Each declares its own catalog
-  (:meth:`variants`, :attr:`LABEL`, :attr:`OUTPUTS_DEPTH`,
+  (``_variants()``, :attr:`LABEL`, :attr:`OUTPUTS_DEPTH`,
   :attr:`NEURAL`).
 
 Adding a new neural network: drop a class subclassing
 :class:`NeuralStereoInferenceBase` or :class:`NeuralMonoInferenceBase`
-into ``inferences/`` with its own ``preprocess`` / ``postprocess``,
-register with ``@register_inference("slug")``, declare its variants
-on the class, and :func:`build_inference` picks it up automatically.
+into ``inferences/``, set its input recipe (``BLOB_MEAN`` /
+``BLOB_SCALE``) and any output quirk (``OUTPUT_CHANNEL``,
+``OUTPUT_NAME``, ``INPUT_SIZE``) as class attributes — override
+``preprocess`` / ``postprocess`` only if the defaults do not fit —
+declare its variants in ``_variants()``, register with
+``@register_inference("slug")``, and :func:`build_inference` picks it
+up automatically.
 """
 
 from .base import (
+    IMAGENET_BLOB_MEAN,
+    IMAGENET_BLOB_SCALE,
     DepthInferenceBase,
     InferenceVariant,
     Control,
@@ -29,6 +35,8 @@ from .base import (
     NeuralMonoInferenceBase,
     NeuralStereoInferenceBase,
     build_inference,
+    onnx_variant,
+    stderr_progress,
 )
 from .inferences import (
     CREStereoCombinedInference,
@@ -37,6 +45,8 @@ from .inferences import (
     CFastFoundationStereoInference,
     DepzStereoInference,
     LightStereoInference,
+    LiteAnyStereoInference,
+    LiteAnyStereoMInference,
     Metric3DV2VitSmallInference,
     RectifyOnlyInference,
     SgbmInference,
@@ -56,6 +66,8 @@ __all__ = [
     # Intermediate bases
     "NeuralStereoInferenceBase", "NeuralMonoInferenceBase",
     # Concrete inferences
+    "LiteAnyStereoInference",
+    "LiteAnyStereoMInference",
     "DepzStereoInference",
     "LightStereoInference",
     "CREStereoInitialInference",
@@ -66,9 +78,11 @@ __all__ = [
     "SgbmInference", "StereoBMInference",
     "RectifyOnlyInference",
     # Variant / catalog
-    "InferenceVariant", "ModelFile",
+    "InferenceVariant", "ModelFile", "onnx_variant",
     "available_inferences", "get_inference", "register_inference",
     "cache_root",
+    # Input recipes
+    "IMAGENET_BLOB_MEAN", "IMAGENET_BLOB_SCALE",
     # Variant-driven factory
-    "build_inference",
+    "build_inference", "stderr_progress",
 ]

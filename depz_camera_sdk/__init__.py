@@ -1,15 +1,27 @@
-"""DEPZ Stereo SDK — public API.
+"""DEPZ Camera SDK — public API.
 
-See docs/refactor_plan.md for the architectural overview.
+Capture from DEPZ stereo / mono cameras (or replay an ``.mkv``
+recording), rectify with the unit's calibration, run a depth model and
+get depth maps and point clouds out::
 
-Discovery helpers (use these to wire up a fresh pipeline):
+    from depz_camera_sdk import DepthPipeline
 
-    list_connected_depz_cameras() → list[DepzCameraInfo]   (Varius/Minima/Clarity only)
-    get_first_connected_depz_camera()    → DepzCameraInfo        (first connected; raises if none)
-    get_connected_depz_camera_by_serial(s) → DepzCameraInfo | None  (single-fetch lookup)
-    available_engines()           → list[str] (engine slugs, sorted by priority)
-    list_engines(scope=...)       → list[str] ("available"/"detected"/"full"/"hidden")
-    recommend_engine()            → str | None (best slug for this host)
+    for packet in DepthPipeline():      # first camera, default model
+        depth = packet.depth            # HxW float32, metres
+
+The pieces, each importable from here:
+
+    DepthPipeline                 source → rectify → inference → FramePacket
+    CameraSource / MkvSource      live camera / recording replay
+    build_inference(slug, variant)            a ready DepthInferenceBase
+    available_inferences() / get_inference()  the model catalog
+    available_engines() / recommend_engine()  inference engines on this host
+    list_connected_depz_cameras()             attached cameras + calibration
+    Calibration, filters, typed Control descriptors
+    get_cache_dir() / set_cache_dir()         where models and caches live
+
+``docs/guide.md`` walks through all of it; ``docs/api.md`` is the
+generated reference.
 """
 
 # Flattened multi-module extensions: must be wired BEFORE any subpackage
@@ -23,6 +35,13 @@ from . import platform as _platform  # triggers env-var + CUDA setup at import t
 del _platform
 
 
+from ._controls import (
+    BoolControl,
+    Control,
+    FloatControl,
+    IntControl,
+    StrControl,
+)
 from .cache_dir import get_cache_dir, set_cache_dir
 from .logging_setup import configure_logging, enable_default_logging
 from .calibration import (
@@ -44,7 +63,8 @@ from .engines import (
     recommend_engine,
 )
 from .inference import (
-    Control,
+    InferenceVariant,
+    ModelFile,
     NeuralMonoInferenceBase,
     NeuralStereoInferenceBase,
     RectifyOnlyInference,
@@ -53,7 +73,9 @@ from .inference import (
     DepthInferenceBase,
     available_inferences,
     build_inference,
+    get_inference,
     register_inference,
+    stderr_progress,
 )
 from .filters import (
     BoundingBoxFilter,
@@ -61,7 +83,6 @@ from .filters import (
     DisparityFilter,
     EdgeFilter,
     Filter,
-    Control,
     PointCloudFilter,
     SpeckleFilter,
     StatisticalOutlierFilter,
@@ -88,16 +109,19 @@ __all__ = [
     # are still importable for advanced users / tests, just not in __all__)
     "available_engines", "list_engines", "recommend_engine",
     # DepthInferenceBase — unified ABC for ML + classical disparity solvers.
-    # Concrete implementations + control descriptor.
-    "DepthInferenceBase", "Control",
+    "DepthInferenceBase",
     "NeuralStereoInferenceBase", "NeuralMonoInferenceBase",
     "SgbmInference", "StereoBMInference", "RectifyOnlyInference",
-    "build_inference",
-    # Per-network inference plugin API
-    "available_inferences", "register_inference",
+    "build_inference", "stderr_progress",
+    # Model catalog + per-network inference plugin API (the concrete
+    # network classes live in depz_camera_sdk.inference)
+    "available_inferences", "get_inference", "register_inference",
+    "InferenceVariant", "ModelFile",
+    # Control descriptors — shared by inferences, filters, calibration
+    # and the pipeline
+    "Control", "IntControl", "FloatControl", "BoolControl", "StrControl",
     # Filters (subclass DisparityFilter/DepthFilter/PointCloudFilter
-    # + append to default_filter_chain to add). `Control` is already listed
-    # above under inference — it's the shared control descriptor.
+    # + append to default_filter_chain to add).
     "Filter",
     "DisparityFilter", "DepthFilter", "PointCloudFilter",
     "SpeckleFilter",

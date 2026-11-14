@@ -1,7 +1,9 @@
 """Factory + enumeration of available inference engines.
 
 Engines are identified by a **slug string** like `"openvino-CPU"` or
-`"onnx-cuda"` — `f"{kind}-{device or ep}"`. There's no descriptor
+`"onnx-cuda"` — `f"{kind}-{device or ep}"`. Four kinds exist:
+`openvino-*`, `onnx-*`, `tensorrt-*` (NVIDIA TensorRT used directly; the
+tail is the precision, `fp16` / `fp32`) and `rknn-npu` (Rockchip NPU). There's no descriptor
 class; the slug is the identity.
 
 Public API:
@@ -25,7 +27,7 @@ source means a field install can be adjusted without a Cython rebuild.
 
 import logging
 import platform
-from typing import Iterator, Optional
+from typing import Optional
 
 from .base import InferenceEngine
 
@@ -78,6 +80,12 @@ _PRIORITY_ORDER: list[tuple[str, str]] = [
     ("onnx", "cuda"),           # NVIDIA, reliable
     ("onnx", "tensorrt"),       # NVIDIA; hidden from enumeration (see
                                 # _HIDDEN_ENGINES) — explicit opt-in only
+    # TensorRT used directly (tensorrt_engine.py). Below onnx-cuda so a
+    # desktop that has both keeps its instant-start default (a TensorRT
+    # plan takes minutes to build on first use); on NVIDIA Jetson there
+    # is no onnx-cuda, so this is the GPU engine.
+    ("tensorrt", "fp16"),       # NVIDIA GPU / Jetson, half precision
+    ("tensorrt", "fp32"),       # same, full precision; hidden — opt-in
     ("onnx", "coreml"),         # Apple-native
     ("openvino", "NPU"),        # Intel NPU
     ("openvino", "GPU"),        # Intel GPU
@@ -94,6 +102,7 @@ _PRIORITY_ORDER: list[tuple[str, str]] = [
     # wheel is installed it is strictly better than plain CPU inference.
     # Harmless elsewhere — the EP only exists in that wheel.
     ("onnx", "qnn"),            # Qualcomm NPU (Windows ARM)
+    ("rknn", "npu"),            # Rockchip NPU (RKNN2 runtime)
     ("openvino", "CPU"),        # Intel CPU
     ("onnx", "cpu"),            # generic CPU fallback
 ]
@@ -121,9 +130,14 @@ _PRIORITY_ORDER: list[tuple[str, str]] = [
 #   follow-up session creation segfaults the process. onnx-cuda covers
 #   NVIDIA acceleration reliably; users with a working TensorRT setup
 #   can still opt in explicitly via make_engine("onnx-tensorrt", ...).
+# - "tensorrt-fp32": the direct TensorRT engine at full precision. Same
+#   device as "tensorrt-fp16", about half the speed; listing both would
+#   show the user two entries for one GPU. Kept for an explicit
+#   make_engine("tensorrt-fp32", ...) when a model misbehaves in FP16.
 _HIDDEN_ENGINES: frozenset[str] = frozenset({
     "onnx-azure",
     "onnx-tensorrt",
+    "tensorrt-fp32",
 })
 
 
@@ -144,6 +158,11 @@ _ENGINE_CLASS: dict[str, str] = {
     # not capability (an explicit onnx-tensorrt opt-in is still nvidia).
     "onnx-tensorrt":  "nvidia",
     "onnx-cuda":      "nvidia",
+    "tensorrt-fp16":  "nvidia",
+    "tensorrt-fp32":  "nvidia",
+    # A Rockchip NPU running FP16 models sits with integrated GPUs, not
+    # with desktop NVIDIA cards.
+    "rknn-npu":       "igpu",
     "onnx-coreml":    "igpu",
     "openvino-NPU":   "igpu",
     "openvino-GPU":   "igpu",
@@ -235,13 +254,10 @@ def priority_rank(slug: str) -> int:
     return _priority_rank(slug)
 
 
-# Process-scoped cache for the OpenVINO probe. Host hardware doesn't
-# change at runtime, but enumerate_engines() gets hit repeatedly —
-# without caching we re-construct ov.Core(), re-query FULL_DEVICE_NAME
-# for every device, and re-log the "hiding GPU.X" line each time.
-# `[(dev_name, full_device_name)]` only; the live `ov.Core()` is
-# instantiated on demand by callers that actually need to compile a
-# model.
+# Process-scoped cache for the OpenVINO probe. The engine list is asked
+# for repeatedly; without caching each call would construct ov.Core(),
+# query FULL_DEVICE_NAME for every device and re-log the "hiding GPU.X"
+# line.
 _OV_DEVICE_CACHE: Optional[list[tuple[str, str]]] = None
 
 # Last engine list logged as a "runtimes" milestone — dedupes the STEP
@@ -250,11 +266,20 @@ _LAST_LOGGED_ENGINES: Optional[list[str]] = None
 
 
 def _ov_device_list() -> list[tuple[str, str]]:
-    """Cached list of ``(dev_name, full_device_name)`` for OpenVINO
-    devices we expose. See :func:`_iter_ov_devices` for the filter rules
-    and why the cache is safe (hardware doesn't change at runtime;
-    callers can clear the cache via :func:`_reset_ov_cache` if probing
-    after a hot-plug)."""
+    """``(dev_name, full_device_name)`` for the OpenVINO devices the SDK
+    exposes. Probed once per process — hardware does not change while
+    it runs.
+
+    Non-Intel GPUs are filtered out. OpenVINO's GPU plugin enumerates
+    **every OpenCL device** on the host — including NVIDIA cards when
+    NVIDIA's OpenCL driver is installed (the default on any Windows box
+    with a working CUDA setup) — but it can only compile kernels for
+    **Intel** hardware, so a non-Intel ``GPU.N`` silently falls back to
+    CPU at ``core.compile_model`` time. Surfacing those slugs is worse
+    than not having them: the user clicks "NVIDIA" and inference runs
+    on CPU with no error. Real NVIDIA acceleration lives under
+    ``onnx-cuda`` / ``onnx-tensorrt`` (``onnxruntime-gpu``), AMD under
+    ``onnx-rocm``; Intel iGPU/dGPU/NPU stay under OpenVINO."""
     global _OV_DEVICE_CACHE
     if _OV_DEVICE_CACHE is not None:
         return _OV_DEVICE_CACHE
@@ -292,46 +317,6 @@ def _ov_device_list() -> list[tuple[str, str]]:
     return out
 
 
-def _reset_ov_cache() -> None:
-    """Clear the cached OpenVINO device list. Call after a hardware
-    change (rare — hot-plugged GPU, driver swap)."""
-    global _OV_DEVICE_CACHE
-    _OV_DEVICE_CACHE = None
-
-
-def _iter_ov_devices() -> Iterator[tuple["object", str, str]]:
-    """Yield ``(core, dev, full_name)`` for OpenVINO devices we expose.
-
-    Filters out non-Intel GPUs. OpenVINO's GPU plugin enumerates
-    **every OpenCL device** on the host — including NVIDIA cards
-    when NVIDIA's OpenCL driver is installed (which is the default
-    on any Windows box with a working CUDA setup). But the OV GPU
-    plugin only knows how to compile kernels for **Intel** hardware,
-    so picking a non-Intel ``GPU.N`` slug silently falls back to CPU
-    at ``core.compile_model`` time. Surfacing those slugs in the UI
-    is worse than not having them — the user clicks "NVIDIA" and
-    inference runs on CPU with no error.
-
-    Real NVIDIA acceleration lives under ``onnx-cuda`` /
-    ``onnx-tensorrt`` (requires ``onnxruntime-gpu`` instead of the
-    CPU-only ``onnxruntime`` wheel). AMD lives under ``onnx-rocm``.
-    Intel iGPU/dGPU/NPU stay under OpenVINO."""
-    cached = _ov_device_list()
-    if not cached:
-        return
-    try:
-        import openvino as ov
-    except Exception:
-        # Import worked during _ov_device_list but fails now — broken
-        # install state worth knowing about.
-        _LOGGER.warning("openvino import failed after successful probe",
-                        exc_info=True)
-        return
-    core = ov.Core()
-    for dev, full in cached:
-        yield core, dev, full
-
-
 def _is_hidden(slug: str) -> bool:
     """Whether `slug` is policy-hidden (see :data:`_HIDDEN_ENGINES`).
     OpenVINO multi-device suffixes (``GPU.0``) match on their base name,
@@ -343,12 +328,12 @@ def _is_hidden(slug: str) -> bool:
 def _probe_engines() -> list[str]:
     """Enumerate every loadable backend × device/EP on this host,
     unfiltered and unsorted. Non-Intel OV GPUs are already excluded at
-    the probe level — see :func:`_iter_ov_devices` for why they can
+    the probe level — see :func:`_ov_device_list` for why they can
     never work; that's capability, not policy, so no scope returns
     them."""
     out: list[str] = []
 
-    for _core, dev, _full in _iter_ov_devices():
+    for dev, _full in _ov_device_list():
         out.append(f"openvino-{dev}")
 
     # ONNX Runtime EPs
@@ -361,6 +346,25 @@ def _probe_engines() -> list[str]:
         # the engine dropdown; say why.
         _LOGGER.warning("ONNX Runtime EP probe failed — no onnx-* engines",
                         exc_info=True)
+
+    # TensorRT used directly (NVIDIA Jetson, or a desktop with the
+    # tensorrt package). Empty when the package, the CUDA runtime or the
+    # GPU is missing.
+    try:
+        from .tensorrt_engine import list_available_precisions
+        for precision in list_available_precisions():
+            out.append(f"tensorrt-{precision}")
+    except Exception:
+        _LOGGER.debug("TensorRT probe failed — no tensorrt-* engines",
+                      exc_info=True)
+
+    # Rockchip NPU (RKNN2 runtime). Empty off Rockchip boards.
+    try:
+        from .rknn_engine import rknn_available
+        if rknn_available():
+            out.append("rknn-npu")
+    except Exception:
+        _LOGGER.debug("RKNN probe failed — no rknn-* engine", exc_info=True)
     return out
 
 
@@ -426,6 +430,14 @@ def recommend_engine() -> Optional[str]:
     return engines[0] if engines else None
 
 
+def _check_engine_options(kind: str, engine_cls: type, kwargs: dict) -> None:
+    unknown = sorted(set(kwargs) - engine_cls.OPTIONS)
+    if unknown:
+        raise TypeError(
+            f"{kind} engines do not take the option(s) {unknown}; "
+            f"accepted: {sorted(engine_cls.OPTIONS)}")
+
+
 def make_engine(slug: str, model_path: str, **kwargs) -> InferenceEngine:
     """Construct the engine identified by `slug` against `model_path`.
     `slug` is one of the strings returned by :func:`available_engines`,
@@ -434,24 +446,39 @@ def make_engine(slug: str, model_path: str, **kwargs) -> InferenceEngine:
     canonical form each backend expects (OpenVINO devices uppercase,
     ONNX EPs lowercase).
 
-    Extra kwargs are passed through to the backend constructor.
-    The most useful one is ``cache_dir=`` — backends that cache
-    compiled models on disk (currently OpenVINO) will use
-    ``<cache_dir>/<backend>/`` as the cache root. Defaults to
-    :func:`depz_camera_sdk.get_cache_dir` when omitted.
+    Keyword options go to the engine constructor. Both kinds accept
+    ``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick
+    one output of a multi-head model) and ``cache_dir`` (override
+    :func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk
+    cache: ``<cache_dir>/openvino/`` compiled blobs,
+    ``<cache_dir>/onnx-opt/`` optimized graphs). ``nireq`` and
+    ``do_models_cache`` are OpenVINO-only; ``num_threads`` is
+    ONNX-only. An option the chosen kind does not have raises
+    ``TypeError`` naming it and listing the ones that apply.
     """
     kind, tail = parse_engine_slug(slug)
     if kind == "openvino":
         from .openvino_engine import OpenVINOEngine
         tail = tail.upper()
+        _check_engine_options(kind, OpenVINOEngine, kwargs)
         engine: InferenceEngine = OpenVINOEngine(
             model_path, device=tail, **kwargs)
     elif kind == "onnx":
         from .onnx_engine import OnnxEngine
-        # ONNX Runtime doesn't cache compiled models the same way; we
-        # silently drop cache_dir to keep the registry signature uniform.
         tail = tail.lower()
+        _check_engine_options(kind, OnnxEngine, kwargs)
         engine = OnnxEngine(model_path, ep=tail, **kwargs)
+    elif kind == "tensorrt":
+        from .tensorrt_engine import TensorRTEngine
+        tail = tail.lower()
+        engine = TensorRTEngine(model_path, precision=tail, **kwargs)
+    elif kind == "rknn":
+        from .rknn_engine import RknnEngine
+        tail = tail.lower()
+        if tail != "npu":
+            raise ValueError(
+                f"unknown RKNN device in slug {slug!r}: expected 'rknn-npu'")
+        engine = RknnEngine(model_path, **kwargs)
     else:
         raise ValueError(f"unknown engine kind in slug {slug!r}: {kind!r}")
     # Stamp the canonical slug on the engine so callers don't have to

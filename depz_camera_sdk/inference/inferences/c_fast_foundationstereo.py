@@ -13,51 +13,42 @@ each ONNX is static-shape and self-contained (``valid_iters=4`` and
 ``max_disp`` are baked into the graph; the runtime reads the input size
 straight from the ONNX).
 
-Preprocess (CONFIRMED against the NVlabs source):
-- The export *strips* ImageNet normalization from the graph, so the caller must
-  normalize: ``(pixel/255 - mean) / std`` with ImageNet stats, RGB order. That
-  is byte-for-byte LightStereo's recipe, so the same blob params are reused.
-- BGR uint8 canvas → RGB normalized float32 (ImageNet mean/std), NCHW, bundled
-  into one ``cv2.dnn.blobFromImageWithParams`` call per eye.
-
-Postprocess:
-- Squeeze (1, 1, H, W) → (H, W), crop to the valid (unpadded) canvas region,
-  cast float32 contiguous — identical to LightStereo.
+Input (confirmed against the NVlabs source): the export strips ImageNet
+normalisation from the graph, so the caller applies it —
+``(pixel/255 - mean) / std``, RGB order. Output: one (1, 1, H, W)
+disparity map. Both are the :class:`NeuralStereoInferenceBase` defaults.
 """
 
-
-import cv2
-import numpy as np
-
-from ...calibration import CanvasLayout
-from ..base import NeuralStereoInferenceBase
-from ..registry import register_inference
-from ..base import InferenceVariant, ModelFile
-
-
-# ImageNet recipe folded into one cv2.dnn.blobFromImageWithParams call.
-# blobFromImageWithParams computes (img - mean) * scale, i.e. (img - mean)/std
-# with mean/std in 0-255 scale — exactly what the normalization-stripped
-# C-Fast-FoundationStereo ONNX expects from the caller.
-_BLOB_MEAN = (0.485 * 255.0, 0.456 * 255.0, 0.406 * 255.0, 0.0)
-_BLOB_SCALE = (
-    1.0 / (255.0 * 0.229),
-    1.0 / (255.0 * 0.224),
-    1.0 / (255.0 * 0.225),
-    0.0,
+from ..base import (
+    IMAGENET_BLOB_MEAN, IMAGENET_BLOB_SCALE, InferenceVariant,
+    NeuralStereoInferenceBase, onnx_variant,
 )
+from ..registry import register_inference
+from ..resolution_meta import resolution_meta
+
+
+# sha256 / size of each extracted .onnx (the file inside the ZIP — that
+# is what ModelFile verifies), keyed by (W, H).
+_FILE_FACTS: dict[tuple[int, int], tuple[str, int]] = {
+    (320, 192): ("7ecae8d1fd340442fc69e1359902d8bbfad69a83681cf7fe9a0216613fd867a0", 59813098),
+    (480, 288): ("c2e223386f7d8a705bbe9b71d1071684c95fb6fee67147d8b6b1bbc9bcfc3fd3", 60947669),
+    (640, 384): ("c810494f1a34604291dcc984a6e63b3d6f66e68a7ac98ffd7c57f5659d488843", 62536379),
+    (960, 544): ("9b40e8a572bd519dcd0892697ff8460a1fa681c181c4bca3af95fafc420480e1", 66618976),
+    (1280, 736): ("bbab585bcd11783b3128240c1c958f9039cba22993e35be76ad87d8ea7926566", 72814786),
+    (1920, 1088): ("346b48ae4e12107f9e82306b04d4b9e61bcf3c889de587b42b7697597d4108a6", 89737338),
+}
 
 
 @register_inference("c-fast-foundationstereo")
 class CFastFoundationStereoInference(NeuralStereoInferenceBase):
     """C-Fast-FoundationStereo — real-time zero-shot stereo disparity.
-    ImageNet-norm preprocess (the export strips in-graph normalization),
-    squeeze-and-crop postprocess. The ONNX exports pin (H, W) in the graph
-    and emit a single ``disparity`` output, so no INPUT_SIZE / OUTPUT_NAME
-    override is needed."""
+    ImageNet-normalised input (the export strips in-graph
+    normalisation). The ONNX exports pin (H, W) in the graph and emit a
+    single ``disparity`` output."""
 
     LABEL = "C-Fast-FoundationStereo"
-    ARCHITECTURE_FAMILY = "FoundationStereo"
+    BLOB_MEAN = IMAGENET_BLOB_MEAN
+    BLOB_SCALE = IMAGENET_BLOB_SCALE
 
     # (W, H) of every concrete ONNX export (the `_sim`-simplified opset17
     # builds). One per camera feed step (feed height padded up to the next
@@ -72,13 +63,10 @@ class CFastFoundationStereoInference(NeuralStereoInferenceBase):
     )
 
     @classmethod
-    def variants(cls) -> tuple[InferenceVariant, ...]:
-        # ModelFile.slug is the storage key in the get-model-file-link
-        # catalog; archive_member names the ONNX inside the ZIP (the _sim
-        # exports name it after the slug). All resolutions share the same
-        # weights + preprocess — only the baked input dims differ; the
-        # per-variant valid_iters/max_disp/input_size are inert docs (read
-        # by nothing at runtime; the ONNX graph is authoritative).
+    def _variants(cls) -> tuple[InferenceVariant, ...]:
+        # All resolutions share the same weights + preprocess — only the
+        # baked input dims differ. Every export runs 4 refinement
+        # iterations and is built for 320 px of disparity.
         out = []
         for w, h in cls._EXPORT_SIZES:
             default = (w, h) == (640, 384)
@@ -86,69 +74,44 @@ class CFastFoundationStereoInference(NeuralStereoInferenceBase):
                     "weight:heavy", "year:2025"]
             if default:
                 tags = ["preset:accurate", "weight:heavy", "year:2025"]
-            out.append(InferenceVariant(
+            stem = f"c_ffs_{w}x{h}_opset17_sim"
+            sha256, size_bytes = _FILE_FACTS[w, h]
+            out.append(onnx_variant(
                 slug=f"iters4-{w}x{h}",
                 label=f"iters 4 / {w}×{h}",
-                files_to_download=(
-                    ModelFile(
-                        slug=f"c_ffs_{w}x{h}_opset17_sim",
-                        filename="model.onnx",
-                        archive_member=f"c_ffs_{w}x{h}_opset17_sim.onnx"),
-                ),
-                configurations={
-                    "valid_iters": 4,
-                    "max_disp": 320,
-                    "input_size": (h, w),
-                    "selector_meta": {
-                        "task": "stereo",
-                        "speed_tier": 3,
-                        "accuracy_tier": 4,
-                        "min_engine_class": "nvidia",
-                        "recommended_engine_class": "nvidia",
-                        "size_mb": 0.0,
-                        "params_m": 0.0,
-                        "published_fps": {"nvidia": 71},
-                        "accuracy_metric": "Zero-shot, ~FoundationStereo quality (4 iters)",
-                        "summary": "Top accuracy on an NVIDIA GPU.",
-                        "display_family": "C-Fast-FoundationStereo",
-                        "tags": tags,
-                        "neural": True,
-                        "wizard_visible": True,
-                        "license": "NVIDIA Open Model Agreement",
-                        "license_url": "https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-agreement/",
-                    },
+                input_size=(h, w),
+                model_slug=stem,
+                # The _sim ZIPs name the inner .onnx after the slug.
+                archive_member=f"{stem}.onnx",
+                sha256=sha256,
+                size_bytes=size_bytes,
+                selector_meta={
+                    "task": "stereo",
+                    "speed_tier": 3,
+                    "accuracy_tier": 4,
+                    "min_engine_class": "nvidia",
+                    "recommended_engine_class": "nvidia",
+                    "size_mb": 0.0,
+                    "params_m": 0.0,
+                    "published_fps": {"nvidia": 71},
+                    "accuracy_metric": "Zero-shot, ~FoundationStereo quality (4 iters)",
+                    "summary": "Top accuracy on an NVIDIA GPU.",
+                    "display_family": "C-Fast-FoundationStereo",
+                    "tags": tags,
+                    "neural": True,
+                    # Measured with tools/model_eval. The export is
+                    # built for 320 px of disparity. 1920×1088 needs
+                    # more than 12 GB of GPU memory.
+                    **resolution_meta(
+                        w, max_disparity_px=320.0,
+                        error_px={320: 0.11, 480: 0.12, 640: 0.12,
+                                  960: 0.16, 1280: 0.17},
+                        verified_widths={320, 480, 640, 960, 1280},
+                        notes={1920: "Needs more than 12 GB of GPU "
+                                     "memory; falls back to the CPU "
+                                     "otherwise."}),
+                    "license": "NVIDIA Open Model Agreement",
+                    "license_url": "https://www.nvidia.com/en-us/agreements/enterprise-software/nvidia-open-model-agreement/",
                 },
             ))
         return tuple(out)
-
-    def _init_extra_state(self) -> None:
-        self._blob_params = cv2.dnn.Image2BlobParams(
-            scalefactor=_BLOB_SCALE,
-            size=(0, 0),
-            mean=_BLOB_MEAN,
-            swapRB=True,
-            ddepth=cv2.CV_32F,
-        )
-
-    def preprocess(self,
-                   canvas_l: np.ndarray, canvas_r: np.ndarray,
-                   ) -> tuple[np.ndarray, np.ndarray]:
-        L = cv2.dnn.blobFromImageWithParams(canvas_l, self._blob_params)
-        R = cv2.dnn.blobFromImageWithParams(canvas_r, self._blob_params)
-        return L, R
-
-    def postprocess(self,
-                    raw_output: np.ndarray,
-                    canvas_layout: CanvasLayout,
-                    ) -> np.ndarray:
-        arr = np.asarray(raw_output)
-        disp = np.squeeze(arr)
-        if disp.ndim != 2:
-            raise RuntimeError(
-                f"model output shape {tuple(arr.shape)} does not yield "
-                f"a 2D map after squeeze (got {tuple(disp.shape)})")
-        if disp.dtype != np.float32:
-            disp = disp.astype(np.float32, copy=False)
-        y, x = canvas_layout.pad_y, canvas_layout.pad_x
-        h, w = canvas_layout.valid_h, canvas_layout.valid_w
-        return np.ascontiguousarray(disp[y: y + h, x: x + w])

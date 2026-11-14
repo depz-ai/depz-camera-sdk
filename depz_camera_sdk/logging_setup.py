@@ -41,6 +41,7 @@ invisibly, and ``logging.captureWarnings`` routes warnings into the logs.
 import logging
 import logging.handlers
 import os
+import re
 import sys
 import threading
 import time
@@ -266,14 +267,27 @@ def reset_logging_for_tests() -> None:
 # ── internals ────────────────────────────────────────────────────────
 
 
+# Session directories are named by configure_logging as
+# ``<YYYYMMDD>-<HHMMSS>-<pid>``. The prune recognises its own by this
+# shape — the log root may be a directory the user also keeps other
+# things in.
+_SESSION_NAME_RE = re.compile(r"^\d{8}-\d{6}-\d+$")
+
+
 def _prune_sessions(log_root: Path, *, keep: int, current: Path) -> None:
     """Best-effort: keep the newest ``keep`` session dirs (by name — the
     timestamp prefix sorts chronologically), never touching ``current``.
-    Failures are logged at DEBUG and ignored — pruning must never take
-    down startup."""
+
+    Only directories whose name matches the session pattern are
+    considered, and only log files (``*.log``, rotated ``*.log.N``) are
+    deleted from them; a session dir holding anything else is left in
+    place with that content. Failures are logged at DEBUG and ignored —
+    pruning must never take down startup."""
     try:
         sessions = sorted(
-            (d for d in log_root.iterdir() if d.is_dir()),
+            (d for d in log_root.iterdir()
+             if _SESSION_NAME_RE.match(d.name) and d.is_dir()
+             and not d.is_symlink()),
             key=lambda d: d.name, reverse=True)
     except OSError:
         return
@@ -282,8 +296,9 @@ def _prune_sessions(log_root: Path, *, keep: int, current: Path) -> None:
             continue
         try:
             for f in stale.iterdir():
-                f.unlink()
-            stale.rmdir()
+                if f.is_file() and ".log" in f.suffixes:
+                    f.unlink()
+            stale.rmdir()       # fails (and is kept) if anything remains
         except OSError:
             _LOGGER.debug("could not prune old log session %s",
                           stale, exc_info=True)

@@ -8,10 +8,12 @@ Hierarchy::
     DepthInferenceBase                 ← public ABC, pipeline-facing,
     │                                    catalog metadata (LABEL,
     │                                    NEURAL, variants(), …)
-    ├── NeuralInferenceBase            ← engine + abstract pre/post
-    │   ├── NeuralStereoInferenceBase  ← stereo intermediate (OUTPUTS_DEPTH=False)
-    │   └── NeuralMonoInferenceBase    ← mono intermediate (OUTPUTS_DEPTH=True,
-    │                                     plus depth_scale/offset controls)
+    ├── NeuralInferenceBase            ← engine + input normalisation
+    │   │                                (BLOB_MEAN / BLOB_SCALE) +
+    │   │                                output → 2-D map extraction
+    │   ├── NeuralStereoInferenceBase  ← two-eye preprocess, disparity out
+    │   └── NeuralMonoInferenceBase    ← one-eye preprocess, depth out,
+    │                                     depth_scale/offset controls
     ├── ClassicStereoInferenceBase     ← cv2-matcher scaffold
     └── (RectifyOnlyInference, lives in inferences/rectify_only.py)
 
@@ -19,14 +21,15 @@ The descriptor (:class:`Control`) and the get/set/coerce
 machinery are shared with :class:`~depz_camera_sdk.filters.base.Filter`
 via :class:`~depz_camera_sdk.._controls.ControlOwner`."""
 
+import dataclasses
 import hashlib
 import json
 import logging
 import re
-import shutil
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
@@ -41,6 +44,15 @@ import numpy as np
 from .._controls import FloatControl, Control, ControlOwner
 from ..calibration import CanvasLayout
 from ..engines import EventFuture, InferenceEngine, InferenceFuture
+from ._download import (
+    DEFAULT_TIMEOUT_S as _DOWNLOAD_TIMEOUT_S,
+    HTTP_USER_AGENT as _HTTP_USER_AGENT,
+    DownloadError,
+    FileLock,
+    http_download,
+    remove_stale_parts,
+    unique_temp_path,
+)
 
 __all__ = [
     "Control",
@@ -49,6 +61,11 @@ __all__ = [
     "NeuralMonoInferenceBase",
     "InferenceVariant",
     "ModelFile",
+    "onnx_variant",
+    "build_inference",
+    "stderr_progress",
+    "IMAGENET_BLOB_MEAN",
+    "IMAGENET_BLOB_SCALE",
 ]
 
 
@@ -63,10 +80,6 @@ _LOGGER = logging.getLogger("depz_camera_sdk.inference")
 
 
 _SLUG_RESOLVER_URL = "https://depz.ai/api/public/get-model-file-link"
-
-# Some catalog hosts (depz.ai behind a WAF) reject the default
-# ``Python-urllib/x.y`` agent with 403 — send an explicit one.
-_HTTP_USER_AGENT = "depz-camera-sdk"
 
 
 # Google Drive share links (``…/file/d/<id>/view`` or ``…?id=<id>``) can't
@@ -101,18 +114,59 @@ _slug_cache: dict[str, str] = {}
 # not.)
 
 
-def _sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
+# ───────────────────────── Input normalisation ────────────────────────
+# A network input blob is ``(RGB - mean) * scale`` per channel, NCHW
+# float32 — one ``cv2.dnn.blobFromImageWithParams`` call. The two
+# recipes every catalog model uses:
+
+# ImageNet statistics on the 0..255 scale: (img/255 - mean) / std.
+IMAGENET_BLOB_MEAN = (0.485 * 255.0, 0.456 * 255.0, 0.406 * 255.0, 0.0)
+IMAGENET_BLOB_SCALE = (
+    1.0 / (255.0 * 0.229),
+    1.0 / (255.0 * 0.224),
+    1.0 / (255.0 * 0.225),
+    0.0,
+)
+
+# Raw RGB in [0, 255] — for exports that normalise inside the graph.
+_RAW_BLOB_MEAN = (0.0, 0.0, 0.0, 0.0)
+_RAW_BLOB_SCALE = (1.0, 1.0, 1.0, 0.0)
 
 
-def _default_stderr_progress() -> Callable[[int, int], None]:
-    """One-line stderr progress bar — written when no explicit
-    ``download_progress_cb`` is supplied. Throttled to ~10 Hz so it doesn't
-    flood logs; clears its line on completion."""
+def _meta_path(target: Path) -> Path:
+    """Sidecar written next to every file the SDK downloads."""
+    return target.with_name(target.name + ".meta.json")
+
+
+def _read_meta(target: Path) -> Optional[dict]:
+    try:
+        meta = json.loads(_meta_path(target).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return meta if isinstance(meta, dict) else None
+
+
+def _write_meta(target: Path, *, size: int, sha256: str, slug: str) -> None:
+    path = _meta_path(target)
+    tmp = unique_temp_path(path)
+    try:
+        tmp.write_text(json.dumps(
+            {"size": size, "sha256": sha256, "slug": slug}), encoding="utf-8")
+        tmp.replace(path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
+def stderr_progress() -> Callable[[int, int], None]:
+    """A ``download_progress_cb`` that draws a one-line progress display
+    on stderr — for scripts and CLIs; the library itself never prints.
+    Throttled to ~10 Hz; ends the line when the download completes.
+    Make a fresh one per :func:`build_inference` /
+    :meth:`InferenceVariant.resolve_files` call::
+
+        build_inference(slug, variant, download_progress_cb=stderr_progress())
+    """
     state = {"last": 0.0}
 
     def _cb(done: int, total: int) -> None:
@@ -148,11 +202,10 @@ class ModelFile:
     directory. For archive downloads (``archive_member`` set), this
     is the *extracted* filename — the archive itself is discarded.
 
-    ``sha256`` is optional but strongly recommended — it's the only
-    way :meth:`InferenceVariant.resolve_files` can tell a corrupted-
-    but-right-size file from a good one. ``size_bytes`` is advisory:
-    surfaced to the UI for download-progress totals before the HTTP
-    response is read.
+    ``sha256`` and ``size_bytes`` are optional declarations of what the
+    stored file must be; both are verified when the file is downloaded
+    (a mismatch fails the download and caches nothing). ``size_bytes``
+    also gives the UI a progress total before the HTTP response is read.
 
     ``archive_member`` extracts a single file from an archive payload
     (zip currently supported). The resolved URL points at an archive,
@@ -167,16 +220,32 @@ class ModelFile:
     archive_member: Optional[str] = None
 
     def is_cached(self, target: Path) -> bool:
-        """True iff ``target`` exists with matching size + sha256
-        (when declared). Read-only — never opens a socket. On the hot
-        read path we don't recompute sha256: it's verified at download
-        time, and a corrupted-but-right-size file is rare enough that
-        it surfaces as an ONNX-load error one layer up."""
+        """True iff ``target`` is on disk and passes the cheap integrity
+        checks. Read-only — never opens a socket, never hashes.
+
+        Checked: the file exists; its size equals :attr:`size_bytes`
+        (when declared); and, when the SDK's ``<file>.meta.json`` sidecar
+        is present, the size equals the one recorded at download time
+        and the sidecar was written for this same :attr:`slug`. A file
+        without a sidecar (placed by hand, or cached by an older SDK) is
+        accepted on the size check alone.
+
+        sha256 is NOT recomputed here — it is verified once, at download
+        time, before the file enters the cache."""
+        try:
+            st = target.stat()
+        except OSError:
+            return False
         if not target.is_file():
             return False
-        st = target.stat()
         if self.size_bytes is not None and st.st_size != self.size_bytes:
             return False
+        meta = _read_meta(target)
+        if meta is not None:
+            if meta.get("size") != st.st_size:
+                return False
+            if meta.get("slug") not in (None, self.slug):
+                return False
         return True
 
     def resolve(
@@ -185,17 +254,25 @@ class ModelFile:
             download_progress_cb: "Optional[Callable[[int, int], None]]" = None,
     ) -> None:
         """Ensure the file is on disk at ``target``: no-op if
-        :meth:`is_cached`, otherwise :meth:`download`."""
+        :meth:`is_cached`, otherwise download it. Safe to call from
+        several processes at once — one downloads, the others wait and
+        then find the file cached."""
         if self.is_cached(target):
             return
-        self.download(target, download_progress_cb)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with FileLock(self._lock_path(target)):
+            if self.is_cached(target):
+                return      # another process fetched it while we waited
+            self._download_locked(target, download_progress_cb,
+                                  _DOWNLOAD_TIMEOUT_S)
+
+    @staticmethod
+    def _lock_path(target: Path) -> Path:
+        return target.with_name(target.name + ".lock")
 
     def _resolve_url(self, *, timeout: float = 10.0) -> str:
         """Resolve :attr:`slug` to its public download URL via the SDK
-        catalog service. Cached per process in :data:`_slug_cache`.
-
-        An explicit User-Agent is sent because depz.ai (behind a WAF)
-        rejects the default ``Python-urllib`` agent with 403."""
+        catalog service. Cached per process in :data:`_slug_cache`."""
         cached = _slug_cache.get(self.slug)
         if cached is not None:
             return cached
@@ -205,6 +282,10 @@ class ModelFile:
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            raise RuntimeError(
+                f"failed to resolve slug {self.slug!r}: "
+                f"HTTP {e.code} {e.reason}") from e
         except Exception as e:
             raise RuntimeError(
                 f"failed to resolve slug {self.slug!r}: {e}") from e
@@ -219,73 +300,113 @@ class ModelFile:
             self,
             target: Path,
             download_progress_cb: "Optional[Callable[[int, int], None]]" = None,
+            *,
+            timeout: float = _DOWNLOAD_TIMEOUT_S,
     ) -> None:
-        """Resolve :attr:`slug` to a URL, fetch it, and land the result
-        at ``target`` atomically. Direct file download by default;
-        archive-extract flow when :attr:`archive_member` is set."""
+        """Fetch the file and land it at ``target`` atomically, replacing
+        whatever is there. Direct download by default; archive-extract
+        flow when :attr:`archive_member` is set.
+
+        The stored file is verified against :attr:`size_bytes` and
+        :attr:`sha256` (when declared) and, for direct downloads,
+        against the server's Content-Length; on any mismatch nothing is
+        cached and ``RuntimeError`` is raised. ``timeout`` bounds each
+        connect / read, not the whole transfer. Concurrent downloads of
+        the same target — other threads or other processes — are
+        serialized by a lock file next to it."""
         target.parent.mkdir(parents=True, exist_ok=True)
-        tmp = target.with_suffix(target.suffix + ".part")
-        if tmp.exists():
-            tmp.unlink()
+        with FileLock(self._lock_path(target)):
+            self._download_locked(target, download_progress_cb, timeout)
 
-        url = _direct_download_url(self._resolve_url())
-        _LOGGER.info("downloading %s (slug=%s) → %s", url, self.slug, target)
-
-        def _make_hook():
-            if download_progress_cb is None:
-                return None
-            def _hook(blocks: int, block_size: int, total_size: int) -> None:
-                done = blocks * block_size
-                if total_size > 0:
-                    done = min(done, total_size)
-                download_progress_cb(done, total_size if total_size > 0 else (
-                    self.size_bytes or 0))
-            return _hook
-
+    def _download_locked(
+            self, target: Path,
+            progress_cb: "Optional[Callable[[int, int], None]]",
+            timeout: float) -> None:
+        remove_stale_parts(target)
+        tmp = unique_temp_path(target)
         try:
             if self.archive_member is None:
-                hook = _make_hook()
-                if hook is not None:
-                    urllib.request.urlretrieve(url, str(tmp), hook)
-                else:
-                    urllib.request.urlretrieve(url, str(tmp))
+                size, digest = self._fetch(tmp, progress_cb, timeout)
             else:
                 with tempfile.TemporaryDirectory(
                         prefix="depz-archive-", dir=target.parent) as td:
                     arch_path = Path(td) / "archive"
-                    hook = _make_hook()
-                    if hook is not None:
-                        urllib.request.urlretrieve(url, str(arch_path), hook)
-                    else:
-                        urllib.request.urlretrieve(url, str(arch_path))
-                    with zipfile.ZipFile(arch_path) as zf:
-                        member = self.archive_member
-                        try:
-                            info = zf.getinfo(member)
-                        except KeyError:
-                            info = next(
-                                (i for i in zf.infolist()
-                                 if Path(i.filename).name == member),
-                                None)
-                            if info is None:
-                                raise RuntimeError(
-                                    f"archive {url} has no member "
-                                    f"{member!r}; available: "
-                                    f"{[i.filename for i in zf.infolist() if not i.is_dir()]}")
-                        with zf.open(info) as src, tmp.open("wb") as dst:
-                            shutil.copyfileobj(src, dst, length=1 << 20)
-
-            if self.sha256 is not None:
-                got = _sha256_file(tmp)
-                if got != self.sha256:
-                    raise RuntimeError(
-                        f"sha256 mismatch for slug {self.slug!r}: "
-                        f"expected {self.sha256}, got {got}")
+                    self._fetch(arch_path, progress_cb, timeout)
+                    size, digest = self._extract_member(arch_path, tmp)
+            if self.size_bytes is not None and size != self.size_bytes:
+                raise RuntimeError(
+                    f"size mismatch for slug {self.slug!r}: expected "
+                    f"{self.size_bytes} bytes, got {size}")
+            if self.sha256 is not None and digest != self.sha256:
+                raise RuntimeError(
+                    f"sha256 mismatch for slug {self.slug!r}: "
+                    f"expected {self.sha256}, got {digest}")
+            # Drop the old sidecar first: if the process dies between the
+            # two replaces, the new file is merely "no sidecar" (accepted
+            # on size) rather than contradicted by a stale one.
+            _meta_path(target).unlink(missing_ok=True)
             tmp.replace(target)
-        except Exception:
-            if tmp.exists():
-                tmp.unlink()
-            raise
+            _write_meta(target, size=size, sha256=digest, slug=self.slug)
+        finally:
+            tmp.unlink(missing_ok=True)
+
+    def _fetch(self, dest: Path,
+               progress_cb: "Optional[Callable[[int, int], None]]",
+               timeout: float) -> tuple[int, str]:
+        """Resolve the slug and stream the payload into ``dest``;
+        returns ``(size, sha256)`` of what was written. A link taken
+        from the per-process cache that answers 403/404 (expired signed
+        URL, file moved) is re-resolved once."""
+        link_was_cached = self.slug in _slug_cache
+        url = _direct_download_url(self._resolve_url())
+        _LOGGER.info("downloading %s (slug=%s) → %s", url, self.slug, dest)
+        try:
+            try:
+                return http_download(
+                    url, dest, progress_cb=progress_cb,
+                    expected_size=self.size_bytes, timeout=timeout)
+            except DownloadError as e:
+                if not (link_was_cached and e.status in (403, 404)):
+                    raise
+                _LOGGER.info(
+                    "cached link for slug %s answered HTTP %s — resolving "
+                    "it again", self.slug, e.status)
+                _slug_cache.pop(self.slug, None)
+                url = _direct_download_url(self._resolve_url())
+                return http_download(
+                    url, dest, progress_cb=progress_cb,
+                    expected_size=self.size_bytes, timeout=timeout)
+        except DownloadError as e:
+            raise RuntimeError(
+                f"download of slug {self.slug!r} failed: {e}") from e
+
+    def _extract_member(self, archive: Path, dest: Path) -> tuple[int, str]:
+        """Copy :attr:`archive_member` out of the zip at ``archive`` into
+        ``dest``; returns ``(size, sha256)`` of the extracted file. The
+        member is matched by full path first, then by basename."""
+        member = self.archive_member
+        with zipfile.ZipFile(archive) as zf:
+            try:
+                info = zf.getinfo(member)
+            except KeyError:
+                info = next(
+                    (i for i in zf.infolist()
+                     if Path(i.filename).name == member),
+                    None)
+                if info is None:
+                    raise RuntimeError(
+                        f"archive for slug {self.slug!r} has no member "
+                        f"{member!r}; available: "
+                        f"{[i.filename for i in zf.infolist() if not i.is_dir()]}"
+                    ) from None
+            digest = hashlib.sha256()
+            size = 0
+            with zf.open(info) as src, dest.open("wb") as dst:
+                for chunk in iter(lambda: src.read(1 << 20), b""):
+                    dst.write(chunk)
+                    digest.update(chunk)
+                    size += len(chunk)
+        return size, digest.hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
@@ -301,30 +422,30 @@ class InferenceVariant:
     StereoBM, rectify-only). For neural variants the **first** entry
     is the entry point the engine loads.
 
+    ``input_size`` is the ``(H, W)`` canvas the variant runs at — the
+    model's fixed input size for neural variants, the chosen working
+    size for classical ones. ``None`` when a variant does not pin one.
+
     ``inference_kwargs`` are forwarded verbatim to the inference's
     constructor by :func:`build_inference`
     (``cls(engine=..., **variant.inference_kwargs)``). Use this for
     per-variant ctor args — SGBM/StereoBM/RectifyOnly ``canvas_size``,
     etc.
 
-    ``engine_kwargs`` are forwarded to :func:`make_engine` when the
-    engine is built (``make_engine(slug, model_path, **engine_kwargs)``).
-    Use this for per-variant engine controls (``input_shape`` for
-    dynamic-shape ONNXes, ``providers``, ``cache_dir``).
+    ``configurations`` is opaque to the framework — free-form metadata
+    for consumers; the catalog stores the viewer's model-picker facts
+    under ``"selector_meta"``. Not passed to the constructor or the
+    engine.
 
-    ``configurations`` is opaque to the framework — free-form metadata for the
-    UI / debugging (``size``, ``dataset``, ``input_size``, …). Not
-    passed to either the constructor or the engine.
-
-    ``inference_slug`` is filled in by ``register_inference`` when the
-    inference enumerates its variants — concrete subclasses don't pass
-    it when constructing the dataclass."""
+    ``inference_slug`` is bound by :meth:`DepthInferenceBase.variants`
+    when the inference enumerates its catalog — concrete classes don't
+    pass it when constructing the dataclass."""
 
     slug: str
     label: str
     files_to_download: tuple[ModelFile, ...] = ()
+    input_size: Optional[tuple[int, int]] = None
     inference_kwargs: dict[str, Any] = field(default_factory=dict)
-    engine_kwargs: dict[str, Any] = field(default_factory=dict)
     configurations: dict[str, Any] = field(default_factory=dict)
     _inference_slug: str = ""
 
@@ -358,28 +479,54 @@ class InferenceVariant:
 
     @property
     def is_cached(self) -> bool:
-        """True iff every file in :attr:`files_to_download` is on disk
-        with matching size + sha256 (when declared)."""
+        """True iff every file in :attr:`files_to_download` passes
+        :meth:`ModelFile.is_cached` (present, size consistent). Cheap:
+        ``stat()`` calls and small sidecar reads only."""
         cache_dir = self.cache_dir
         return all(f.is_cached(cache_dir / f.filename)
                    for f in self.files_to_download)
 
     def resolve_files(
             self, *,
-            download_progress_cb: "Optional[Callable[[int, int], None] | bool]" = None,
+            download_progress_cb: "Optional[Callable[[int, int], None]]" = None,
     ) -> list[Path]:
         """Ensure the variant's cache directory is populated, then
         return absolute paths of every file in
-        :attr:`files_to_download` (entry-point first)."""
+        :attr:`files_to_download` (entry-point first).
+
+        Silent by default. ``download_progress_cb(done_bytes,
+        total_bytes)`` is called while a file is being transferred
+        (never on a cache hit); pass :func:`stderr_progress` for a
+        ready-made console progress line."""
         cache_dir = self.cache_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
-        if download_progress_cb is None:
-            download_progress_cb = _default_stderr_progress()
-        elif download_progress_cb is False:
-            download_progress_cb = None
         for f in self.files_to_download:
             f.resolve(cache_dir / f.filename, download_progress_cb)
         return [cache_dir / f.filename for f in self.files_to_download]
+
+
+def onnx_variant(*, slug: str, label: str, input_size: tuple[int, int],
+                 model_slug: str, selector_meta: dict,
+                 archive_member: Optional[str] = None,
+                 sha256: Optional[str] = None,
+                 size_bytes: Optional[int] = None) -> InferenceVariant:
+    """The common catalog entry: one ONNX file, stored as ``model.onnx``
+    in the variant's cache directory, running at a fixed ``input_size``
+    ``(H, W)``. ``model_slug`` is the model-registry identifier of the
+    download (see :class:`ModelFile`); ``archive_member`` names the
+    ``.onnx`` inside it when the download is a zip. ``selector_meta``
+    lands in ``configurations["selector_meta"]``."""
+    return InferenceVariant(
+        slug=slug,
+        label=label,
+        input_size=(int(input_size[0]), int(input_size[1])),
+        files_to_download=(
+            ModelFile(slug=model_slug, filename="model.onnx",
+                      archive_member=archive_member,
+                      sha256=sha256, size_bytes=size_bytes),
+        ),
+        configurations={"selector_meta": selector_meta},
+    )
 
 
 def build_inference(
@@ -387,9 +534,7 @@ def build_inference(
     inference_variant_slug: str,
     *,
     engine_slug: "Optional[str]" = None,
-    extra_engine_kwargs: "dict | None" = None,
-    extra_inference_kwargs: "dict | None" = None,
-    download_progress_cb: "Optional[Callable[[int, int], None] | bool]" = None,
+    download_progress_cb: "Optional[Callable[[int, int], None]]" = None,
 ) -> "DepthInferenceBase":
     """One-shot: ``(inference_slug, variant_slug)`` → fully-initialized
     :class:`DepthInferenceBase`.
@@ -398,38 +543,48 @@ def build_inference(
        :meth:`get_variant` looks up the variant.
     2. :meth:`InferenceVariant.resolve_files` populates the cache
        (downloads on first use; cache hit is read-only ``stat()``s).
-    3. ``variant.inference_kwargs`` (merged with
-       ``extra_inference_kwargs``) are forwarded to the constructor.
-       ``variant.engine_kwargs`` (merged with ``extra_engine_kwargs``)
-       are forwarded to :func:`make_engine`.
-    4. Classical inferences (``cls.NEURAL = False``) are constructed
-       directly. Neural ones get an :class:`InferenceEngine` built
-       around the entry-point file and passed via ``engine=``.
+    3. Classical inferences (``cls.NEURAL = False``) are constructed
+       directly with ``variant.inference_kwargs``. Neural ones get an
+       :class:`InferenceEngine` built around the entry-point file and
+       passed via ``engine=``.
 
     ``engine_slug`` defaults to :func:`recommend_engine` (best engine
-    available on this host). ``download_progress_cb`` controls the
-    cache-fill reporter — see :meth:`InferenceVariant.resolve_files`.
+    available on this host). Downloads are silent unless
+    ``download_progress_cb(done_bytes, total_bytes)`` is given —
+    :func:`stderr_progress` returns one that draws a console progress
+    line.
+
+    To pass engine options (``cache_dir``, ``nireq``, …) build the
+    engine yourself: ``cls(engine=make_engine(slug, path, **options))``.
     """
     from .registry import get_inference
     cls = get_inference(inference_slug)
     variant = cls.get_variant(inference_variant_slug)
+
+    # Pick the engine before fetching anything: without one, a neural
+    # model's download (up to ~150 MB) would be for nothing.
+    if cls.NEURAL and engine_slug is None:
+        from ..engines import recommend_engine
+        engine_slug = recommend_engine()
+        if engine_slug is None:
+            raise RuntimeError(
+                f"no inference engine is installed, and {cls.SLUG!r} is a "
+                f"neural model that needs one. The base depz-camera-sdk "
+                f"install has none — add an extra, e.g. "
+                f"`pip install \"depz-camera-sdk[openvino]\"` (Intel/AMD "
+                f"x86_64) or `\"depz-camera-sdk[cpu]\"` (ONNX Runtime; "
+                f"also [cuda12-bundled], [cuda13-bundled], [dml]). The classical "
+                f"models (sgbm, stereo-bm) run without an engine.")
+
     files = variant.resolve_files(download_progress_cb=download_progress_cb)
 
-    inference_kwargs = {**variant.inference_kwargs,
-                        **(extra_inference_kwargs or {})}
-
     if not cls.NEURAL:
-        return cls(**inference_kwargs)
+        return cls(**variant.inference_kwargs)
 
     if not files:
         raise RuntimeError(
             f"variant {variant.slug!r} is neural ({cls.SLUG!r}) but "
             f"declares no files_to_download — no .onnx for the engine")
-    if engine_slug is None:
-        from ..engines import recommend_engine
-        engine_slug = recommend_engine()
-        if engine_slug is None:
-            raise RuntimeError("no inference engines available on this host")
 
     # Inferences whose ONNX is dynamic-shape declare INPUT_SIZE so the
     # engine reshapes to a concrete (1, 3, H, W) before compile.
@@ -437,15 +592,15 @@ def build_inference(
     # confidence) declare OUTPUT_NAME so the engine binds to the right
     # output instead of the default first-output index.
     from ..engines import make_engine
-    engine_kwargs = {**variant.engine_kwargs, **(extra_engine_kwargs or {})}
-    if cls.INPUT_SIZE is not None and "input_shape" not in engine_kwargs:
+    engine_options: dict[str, Any] = {}
+    if cls.INPUT_SIZE is not None:
         h, w = cls.INPUT_SIZE
-        engine_kwargs["input_shape"] = (1, 3, h, w)
-    if cls.OUTPUT_NAME is not None and "output_name" not in engine_kwargs:
-        engine_kwargs["output_name"] = cls.OUTPUT_NAME
-    engine = make_engine(engine_slug, str(files[0]), **engine_kwargs)
+        engine_options["input_shape"] = (1, 3, h, w)
+    if cls.OUTPUT_NAME is not None:
+        engine_options["output_name"] = cls.OUTPUT_NAME
+    engine = make_engine(engine_slug, str(files[0]), **engine_options)
 
-    return cls(engine=engine, **inference_kwargs)
+    return cls(engine=engine, **variant.inference_kwargs)
 
 
 class DepthInferenceBase(ABC, ControlOwner):
@@ -470,23 +625,15 @@ class DepthInferenceBase(ABC, ControlOwner):
         its matcher when controls change) — call ``super().set(...)``
         first.
 
-    Subclasses MUST register via ``@register_inference("slug")`` —
-    that decorator stamps :data:`SLUG` and adds the class to the
-    inference registry. The class also declares its catalog
-    metadata (:attr:`LABEL`, :attr:`NEURAL`, :meth:`variants`) so the
-    UI can list it without instantiating.
+    Concrete classes register via ``@register_inference("slug")`` —
+    the decorator sets :data:`SLUG` and adds the class to the inference
+    registry. The class declares its catalog metadata (:attr:`LABEL`,
+    :attr:`NEURAL`, and its variants via :meth:`_variants`) so the UI
+    can list it without instantiating.
     """
 
     SLUG: ClassVar[str] = ""        # set by @register_inference decorator
     LABEL: ClassVar[str] = ""       # human-facing display name
-
-    # Optional grouping tag — siblings that share an upstream
-    # architecture but ship as separate inference classes (e.g.
-    # ``CREStereoInitialInference`` + ``CREStereoCombinedInference``)
-    # set this to a common string (``"CREStereo"``) so the UI can
-    # group them under one heading. ``None`` for inferences that don't
-    # share a family (the default).
-    ARCHITECTURE_FAMILY: ClassVar["str | None"] = None
 
     # When True, ``postprocess`` returns metric-ish depth (HxW float32
     # meters) directly. Pipeline skips disparity filters and the
@@ -506,12 +653,25 @@ class DepthInferenceBase(ABC, ControlOwner):
     # ── Catalog (classmethods) ───────────────────────────────────────
 
     @classmethod
-    def variants(cls) -> "tuple":
-        """Static catalog of every supported variant. Pure function —
-        no I/O, no environment reads, no caching needed (cheap to
-        recompute). Default empty; concrete inferences override.
-        ``@register_inference`` wraps this method to stamp the
-        inference's slug onto each yielded :class:`Variant`."""
+    def variants(cls) -> "tuple[InferenceVariant, ...]":
+        """Catalog of every supported variant, each bound to this
+        inference's :data:`SLUG` (the cache layout, the download flow
+        and :func:`build_inference` need that back-pointer). Pure — no
+        I/O, cheap to recompute.
+
+        Do not override: declare the variants in :meth:`_variants`."""
+        slug = cls.SLUG
+        return tuple(
+            v if v._inference_slug == slug
+            else dataclasses.replace(v, _inference_slug=slug)
+            for v in cls._variants())
+
+    @classmethod
+    def _variants(cls) -> "tuple[InferenceVariant, ...]":
+        """The variants this inference offers, in display order (the
+        first one is what "first variant" fallbacks pick). Concrete
+        classes override; build each :class:`InferenceVariant` without
+        an inference slug — :meth:`variants` binds it."""
         return ()
 
     @classmethod
@@ -588,30 +748,44 @@ class DepthInferenceBase(ABC, ControlOwner):
         relative-depth nets, stereo nets that already consume a
         rectified pair).
 
-        Called by the pipeline from
-        :meth:`DepthPipeline._rebuild_calibration_geometry` whenever
-        the canvas remap is rebuilt (start, calibration update, mode
-        change). Focus-aware monocular metric-depth architectures
-        (UniDepth, Metric3D, DepthPro) override to remember these
-        and use them in their preprocess to produce metric depth."""
+        Called by the pipeline whenever the canvas remap is rebuilt
+        (start, calibration update, fit-mode change). Focus-aware
+        monocular metric-depth networks (Metric3D) override to remember
+        them and scale their output to metric depth."""
 
     # Runtime controls are introspected via the inherited
-    # :meth:`ControlOwner.controls` — the ``_CONTROL_SPECS`` tuple (empty for
-    # inferences with no runtime controls: neural, rectify-only).
+    # :meth:`ControlOwner.controls` (empty for inferences with no
+    # runtime controls: neural stereo, rectify-only).
 
 
 # ──────────────────────── Neural intermediate bases ──────────────────
 
 
 class NeuralInferenceBase(DepthInferenceBase):
-    """Engine + per-network preprocess/postprocess. Subclassed by
-    :class:`NeuralStereoInferenceBase` (stereo, ``OUTPUTS_DEPTH=False``)
-    and :class:`NeuralMonoInferenceBase` (mono, ``OUTPUTS_DEPTH=True``).
-    Concrete-network classes (under ``architectures/``) subclass one
-    of those and override :meth:`preprocess` / :meth:`postprocess`."""
+    """Engine + the pre/post-processing every network shares. Subclassed
+    by :class:`NeuralStereoInferenceBase` (two eyes in, disparity out)
+    and :class:`NeuralMonoInferenceBase` (one eye in, depth out), which
+    supply default :meth:`preprocess` / :meth:`postprocess`. A concrete
+    network class (under ``inferences/``) normally only sets class
+    attributes — :attr:`BLOB_MEAN` / :attr:`BLOB_SCALE`,
+    :attr:`OUTPUT_CHANNEL`, :attr:`INPUT_SIZE`, :attr:`OUTPUT_NAME` —
+    and overrides a method only where its network really differs."""
 
-    SLUG: ClassVar[str] = ""    # set by @register_inference decorator
     OUTPUTS_DEPTH: ClassVar[bool] = False
+
+    # Input normalisation: blob = (RGB - BLOB_MEAN) * BLOB_SCALE per
+    # channel (4-tuples: R, G, B, unused). The default feeds raw RGB in
+    # [0, 255], for exports that normalise inside the graph; set both to
+    # IMAGENET_BLOB_MEAN / IMAGENET_BLOB_SCALE for exports that expect
+    # ImageNet-normalised input.
+    BLOB_MEAN: ClassVar[tuple] = _RAW_BLOB_MEAN
+    BLOB_SCALE: ClassVar[tuple] = _RAW_BLOB_SCALE
+
+    # Which channel of a ``(1, C, H, W)`` output is the map. ``None``
+    # (default): the output has a single map and must squeeze to 2-D.
+    # Set for networks that emit more (CREStereo: channel 0 of a 2-channel
+    # flow field is the horizontal disparity).
+    OUTPUT_CHANNEL: ClassVar["int | None"] = None
 
     # Optional override: when set to ``(H, W)``, the engine reshapes
     # the (potentially dynamic-shape) ONNX to this concrete input
@@ -632,21 +806,61 @@ class NeuralInferenceBase(DepthInferenceBase):
         file). :func:`build_inference` constructs the engine via
         :func:`make_engine`; tests pass mock engines."""
         self._engine: InferenceEngine = engine
+        self.blob_params = self.make_blob_params()
+        """The ``cv2.dnn.Image2BlobParams`` this instance converts a BGR
+        canvas with — see :meth:`make_blob_params`."""
         self._init_extra_state()
 
+    @classmethod
+    def make_blob_params(cls) -> "cv2.dnn.Image2BlobParams":
+        """The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+        BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+        float32, no resize. A classmethod so tools can preprocess for a
+        network without building an engine:
+        ``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``."""
+        return cv2.dnn.Image2BlobParams(
+            scalefactor=cls.BLOB_SCALE,
+            size=(0, 0),
+            mean=cls.BLOB_MEAN,
+            swapRB=True,
+            ddepth=cv2.CV_32F,
+        )
+
     def _init_extra_state(self) -> None:
-        """Subclass hook — populate any per-instance state the regular
-        ``__init__`` would have set (e.g. mono's depth_scale defaults).
-        Default: nothing extra."""
+        """Subclass hook, called at the end of ``__init__``: set up any
+        extra per-instance state (mono's control defaults, Metric3D's
+        focal bookkeeping). Default: nothing."""
+
+    def _to_blob(self, canvas: np.ndarray) -> np.ndarray:
+        """One BGR canvas → the network's NCHW float32 input blob."""
+        return cv2.dnn.blobFromImageWithParams(canvas, self.blob_params)
+
+    def _extract_map(self, raw_output: np.ndarray,
+                     canvas_layout: CanvasLayout) -> np.ndarray:
+        """Raw engine output → the 2-D float32 map of the canvas's valid
+        region: pick :attr:`OUTPUT_CHANNEL` (or squeeze), check it is
+        2-D, cast, crop the letterbox padding away."""
+        arr = np.asarray(raw_output)
+        channel = self.OUTPUT_CHANNEL
+        if channel is None:
+            out = np.squeeze(arr)
+            if out.ndim != 2:
+                raise RuntimeError(
+                    f"model output shape {tuple(arr.shape)} does not yield "
+                    f"a 2D map after squeeze (got {tuple(out.shape)})")
+        else:
+            if arr.ndim != 4 or arr.shape[0] != 1 or arr.shape[1] <= channel:
+                raise RuntimeError(
+                    f"{self.SLUG} expects raw output shape (1, C, H, W) "
+                    f"with C > {channel}; got {tuple(arr.shape)}")
+            out = arr[0, channel]
+        if out.dtype != np.float32:
+            out = out.astype(np.float32, copy=False)
+        y, x = canvas_layout.pad_y, canvas_layout.pad_x
+        h, w = canvas_layout.valid_h, canvas_layout.valid_w
+        return np.ascontiguousarray(out[y: y + h, x: x + w])
 
     # ── Read-only props ─────────────────────────────────────────────
-
-    @property
-    def architecture_slug(self) -> str:
-        """Network identity slug (e.g. ``"lightstereo"``). Set by the
-        ``@register_inference("...")`` decorator on the concrete
-        subclass."""
-        return type(self).SLUG
 
     @property
     def engine_slug(self) -> str:
@@ -665,7 +879,7 @@ class NeuralInferenceBase(DepthInferenceBase):
 
     @property
     def label(self) -> str:
-        return f"{self.architecture_slug} on {self._engine.slug}"
+        return f"{self.SLUG} on {self._engine.slug}"
 
     # ── Lifecycle ───────────────────────────────────────────────────
 
@@ -678,14 +892,7 @@ class NeuralInferenceBase(DepthInferenceBase):
     def shutdown(self, abandon: bool = False) -> None:
         self._engine.shutdown(abandon=abandon)
 
-    def set_intrinsics(self,
-                       fx: float, fy: float,
-                       cx: float, cy: float) -> None:
-        """Optional hook — focus-aware mono networks (e.g. Metric3D
-        V2) override to remember the values for use in
-        :meth:`preprocess`. Default no-op."""
-
-    # ── Per-network adapter (subclass overrides) ────────────────────
+    # ── Per-network adapter ─────────────────────────────────────────
 
     @abstractmethod
     def preprocess(self,
@@ -695,10 +902,9 @@ class NeuralInferenceBase(DepthInferenceBase):
         """BGR canvas pair (uint8 HxWx3) → engine input blobs.
 
         Returns NCHW float32 blobs in the order the model declares
-        its inputs. Most networks return ``(left_blob, right_blob)``;
-        multi-stage ones (CREStereo combined) return more — e.g. 4
-        blobs. Mono networks ignore ``canvas_r`` (``None`` on the
-        mono pipeline path) and return a single-input tuple."""
+        its inputs. The stereo / mono bases implement the usual
+        ``(left, right)`` / ``(left,)``; multi-stage networks (CREStereo
+        combined: 4 blobs) override."""
 
     @abstractmethod
     def postprocess(self,
@@ -721,42 +927,44 @@ class NeuralInferenceBase(DepthInferenceBase):
 class NeuralStereoInferenceBase(NeuralInferenceBase):
     """Stereo (disparity) inference backed by an ONNX/OpenVINO engine.
 
-    Per-network inferences (:class:`LightStereoInference`,
-    :class:`CREStereoInitialInference`, …) subclass this and define
-    their own ``preprocess`` / ``postprocess``. Construction takes
-    only a pre-built :class:`InferenceEngine`.
+    Defaults: both eyes go through the class's blob recipe
+    (:attr:`BLOB_MEAN` / :attr:`BLOB_SCALE`) into a two-input network;
+    the output map, cropped to the valid canvas region, is the
+    disparity in canvas pixels. Per-network classes
+    (:class:`LightStereoInference`, :class:`CREStereoInitialInference`,
+    …) set class attributes and override only what differs.
 
-    Engine kwargs (forwarded via ``engine_kwargs={...}`` from
-    :func:`build_inference`):
-
-    - ``cache_dir`` — override the SDK-wide cache root for compiled-
-      model storage. Defaults to :func:`depz_camera_sdk.get_cache_dir`;
-      backends that cache (OpenVINO) write into ``<cache_dir>/<backend>/``.
-    - ``do_models_cache`` (OpenVINO) — set False to skip caching
-      entirely (useful for read-only filesystems / one-shot scripts).
-    - ``nireq`` (OpenVINO) — async-queue depth.
-
-    Controls: empty list — there are no runtime-tunable controls once
-    the model is compiled. Tune via different weights / different
-    engine slug instead.
+    Controls: none — nothing is tunable once the model is compiled.
+    Pick different weights or a different engine instead.
     """
 
-    SLUG = "neural-stereo"
     OUTPUTS_DEPTH = False
+
+    def preprocess(self,
+                   canvas_l: np.ndarray,
+                   canvas_r: "np.ndarray | None",
+                   ) -> tuple[np.ndarray, ...]:
+        return self._to_blob(canvas_l), self._to_blob(canvas_r)
+
+    def postprocess(self,
+                    raw_output: np.ndarray,
+                    canvas_layout: CanvasLayout) -> np.ndarray:
+        return self._extract_map(raw_output, canvas_layout)
 
 
 class NeuralMonoInferenceBase(NeuralInferenceBase):
-    """Monocular-depth base. Subclasses define the network-specific
-    preprocess + postprocess and call :meth:`_apply_depth_affine` at
-    the tail of postprocess.
+    """Monocular-depth base.
 
-    The two controls ``depth_scale`` and ``depth_offset`` apply an affine
-    ``scale·raw + offset``. Defaults (1.0 / 0.0) — set via
-    :class:`Control` after construction. Tune them once you
-    know one reference distance.
+    Defaults: the left eye goes through the class's blob recipe into a
+    single-input network (the right canvas is ignored — ``None`` on the
+    mono pipeline path); the output map, cropped to the valid canvas
+    region and passed through the depth affine, is the depth.
+
+    The two controls ``depth_scale`` and ``depth_offset`` apply
+    ``scale·raw + offset`` (defaults 1.0 / 0.0 — a no-op). Tune them
+    once you know one reference distance.
     """
 
-    SLUG = "neural-mono"
     OUTPUTS_DEPTH = True
 
     # depth_scale / depth_offset — affine ``scale·raw + offset`` applied
@@ -772,10 +980,21 @@ class NeuralMonoInferenceBase(NeuralInferenceBase):
         # postprocess works without an explicit setter call.
         self._seed_control_defaults()
 
+    def preprocess(self,
+                   canvas_l: np.ndarray,
+                   canvas_r: "np.ndarray | None",
+                   ) -> tuple[np.ndarray, ...]:
+        return (self._to_blob(canvas_l),)
+
+    def postprocess(self,
+                    raw_output: np.ndarray,
+                    canvas_layout: CanvasLayout) -> np.ndarray:
+        return self._apply_depth_affine(
+            self._extract_map(raw_output, canvas_layout))
+
     def _apply_depth_affine(self, depth: np.ndarray) -> np.ndarray:
         """Apply ``scale·depth + offset`` if either control differs from
-        default. Subclasses call this at the tail of their
-        :meth:`postprocess`."""
+        default."""
         if self.depth_scale != 1.0 or self.depth_offset != 0.0:
             depth = (depth * np.float32(self.depth_scale)
                      + np.float32(self.depth_offset))

@@ -1,59 +1,87 @@
 """SDK-wide cache directory.
 
-The SDK and components built on it (inference engines, web viewer's
-camera-info store, future ones) may need to persist on-disk state
-across runs — most importantly OpenVINO's compiled-model cache,
-which turns 30–60 s GPU compiles into <1 s loads on subsequent
-starts.
+The SDK and components built on it persist on-disk state across runs
+under one root: downloaded models, the engines' compiled-model caches
+(which turn a 30–60 s GPU compile into a <1 s load), the viewer's
+camera-info store.
 
 Resolution order for :func:`get_cache_dir`:
 
-  1. :func:`set_cache_dir` runtime override (used by hosting apps
-     like the web viewer to redirect into a per-platform user-cache
-     location).
-  2. ``./depz_sdk_cache/`` in the current working directory.
+  1. A :func:`set_cache_dir` override for the current process.
+  2. The platform's per-user cache location (:func:`default_cache_dir`):
 
-The CWD-based default is intentionally simple — it keeps cache state
-local to the project the user is running from, no surprise pollution
-of ``$HOME``. Apps that want OS-standard locations
-(``~/.cache/depz/`` on Linux / ``~/Library/Caches/depz/`` on macOS
-/ ``%LOCALAPPDATA%\\depz\\Cache\\`` on Windows) call
-:func:`set_cache_dir` at startup.
+     - Linux:   ``$XDG_CACHE_HOME/depz``, else ``~/.cache/depz``
+     - macOS:   ``~/Library/Caches/depz``
+     - Windows: ``%LOCALAPPDATA%\\depz\\Cache``
 
-Engines and other consumers subdivide the cache by purpose:
+The default never depends on the current working directory: the same
+cache is found wherever a script is started from, and a read-only
+working directory is not a problem.
+
+Consumers subdivide the root by purpose:
 
     cache_root = get_cache_dir()
+    models = cache_root / "models"
     openvino_cache = cache_root / "openvino"
     camera_info_cache = cache_root / "camera-info"
 """
 
+import os
+import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Mapping, Optional, Union
 
 
 _OVERRIDE: Optional[Path] = None
 
 
+def _platform_cache_dir(platform: str, env: Mapping[str, str],
+                        home: Path) -> Path:
+    """Per-user cache root for ``platform`` (a ``sys.platform`` value).
+    Pure — everything it depends on is passed in."""
+    if platform == "darwin":
+        return home / "Library" / "Caches" / "depz"
+    if platform == "win32":
+        local_app_data = env.get("LOCALAPPDATA")
+        base = Path(local_app_data) if local_app_data else (
+            home / "AppData" / "Local")
+        return base / "depz" / "Cache"
+    # Linux and everything else that follows the XDG base-directory
+    # spec, which says a relative XDG_CACHE_HOME must be ignored.
+    xdg = env.get("XDG_CACHE_HOME")
+    base = Path(xdg) if xdg and os.path.isabs(xdg) else home / ".cache"
+    return base / "depz"
+
+
+def default_cache_dir() -> Path:
+    """The per-user cache root the SDK uses when no override is set —
+    see the module docstring for the per-platform locations."""
+    return _platform_cache_dir(sys.platform, os.environ, Path.home())
+
+
 def get_cache_dir() -> Path:
-    """Return the active SDK cache root. See module docstring for
-    resolution order. Caller is responsible for creating the directory
-    if it doesn't exist (it's lazy)."""
+    """Return the active SDK cache root (always an absolute path): the
+    :func:`set_cache_dir` override if one is set, else
+    :func:`default_cache_dir`. The directory is not created here —
+    whoever writes into it creates it."""
     if _OVERRIDE is not None:
         return _OVERRIDE
-    return Path.cwd() / "depz_sdk_cache"
+    return default_cache_dir()
 
 
 def set_cache_dir(path: Union[str, Path]) -> None:
-    """Override the SDK-default cache root for the current process.
-    Hosting apps (e.g. the web viewer) call this at startup to redirect
-    cache into a platform-standard application data dir. Pass an
-    absolute path; ``~``-prefix expanded automatically."""
+    """Override the cache root for the current process, e.g. to keep
+    everything on a data volume. ``~`` and environment variables in
+    ``path`` are expanded, and a relative path is made absolute against
+    the working directory at the time of the call — later ``chdir``\\ s
+    do not move the cache. Child processes do not inherit the override."""
     global _OVERRIDE
-    _OVERRIDE = Path(path).expanduser()
+    expanded = os.path.expandvars(os.path.expanduser(os.fspath(path)))
+    _OVERRIDE = Path(os.path.abspath(expanded))
 
 
 def clear_cache_dir_override() -> None:
-    """Drop any :func:`set_cache_dir` override; subsequent calls fall
-    back to the CWD default. Mostly for tests."""
+    """Drop any :func:`set_cache_dir` override; :func:`get_cache_dir`
+    returns :func:`default_cache_dir` again. Mostly for tests."""
     global _OVERRIDE
     _OVERRIDE = None

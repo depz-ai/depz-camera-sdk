@@ -8,7 +8,7 @@ in a future C++ port.
 
 import threading
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import ClassVar, Optional
 
 import numpy as np
 
@@ -64,9 +64,15 @@ class InferenceEngine(ABC):
     # bypassing the registry).
     slug: str = ""
 
+    # Keyword options the constructor accepts besides the model path and
+    # the device / execution provider. :func:`make_engine` checks caller
+    # kwargs against this so an option meant for another engine kind is
+    # reported by name instead of surfacing as a bare ``TypeError``.
+    OPTIONS: ClassVar[frozenset] = frozenset()
+
     def __init__(self, model_path: str) -> None:
-        # Public attribute — `Model.model_path` reads it through.
-        # Subclasses must call ``super().__init__(model_path)``.
+        # Public attribute — ``NeuralInferenceBase.model_path`` reads it
+        # through. Subclasses must call ``super().__init__(model_path)``.
         self.model_path: str = model_path
 
     @property

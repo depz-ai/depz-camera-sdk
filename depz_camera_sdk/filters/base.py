@@ -1,15 +1,16 @@
 """Filter ABC + Control descriptor.
 
 A :class:`Filter` is one self-describing post-processing stage that
-runs on either the disparity map or the depth map. Each filter owns
-its own state + parameters; the pipeline composes them into a list
-and walks them once per frame.
+runs on the disparity map, the depth map or the point cloud. Each
+filter owns its own state + parameters; the pipeline composes them into
+a list and walks them once per frame.
 
-Concrete filters subclass :class:`Filter`, set the three class
-attributes (``KIND`` / ``LABEL`` / ``OPERATES_ON``), declare their
-controls in a ``_CONTROL_SPECS`` class tuple, implement ``apply()``, and
-override ``control_set()`` only when a parameter needs custom coercion
-(e.g. snapping to a discrete set).
+Concrete filters subclass :class:`DisparityFilter` / :class:`DepthFilter`
+/ :class:`PointCloudFilter` (which fixes ``OPERATES_ON``), set ``SLUG``
+and ``LABEL``, declare their controls as class-level typed descriptors
+(``enabled = BoolControl(...)``, ``max_size = IntControl(...)``),
+implement ``apply()``, and override ``control_set()`` only when a
+parameter needs custom coercion (e.g. snapping to a discrete set).
 
 There's no separate "stateful filter" ABC — :meth:`Filter.reset` is
 a no-op by default; stateful filters override it.
@@ -43,9 +44,10 @@ class Filter(ABC, ControlOwner):
       - per-frame: pipeline calls ``apply(frame)`` (no-op when disabled).
       - on seek / canvas resize / disable→enable flip: pipeline calls
         ``reset()``.
-      - param change: caller goes through pipeline command queue, which
-        ultimately calls ``set(name, value)`` on the filter from the
-        worker thread.
+      - param change: caller goes through the pipeline
+        (``set_filter_control``), which calls
+        ``control_set(name, value)`` on the filter from the worker
+        thread.
 
     Subclass contract:
       - set ``SLUG`` (canonical id, e.g. ``"median"``) — the stable
@@ -55,9 +57,10 @@ class Filter(ABC, ControlOwner):
         :class:`DepthFilter` / :class:`PointCloudFilter` to declare
         ``OPERATES_ON``; do not set ``OPERATES_ON`` directly.
       - optional ``LABEL`` (defaults to ``SLUG`` if empty).
-      - declare ``_CONTROL_SPECS`` (a tuple of :class:`Control`); its first
-        entry MUST be the ``"enabled"`` boolean. Read-only properties
-        and default seeding are generated from it.
+      - declare the controls as class attributes — typed descriptors
+        (:class:`BoolControl`, :class:`IntControl`, …); the first one
+        MUST be the ``enabled`` boolean. Reading ``self.<name>`` gives
+        the current value; defaults are seeded from the descriptors.
       - implement ``apply()``.
 
     ``control_get``/``control_set``/``controls_to_dict`` and the default

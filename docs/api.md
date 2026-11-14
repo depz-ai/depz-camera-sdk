@@ -9,13 +9,13 @@ docstrings in the source, not this file.
 
 - **Pipeline**: [`DepthPipeline`](#depthpipeline), [`FramePacket`](#framepacket), [`RecordingStatus`](#recordingstatus), [`RecordingResult`](#recordingresult), [`PipelineMetrics`](#pipelinemetrics)
 - **Sources**: [`FrameSource`](#framesource), [`CameraSource`](#camerasource), [`MkvSource`](#mkvsource), [`CameraInfo`](#camerainfo), [`RawFrame`](#rawframe), [`resolve_source_arg`](#resolve_source_arg)
-- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`available_inferences`](#available_inferences), [`register_inference`](#register_inference), [`DepzStereoInference`](#depzstereoinference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`get_inference`](#get_inference), [`cache_root`](#cache_root)
+- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`stderr_progress`](#stderr_progress), [`available_inferences`](#available_inferences), [`get_inference`](#get_inference), [`register_inference`](#register_inference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`LiteAnyStereoInference`](#liteanystereoinference), [`LiteAnyStereoMInference`](#liteanystereominference), [`DepzStereoInference`](#depzstereoinference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`onnx_variant`](#onnx_variant), [`cache_root`](#cache_root), [`IMAGENET_BLOB_MEAN`](#imagenet_blob_mean), [`IMAGENET_BLOB_SCALE`](#imagenet_blob_scale)
 - **Engines**: [`available_engines`](#available_engines), [`list_engines`](#list_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`ENGINE_CLASSES`](#engine_classes), [`class_rank`](#class_rank), [`classify_engine`](#classify_engine), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug), [`priority_rank`](#priority_rank)
 - **Calibration**: [`Calibration`](#calibration), [`CanvasLayout`](#canvaslayout), [`OpenCVBasicCalibration`](#opencvbasiccalibration), [`OpenCVFisheyeCalibration`](#opencvfisheyecalibration), [`register_calibration`](#register_calibration), [`registered_polymorphic_names`](#registered_polymorphic_names)
 - **Filters**: [`Filter`](#filter), [`DisparityFilter`](#disparityfilter), [`DepthFilter`](#depthfilter), [`PointCloudFilter`](#pointcloudfilter), [`SpeckleFilter`](#specklefilter), [`ZClipFilter`](#zclipfilter), [`EdgeFilter`](#edgefilter), [`TemporalEmaFilter`](#temporalemafilter), [`BoundingBoxFilter`](#boundingboxfilter), [`StatisticalOutlierFilter`](#statisticaloutlierfilter), [`default_filter_chain`](#default_filter_chain)
-- **Cameras**: [`fetch_camera_info_json`](#fetch_camera_info_json), [`DepzCameraInfo`](#depzcamerainfo), [`list_connected_depz_cameras`](#list_connected_depz_cameras), [`get_first_connected_depz_camera`](#get_first_connected_depz_camera), [`get_connected_depz_camera_by_serial`](#get_connected_depz_camera_by_serial), [`CaptureMode`](#capturemode), [`CameraControl`](#cameracontrol), [`CameraSpec`](#cameraspec), [`DEPZ_VARIUS`](#depz_varius), [`DEPZ_MINIMA`](#depz_minima), [`DEPZ_CLARITY`](#depz_clarity), [`REGISTRY`](#registry), [`spec_by_sku`](#spec_by_sku), [`list_connected_depz_cameras_detailed`](#list_connected_depz_cameras_detailed)
+- **Cameras**: [`fetch_camera_info_json`](#fetch_camera_info_json), [`DepzCameraInfo`](#depzcamerainfo), [`list_connected_depz_cameras`](#list_connected_depz_cameras), [`get_first_connected_depz_camera`](#get_first_connected_depz_camera), [`get_connected_depz_camera_by_serial`](#get_connected_depz_camera_by_serial), [`CaptureMode`](#capturemode), [`CameraControl`](#cameracontrol), [`CameraSpec`](#cameraspec), [`DEPZ_VARIUS`](#depz_varius), [`DEPZ_MINIMA`](#depz_minima), [`DEPZ_CLARITY`](#depz_clarity), [`DEPZ_MONO`](#depz_mono), [`DEPZ_MONO_MINI`](#depz_mono_mini), [`REGISTRY`](#registry), [`spec_by_sku`](#spec_by_sku), [`list_connected_depz_cameras_detailed`](#list_connected_depz_cameras_detailed)
 - **Platform**: [`PlatformBackend`](#platformbackend), [`CameraControls`](#cameracontrols), [`VideoDeviceInfo`](#videodeviceinfo), [`current_backend`](#current_backend)
-- **Controls**: [`Control`](#control)
+- **Controls**: [`Control`](#control), [`IntControl`](#intcontrol), [`FloatControl`](#floatcontrol), [`BoolControl`](#boolcontrol), [`StrControl`](#strcontrol)
 - **Cache**: [`get_cache_dir`](#get_cache_dir), [`set_cache_dir`](#set_cache_dir)
 - **Logging_Setup**: [`configure_logging`](#configure_logging), [`enable_default_logging`](#enable_default_logging)
 
@@ -24,7 +24,7 @@ docstrings in the source, not this file.
 ### DepthPipeline
 
 ```python
-class DepthPipeline(source: 'FrameSource | str | Path | Any | None' = None, *, inference: 'DepthInferenceBase | tuple[str, str] | None' = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False, recalibration_enabled: bool = False) -> None
+class DepthPipeline(source: depz_camera_sdk.sources.base.FrameSource | str | pathlib.Path | typing.Any | None = None, *, inference: depz_camera_sdk.inference.base.DepthInferenceBase | tuple[str, str] | None = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False, recalibration_enabled: bool = False) -> None
 ```
 
 Depth SDK pipeline. Single-shot lifecycle. Drives any
@@ -32,12 +32,18 @@ Depth SDK pipeline. Single-shot lifecycle. Drives any
 monocular metric depth, rectify-only) over any
 :class:`FrameSource` (live UVC camera or MKV replay).
 
-Source-swap (live ↔ replay): destroy this instance, create a new one
-with a fresh source. ``attach_source`` / ``detach_source`` NOT
-supported.
+Single-shot: one ``start()`` … ``stop()`` per instance — ``stop()``
+shuts the engine down, and so does a ``start()`` that fails. To
+change the source (live ↔ replay) or the model, build a new
+pipeline.
 
-Construction is lightweight (no model load, no source open). Heavy
-work happens in :meth:`start`. Frames flow out via :meth:`get`.
+Construction opens nothing: the source is opened and the engine
+warmed up in :meth:`start`. Given a built ``inference`` instance the
+constructor is cheap. Given the ``(inference_slug, variant_slug)``
+shortcut — or nothing, which means :attr:`DEFAULT_INFERENCE` — it
+calls :func:`build_inference` itself, which downloads the model on
+first use and loads it; build the inference yourself when you need
+to control when that happens. Frames flow out via :meth:`get`.
 
 Pipeline-level runtime controls follow the same descriptor pattern as
 filters / inference / calibration — see :meth:`controls` for the
@@ -58,6 +64,10 @@ cascade semantics don't fit a flat coerce-and-clamp descriptor.
 
 #### DepthPipeline.is_running *(property)*
 
+True while the worker thread is alive. False after a worker
+crash (see :attr:`last_error`) — :meth:`stop` must still be
+called then to release the source and the engine.
+
 #### DepthPipeline.last_error *(property)*
 
 Crash detail of the worker thread — ``{"message", "traceback"}``
@@ -67,6 +77,22 @@ unhandled exception; cleared by :meth:`start`. Poll together with
 "crashed" (UI surfaces the latter as a pipeline_error toast).
 
 #### DepthPipeline.camera_info *(property)*
+
+Geometry / identity of the opened source; ``None`` before
+:meth:`start`.
+
+#### DepthPipeline.source *(property)*
+
+The frame source this pipeline reads from — for querying it
+(``duration_us``, ``is_mono``, replay position, …). The pipeline
+owns its lifecycle: do not ``open()`` / ``close()`` it or call
+``grab()`` on it while the pipeline is running.
+
+#### DepthPipeline.inference *(property)*
+
+The inference this pipeline runs. Read its properties freely;
+change its controls through :meth:`set_inference_control` so the
+change is applied between frames.
 
 #### DepthPipeline.list_filters
 
@@ -217,11 +243,21 @@ start(self) -> None
 
 Open source, prepare engine, spawn worker.
 
+If any step fails the pipeline is torn down exactly as
+:meth:`stop` would (source closed, warmup joined, engine shut
+down) before the error propagates — a failed start holds no
+resources, and the instance is spent like a stopped one.
+
 #### DepthPipeline.stop
 
 ```python
 stop(self) -> None
 ```
+
+Stop the worker and release the source, the engine and any
+recording. Idempotent. Also the cleanup call after a worker
+crash (:attr:`is_running` already False, :attr:`last_error` set):
+the device and the engine stay held until this runs.
 
 #### DepthPipeline.reset_camera_source
 
@@ -250,8 +286,10 @@ get(self, timeout: Optional[float] = None) -> Optional[depz_camera_sdk.pipeline.
 
 Pop the next :class:`FramePacket` from the output queue.
 
-Default ``timeout=None`` blocks until a packet arrives (or the
-pipeline shuts down). Pass an explicit ``timeout=<seconds>`` to
+Default ``timeout=None`` blocks until a packet arrives; it
+returns ``None`` only when there is nothing more to wait for —
+the pipeline is not running, or a replay reached end-of-file
+(see :attr:`at_eof`). Pass an explicit ``timeout=<seconds>`` to
 treat a slow / hung worker as a watchdog event — the call
 returns ``None`` when no packet shows up in that window.
 
@@ -259,6 +297,13 @@ Note: pipeline-level *controls* are read via
 :meth:`control_get(name)` (the :class:`~depz_camera_sdk._controls.ControlOwner`
 contract). Different namespace, different prefix — no
 collision.
+
+#### DepthPipeline.at_eof *(property)*
+
+True when a bounded source (a replay without ``loop``) has
+been played to the end and every packet it produced has been
+consumed. Goes back to False after a seek or step. Always False
+for live cameras and looping replays.
 
 #### DepthPipeline.get_snapshot
 
@@ -294,8 +339,10 @@ set_filter_control(self, filter_slug: str, name: str, value: Any) -> Any
 
 Mutate one filter control, e.g.
 ``set_filter_control("speckle", "max_size", 80)``. Goes through the
-worker thread's command queue. Returns the value actually
-stored (after coercion + clamp by the filter).
+worker thread's command queue (see :meth:`_submit` for the
+timeout / stopped-pipeline behaviour shared by every setter).
+Returns the value actually stored (after coercion + clamp by
+the filter).
 
 #### DepthPipeline.set_inference_control
 
@@ -381,15 +428,17 @@ Toggle one stream on/off in the FramePacket emission graph.
 
 Enable always cascades upstream dependencies (you can't compute
 depth without disparity, so enabling depth flips disparity on
-too). Disable defaults to refusing if a downstream still
-consumes the stream — explicit `cascade=True` flips them all
-off in one shot. The set of cascaded-off stream names is
-returned to the caller via the command (and exposed here in
-the second tuple element, replacing `reason` when applied).
+too). Disable is refused while a downstream stream still
+consumes this one, unless ``cascade=True`` — then those are
+switched off with it.
 
-Safe to call **before** `start()` — there's no worker thread
-yet, so we mutate the stream-graph dict directly. After
-`start()` the call routes through the command queue so the
+Returns ``(applied, reason)``: ``(True, "")`` when the change
+was made, ``(False, "depended on by: …")`` when a disable was
+refused. Read :attr:`streams_enabled` for the resulting state
+(including anything a cascade flipped).
+
+Safe to call before ``start()``: with no worker thread the
+stream graph is changed directly; on a running pipeline the
 worker applies it between frames.
 
 #### DepthPipeline.step_replay
@@ -408,13 +457,20 @@ seeks suffer from.
 
 Caller should pause the replay first (otherwise normal
 playback continues to overwrite the stepped frame). Raises
-if `source.is_seekable=False`.
+``RuntimeError`` if the source is not seekable or the pipeline
+is not running.
 
 #### DepthPipeline.seek
 
 ```python
 seek(self, *, monotonic_ns: Optional[int] = None, utc_ns: Optional[int] = None, relative_us: Optional[int] = None, fraction: Optional[float] = None) -> None
 ```
+
+Reposition a replay. Give exactly one target: an absolute
+``monotonic_ns`` / ``utc_ns`` timestamp, a stream-relative
+``relative_us`` offset, or a ``fraction`` (0..1) of the duration.
+Raises ``RuntimeError`` if the source is not seekable or the
+pipeline is not running.
 
 #### DepthPipeline.is_pausable *(property)*
 
@@ -508,14 +564,15 @@ emitted frame's PTS.
 list_camera_controls(self)
 ```
 
-Snapshot of every camera control available on the
-active source (live cameras only — replay sources return ``[]``).
+Snapshot of every camera control of the active source: live
+values for a camera, the values recorded at the current playback
+position for a replay, ``[]`` for sources that know no controls.
 
 Returns ``list[CameraControl]`` — public, platform-neutral
-descriptors with live ``current_value`` / ``min`` / ``max`` /
-``step``. Internal V4L2 / Win32 IDs are stripped. Use
-:meth:`set_camera_control` / :meth:`get_camera_control` to
-write/read individual controls by name afterwards.
+descriptors with ``current_value`` / ``min`` / ``max`` /
+``step``. Use :meth:`set_camera_control` /
+:meth:`get_camera_control` to write/read individual controls by
+name afterwards (writing needs a live camera).
 
 Re-call to refresh — values are point-in-time snapshots.
 
@@ -546,6 +603,23 @@ controller's provider callback.
 ```python
 stop_recording(self) -> depz_camera_sdk.pipeline.types.RecordingResult
 ```
+
+Finish the recording started by :meth:`start_recording` and
+return its result. If the recorder's writer failed, the result
+carries the failure in :attr:`RecordingResult.error`. Raises
+``RuntimeError`` when nothing is being recorded.
+
+#### DepthPipeline.capture_single_frame
+
+```python
+capture_single_frame(self, path: str | pathlib.Path, *, timeout: float = 2.0) -> depz_camera_sdk.pipeline.types.RecordingResult
+```
+
+Save the next raw frame as a one-frame MKV at ``path`` — a
+still that carries the calibration and can be replayed through
+the full pipeline like any recording. Blocks until the frame is
+written or ``timeout`` seconds pass (then ``frames == 0``).
+Raises ``RuntimeError`` if a recording is already in progress.
 
 #### DepthPipeline.pause_recording
 
@@ -664,9 +738,13 @@ Raises on failure.
 grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFrame]
 ```
 
-Return next packet. None signals EOF (only for bounded sources
-like MkvSource — CameraSource never returns None unless an error
-occurs, in which case it raises).
+Return the next frame, waiting up to ``timeout`` seconds.
+
+``None`` means "nothing right now": the timeout elapsed, the
+source is paused, or a bounded source reached its end (check
+:attr:`at_eof` to tell that case apart). A source that can no
+longer produce frames at all — a camera whose capture thread
+died — raises instead of returning ``None`` forever.
 
 #### FrameSource.close
 
@@ -679,6 +757,15 @@ Release resources. Idempotent.
 #### FrameSource.is_live *(property)*
 
 #### FrameSource.is_seekable *(property)*
+
+#### FrameSource.at_eof *(property)*
+
+True once a bounded source has delivered its last frame and
+will produce no more until it is repositioned (seek / step /
+re-open). ``grab()`` returning ``None`` is ambiguous on its own —
+it also means "paused" or "nothing yet" — so the pipeline reads
+this flag to tell a finished replay from a slow one. Live sources
+and looping replays never reach EOF: always False.
 
 #### FrameSource.is_mono *(property)*
 
@@ -693,6 +780,14 @@ False keeps existing stereo sources unaffected.
 Wire-format fourcc of `RawFrame.jpeg` payload. Default 'MJPG'.
 Sources producing other byte layouts (YUYV, NV12, ...) override.
 
+#### FrameSource.capture_size *(property)*
+
+``(width, height)`` of the frames in :attr:`RawFrame.payload`
+— what a recorder must declare for the stream — or ``None`` when
+it is the same as the delivered size reported by ``open()``.
+Differs only for sources that rescale after decoding
+(:class:`CameraSource` with ``output_eye``).
+
 #### FrameSource.decode_to_bgr
 
 ```python
@@ -703,10 +798,12 @@ Decode the wire bytes into a BGR HxWx3 uint8 array.
 
 Default implementation handles MJPG (cv2.imdecode reads dims
 from the JPEG header) and YUYV (raw layout — frame size taken
-from the source's :attr:`_info`, populated in ``open()``).
-Sources with non-standard byte layouts override.
+from the ``_info`` attribute the source sets in ``open()``).
+Sources with other byte layouts, or whose payload size differs
+from the size they report, override.
 
-Returns None on decode failure (caller skips the frame).
+Returns None when the frame cannot be decoded — corrupt JPEG,
+truncated raw payload — and the caller skips it.
 
 #### FrameSource.camera_controls *(property)*
 
@@ -738,12 +835,16 @@ CaptureMode the source was configured with. None when irrelevant.
 #### FrameSource.add_fanout
 
 ```python
-add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> None
+add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> bool
 ```
 
 Register a callback invoked on every grabbed frame at full
-source rate (BEFORE drop-to-latest). Used by recorder. Default:
-not supported — recorder will fall back to worker-rate feeding.
+source rate (BEFORE drop-to-latest). Used by the recorder.
+
+Returns True when the source will really call ``cb`` — it has
+its own capture thread. The default has none: it registers
+nothing and returns False, and the recorder is fed by the
+pipeline worker instead, one frame per consumed frame.
 
 #### FrameSource.remove_fanout
 
@@ -801,10 +902,6 @@ of a dict diff.
 #### FrameSource.duration_us *(property)*
 
 Total duration in microseconds, or None for unbounded (live) sources.
-
-#### FrameSource.camera_controls_snapshot *(property)*
-
-For MkvSource: camera-props snapshot at recording start.
 
 #### FrameSource.mode_slug *(property)*
 
@@ -960,6 +1057,21 @@ to this anchor.
 
 #### CameraSource.fourcc *(property)*
 
+#### CameraSource.frames_captured *(property)*
+
+Frames the capture thread has read from the device since the
+source was created. Advances at the true camera rate whether or
+not anything consumes the frames — a liveness signal that is
+independent of a slow or stalled pipeline.
+
+#### CameraSource.capture_size *(property)*
+
+``(width, height)`` the device actually streams — the size of
+every :attr:`RawFrame.payload`, and therefore of a recording.
+With ``output_eye`` the delivered frames (and the
+:class:`CameraInfo` from :meth:`open`) are smaller. ``None``
+until the source has been opened.
+
 #### CameraSource.open
 
 ```python
@@ -969,13 +1081,13 @@ open(self) -> depz_camera_sdk.sources.types.CameraInfo
 #### CameraSource.add_fanout
 
 ```python
-add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> None
+add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> bool
 ```
 
 Register callback called on every grabbed frame at full camera rate.
 Callback runs on the pump thread — must be cheap (typically
 queue.put_nowait). Used by recorder so dataset gets full-rate
-even when inference can't keep up.
+even when inference can't keep up. Always delivers (True).
 
 #### CameraSource.remove_fanout
 
@@ -986,7 +1098,7 @@ remove_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneT
 #### CameraSource.decode_to_bgr
 
 ```python
-decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> 'Optional[np.ndarray]'
+decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> Optional[numpy.ndarray]
 ```
 
 Decode wire bytes to BGR, then resize to the delivered size
@@ -1003,15 +1115,18 @@ grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFr
 Pop the latest available frame (drops older ones).
 
 Blocks up to `timeout` seconds for a frame to appear if buffer
-empty. Returns None on timeout (camera silent for `timeout`
-seconds — likely device error).
+empty. Returns None on timeout (camera momentarily silent).
+
+Raises ``RuntimeError`` once the capture thread has died (device
+error, stream ended) and its last frame has been handed out —
+the camera will not produce another frame until it is reopened,
+and a silent ``None`` forever would look like a healthy but idle
+pipeline.
 
 During a :meth:`DepthPipeline.reset_camera_source` reopen gap the
-source is transiently closed — grab() returns ``None`` then (the
-worker already tolerates None), it does NOT raise. Raising here
-killed the worker whenever the startup wedge-recovery reset the
-device mid-stream. A never-opened source still raises — that's a
-caller bug, not a transient state.
+source is transiently closed — grab() returns ``None`` then, so
+the pipeline worker rides through the reset. A never-opened
+source raises — that's a caller bug, not a transient state.
 
 #### CameraSource.get_pump_stats
 
@@ -1030,6 +1145,15 @@ inference_fps.
 close(self) -> None
 ```
 
+#### CameraSource.at_eof *(property)*
+
+True once a bounded source has delivered its last frame and
+will produce no more until it is repositioned (seek / step /
+re-open). ``grab()`` returning ``None`` is ambiguous on its own —
+it also means "paused" or "nothing yet" — so the pipeline reads
+this flag to tell a finished replay from a slow one. Live sources
+and looping replays never reach EOF: always False.
+
 #### CameraSource.is_mono *(property)*
 
 True when the source delivers a single-eye frame (no SBS
@@ -1041,10 +1165,6 @@ False keeps existing stereo sources unaffected.
 #### CameraSource.duration_us *(property)*
 
 Total duration in microseconds, or None for unbounded (live) sources.
-
-#### CameraSource.camera_controls_snapshot *(property)*
-
-For MkvSource: camera-props snapshot at recording start.
 
 #### CameraSource.t0_utc_ns *(property)*
 
@@ -1131,6 +1251,8 @@ playback as recorded online-recal patches apply.
 
 #### MkvSource.is_seekable *(property)*
 
+#### MkvSource.at_eof *(property)*
+
 #### MkvSource.fourcc *(property)*
 
 Wire format of the recorded video stream. Cached from codec
@@ -1165,6 +1287,29 @@ the step methods — consumers read it after those calls.
 
 #### MkvSource.duration_us *(property)*
 
+#### MkvSource.frame_count *(property)*
+
+Number of video frames in the recording — exact, from the
+packet index built by :meth:`open`. 0 before ``open()`` and when
+the source was created with ``build_frame_index=False``.
+
+#### MkvSource.replay_mode *(property)*
+
+``"realtime"`` or ``"every_frame"`` — fixed at construction.
+
+#### MkvSource.loop *(property)*
+
+Whether playback rewinds to the first frame at end-of-file
+instead of stopping there. May be switched while playing; it is
+read each time the end is reached.
+
+#### MkvSource.embedded_camera_info *(property)*
+
+A copy of the camera-info payload stored in the recording
+(identity + ``base_calibration``, the shape
+:meth:`DepzCameraInfo.to_dict` writes), or ``None`` when the
+file carries no such attachment.
+
 #### MkvSource.fps_target *(property)*
 
 Rate requested when the file was recorded (FPS_TARGET tag).
@@ -1180,8 +1325,6 @@ index. ``None`` when the index was not built.
 #### MkvSource.t0_utc_ns *(property)*
 
 #### MkvSource.clock_domain *(property)*
-
-#### MkvSource.camera_controls_snapshot *(property)*
 
 #### MkvSource.list_camera_controls
 
@@ -1230,14 +1373,17 @@ grab(self, timeout: float = 1.0) -> Optional[depz_camera_sdk.sources.types.RawFr
 #### MkvSource.add_fanout
 
 ```python
-add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> None
+add_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneType]) -> bool
 ```
 
 Register callback called on every demuxed frame at full file
-rate, BEFORE drop-to-latest. Active only in ``realtime`` mode —
-in ``every_frame`` mode the pump never starts so callbacks are
-never invoked (recorder falls back to worker-rate feeding).
-Callback runs on the pump thread; must not block.
+rate, BEFORE drop-to-latest. Callback runs on the pump thread;
+must not block.
+
+Delivers (returns True) only in ``realtime`` mode. In
+``every_frame`` mode there is no pump, the callback would never
+be invoked, and False tells the recorder to take its frames
+from the pipeline worker instead.
 
 #### MkvSource.remove_fanout
 
@@ -1303,6 +1449,14 @@ split). Live cameras read this from the active
 calibration's :attr:`Calibration.is_stereo` (inverted). Default
 False keeps existing stereo sources unaffected.
 
+#### MkvSource.capture_size *(property)*
+
+``(width, height)`` of the frames in :attr:`RawFrame.payload`
+— what a recorder must declare for the stream — or ``None`` when
+it is the same as the delivered size reported by ``open()``.
+Differs only for sources that rescale after decoding
+(:class:`CameraSource` with ``output_eye``).
+
 #### MkvSource.decode_to_bgr
 
 ```python
@@ -1313,10 +1467,12 @@ Decode the wire bytes into a BGR HxWx3 uint8 array.
 
 Default implementation handles MJPG (cv2.imdecode reads dims
 from the JPEG header) and YUYV (raw layout — frame size taken
-from the source's :attr:`_info`, populated in ``open()``).
-Sources with non-standard byte layouts override.
+from the ``_info`` attribute the source sets in ``open()``).
+Sources with other byte layouts, or whose payload size differs
+from the size they report, override.
 
-Returns None on decode failure (caller skips the frame).
+Returns None when the frame cannot be decoded — corrupt JPEG,
+truncated raw payload — and the caller skips it.
 
 #### MkvSource.camera_controls *(property)*
 
@@ -1420,23 +1576,24 @@ Controls:
     its matcher when controls change) — call ``super().set(...)``
     first.
 
-Subclasses MUST register via ``@register_inference("slug")`` —
-that decorator stamps :data:`SLUG` and adds the class to the
-inference registry. The class also declares its catalog
-metadata (:attr:`LABEL`, :attr:`NEURAL`, :meth:`variants`) so the
-UI can list it without instantiating.
+Concrete classes register via ``@register_inference("slug")`` —
+the decorator sets :data:`SLUG` and adds the class to the inference
+registry. The class declares its catalog metadata (:attr:`LABEL`,
+:attr:`NEURAL`, and its variants via :meth:`_variants`) so the UI
+can list it without instantiating.
 
 #### DepthInferenceBase.variants *(classmethod)*
 
 ```python
-variants(cls) -> tuple
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
 ```
 
-Static catalog of every supported variant. Pure function —
-no I/O, no environment reads, no caching needed (cheap to
-recompute). Default empty; concrete inferences override.
-``@register_inference`` wraps this method to stamp the
-inference's slug onto each yielded :class:`Variant`.
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### DepthInferenceBase.get_variant *(classmethod)*
 
@@ -1522,12 +1679,10 @@ no-op — most backends don't need them (classical matchers,
 relative-depth nets, stereo nets that already consume a
 rectified pair).
 
-Called by the pipeline from
-:meth:`DepthPipeline._rebuild_calibration_geometry` whenever
-the canvas remap is rebuilt (start, calibration update, mode
-change). Focus-aware monocular metric-depth architectures
-(UniDepth, Metric3D, DepthPro) override to remember these
-and use them in their preprocess to produce metric depth.
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### DepthInferenceBase.control_get
 
@@ -1581,30 +1736,39 @@ class NeuralStereoInferenceBase(engine: depz_camera_sdk.engines.base.InferenceEn
 
 Stereo (disparity) inference backed by an ONNX/OpenVINO engine.
 
-Per-network inferences (:class:`LightStereoInference`,
-:class:`CREStereoInitialInference`, …) subclass this and define
-their own ``preprocess`` / ``postprocess``. Construction takes
-only a pre-built :class:`InferenceEngine`.
+Defaults: both eyes go through the class's blob recipe
+(:attr:`BLOB_MEAN` / :attr:`BLOB_SCALE`) into a two-input network;
+the output map, cropped to the valid canvas region, is the
+disparity in canvas pixels. Per-network classes
+(:class:`LightStereoInference`, :class:`CREStereoInitialInference`,
+…) set class attributes and override only what differs.
 
-Engine kwargs (forwarded via ``engine_kwargs={...}`` from
-:func:`build_inference`):
+Controls: none — nothing is tunable once the model is compiled.
+Pick different weights or a different engine instead.
 
-- ``cache_dir`` — override the SDK-wide cache root for compiled-
-  model storage. Defaults to :func:`depz_camera_sdk.get_cache_dir`;
-  backends that cache (OpenVINO) write into ``<cache_dir>/<backend>/``.
-- ``do_models_cache`` (OpenVINO) — set False to skip caching
-  entirely (useful for read-only filesystems / one-shot scripts).
-- ``nireq`` (OpenVINO) — async-queue depth.
+#### NeuralStereoInferenceBase.preprocess
 
-Controls: empty list — there are no runtime-tunable controls once
-the model is compiled. Tune via different weights / different
-engine slug instead.
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
+```
 
-#### NeuralStereoInferenceBase.architecture_slug *(property)*
+#### NeuralStereoInferenceBase.postprocess
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
+```
+
+#### NeuralStereoInferenceBase.make_blob_params *(classmethod)*
+
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### NeuralStereoInferenceBase.engine_slug *(property)*
 
@@ -1637,41 +1801,6 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### NeuralStereoInferenceBase.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
-#### NeuralStereoInferenceBase.preprocess
-
-```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
-```
-
-BGR canvas pair (uint8 HxWx3) → engine input blobs.
-
-Returns NCHW float32 blobs in the order the model declares
-its inputs. Most networks return ``(left_blob, right_blob)``;
-multi-stage ones (CREStereo combined) return more — e.g. 4
-blobs. Mono networks ignore ``canvas_r`` (``None`` on the
-mono pipeline path) and return a single-input tuple.
-
-#### NeuralStereoInferenceBase.postprocess
-
-```python
-postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
-```
-
-Raw engine output → 2D map in canvas pixels
-(``valid_h × valid_w`` float32, sliced to the unpadded region
-of the canvas). Stereo subclasses return disparity; mono
-subclasses return depth (or relative depth).
-
 #### NeuralStereoInferenceBase.submit
 
 ```python
@@ -1681,14 +1810,15 @@ submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_ca
 #### NeuralStereoInferenceBase.variants *(classmethod)*
 
 ```python
-variants(cls) -> tuple
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
 ```
 
-Static catalog of every supported variant. Pure function —
-no I/O, no environment reads, no caching needed (cheap to
-recompute). Default empty; concrete inferences override.
-``@register_inference`` wraps this method to stamp the
-inference's slug onto each yielded :class:`Variant`.
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### NeuralStereoInferenceBase.get_variant *(classmethod)*
 
@@ -1700,6 +1830,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### NeuralStereoInferenceBase.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### NeuralStereoInferenceBase.control_get
 
@@ -1751,14 +1897,16 @@ ControlOwner: filters, inference, calibration, pipeline.
 class NeuralMonoInferenceBase(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
 ```
 
-Monocular-depth base. Subclasses define the network-specific
-preprocess + postprocess and call :meth:`_apply_depth_affine` at
-the tail of postprocess.
+Monocular-depth base.
 
-The two controls ``depth_scale`` and ``depth_offset`` apply an affine
-``scale·raw + offset``. Defaults (1.0 / 0.0) — set via
-:class:`Control` after construction. Tune them once you
-know one reference distance.
+Defaults: the left eye goes through the class's blob recipe into a
+single-input network (the right canvas is ignored — ``None`` on the
+mono pipeline path); the output map, cropped to the valid canvas
+region and passed through the depth affine, is the depth.
+
+The two controls ``depth_scale`` and ``depth_offset`` apply
+``scale·raw + offset`` (defaults 1.0 / 0.0 — a no-op). Tune them
+once you know one reference distance.
 
 **Runtime controls** — read via the attribute, set via the owner's `set_*` API:
 
@@ -1767,11 +1915,29 @@ know one reference distance.
 | `depth_scale` | float | `1.0` | 0.001…1000.0 step 0.001 | — |
 | `depth_offset` | float | `0.0` | -100.0…100.0 step 0.01 | m |
 
-#### NeuralMonoInferenceBase.architecture_slug *(property)*
+#### NeuralMonoInferenceBase.preprocess
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
+```
+
+#### NeuralMonoInferenceBase.postprocess
+
+```python
+postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
+```
+
+#### NeuralMonoInferenceBase.make_blob_params *(classmethod)*
+
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### NeuralMonoInferenceBase.engine_slug *(property)*
 
@@ -1804,41 +1970,6 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### NeuralMonoInferenceBase.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
-#### NeuralMonoInferenceBase.preprocess
-
-```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
-```
-
-BGR canvas pair (uint8 HxWx3) → engine input blobs.
-
-Returns NCHW float32 blobs in the order the model declares
-its inputs. Most networks return ``(left_blob, right_blob)``;
-multi-stage ones (CREStereo combined) return more — e.g. 4
-blobs. Mono networks ignore ``canvas_r`` (``None`` on the
-mono pipeline path) and return a single-input tuple.
-
-#### NeuralMonoInferenceBase.postprocess
-
-```python
-postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
-```
-
-Raw engine output → 2D map in canvas pixels
-(``valid_h × valid_w`` float32, sliced to the unpadded region
-of the canvas). Stereo subclasses return disparity; mono
-subclasses return depth (or relative depth).
-
 #### NeuralMonoInferenceBase.submit
 
 ```python
@@ -1848,14 +1979,15 @@ submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_ca
 #### NeuralMonoInferenceBase.variants *(classmethod)*
 
 ```python
-variants(cls) -> tuple
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
 ```
 
-Static catalog of every supported variant. Pure function —
-no I/O, no environment reads, no caching needed (cheap to
-recompute). Default empty; concrete inferences override.
-``@register_inference`` wraps this method to stamp the
-inference's slug onto each yielded :class:`Variant`.
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### NeuralMonoInferenceBase.get_variant *(classmethod)*
 
@@ -1867,6 +1999,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### NeuralMonoInferenceBase.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### NeuralMonoInferenceBase.control_get
 
@@ -1915,7 +2063,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### SgbmInference
 
 ```python
-class SgbmInference(canvas_size: 'tuple[int, int]') -> None
+class SgbmInference(canvas_size: tuple[int, int]) -> None
 ```
 
 Classical Semi-Global Block Matching (cv2.StereoSGBM).
@@ -1944,12 +2092,6 @@ is a runtime control seeded from its descriptor default::
 | `pre_filter_cap` | int | `63` | 0…63 step 1 | — |
 | `mode` | int | `2` | `0.0`, `1.0`, `2.0`, `3.0` | — |
 
-#### SgbmInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### SgbmInference.label *(property)*
 
 #### SgbmInference.input_size *(property)*
@@ -1971,6 +2113,19 @@ postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.cali
 ```python
 control_set(self, name, value)
 ```
+
+#### SgbmInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### SgbmInference.get_variant *(classmethod)*
 
@@ -2025,12 +2180,10 @@ no-op — most backends don't need them (classical matchers,
 relative-depth nets, stereo nets that already consume a
 rectified pair).
 
-Called by the pipeline from
-:meth:`DepthPipeline._rebuild_calibration_geometry` whenever
-the canvas remap is rebuilt (start, calibration update, mode
-change). Focus-aware monocular metric-depth architectures
-(UniDepth, Metric3D, DepthPro) override to remember these
-and use them in their preprocess to produce metric depth.
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### SgbmInference.control_get
 
@@ -2065,7 +2218,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### StereoBMInference
 
 ```python
-class StereoBMInference(canvas_size: 'tuple[int, int]') -> None
+class StereoBMInference(canvas_size: tuple[int, int]) -> None
 ```
 
 Classical block matching (cv2.StereoBM).
@@ -2093,12 +2246,6 @@ is a runtime control seeded from its descriptor default::
 | `speckle_range` | int | `2` | 0…32 step 1 | — |
 | `disp12_max_diff` | int | `-1` | -1…32 step 1 | — |
 
-#### StereoBMInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### StereoBMInference.label *(property)*
 
 #### StereoBMInference.input_size *(property)*
@@ -2120,6 +2267,19 @@ postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.cali
 ```python
 control_set(self, name, value)
 ```
+
+#### StereoBMInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### StereoBMInference.get_variant *(classmethod)*
 
@@ -2174,12 +2334,10 @@ no-op — most backends don't need them (classical matchers,
 relative-depth nets, stereo nets that already consume a
 rectified pair).
 
-Called by the pipeline from
-:meth:`DepthPipeline._rebuild_calibration_geometry` whenever
-the canvas remap is rebuilt (start, calibration update, mode
-change). Focus-aware monocular metric-depth architectures
-(UniDepth, Metric3D, DepthPro) override to remember these
-and use them in their preprocess to produce metric depth.
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### StereoBMInference.control_get
 
@@ -2214,7 +2372,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### RectifyOnlyInference
 
 ```python
-class RectifyOnlyInference(canvas_size: 'tuple[int, int]') -> None
+class RectifyOnlyInference(canvas_size: tuple[int, int]) -> None
 ```
 
 Inference-shaped no-op for pipelines that only need rectification.
@@ -2237,14 +2395,8 @@ shape would::
     inf = RectifyOnlyInference(canvas_size=(360, 640))   # H × W
     DepthPipeline(source=src, inference=inf)
 
-The pipeline detects this class via :data:`SLUG` and routes every
-frame to the photo-mode bypass path.
-
-#### RectifyOnlyInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
+The pipeline recognises this class by type and routes every frame
+to the bypass path (no preprocess, no submit, no postprocess).
 
 #### RectifyOnlyInference.input_size *(property)*
 
@@ -2261,6 +2413,19 @@ submit(self, *_args, **_kwargs) -> depz_camera_sdk.engines.base.InferenceFuture
 ```python
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
+
+#### RectifyOnlyInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### RectifyOnlyInference.get_variant *(classmethod)*
 
@@ -2315,12 +2480,10 @@ no-op — most backends don't need them (classical matchers,
 relative-depth nets, stereo nets that already consume a
 rectified pair).
 
-Called by the pipeline from
-:meth:`DepthPipeline._rebuild_calibration_geometry` whenever
-the canvas remap is rebuilt (start, calibration update, mode
-change). Focus-aware monocular metric-depth architectures
-(UniDepth, Metric3D, DepthPro) override to remember these
-and use them in their preprocess to produce metric depth.
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### RectifyOnlyInference.control_get
 
@@ -2369,7 +2532,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### build_inference
 
 ```python
-build_inference(inference_slug: str, inference_variant_slug: str, *, engine_slug: Optional[str] = None, extra_engine_kwargs: dict | None = None, extra_inference_kwargs: dict | None = None, download_progress_cb: Union[Callable[[int, int], NoneType], bool, NoneType] = None) -> depz_camera_sdk.inference.base.DepthInferenceBase
+build_inference(inference_slug: str, inference_variant_slug: str, *, engine_slug: Optional[str] = None, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> depz_camera_sdk.inference.base.DepthInferenceBase
 ```
 
 One-shot: ``(inference_slug, variant_slug)`` → fully-initialized
@@ -2379,17 +2542,33 @@ One-shot: ``(inference_slug, variant_slug)`` → fully-initialized
    :meth:`get_variant` looks up the variant.
 2. :meth:`InferenceVariant.resolve_files` populates the cache
    (downloads on first use; cache hit is read-only ``stat()``s).
-3. ``variant.inference_kwargs`` (merged with
-   ``extra_inference_kwargs``) are forwarded to the constructor.
-   ``variant.engine_kwargs`` (merged with ``extra_engine_kwargs``)
-   are forwarded to :func:`make_engine`.
-4. Classical inferences (``cls.NEURAL = False``) are constructed
-   directly. Neural ones get an :class:`InferenceEngine` built
-   around the entry-point file and passed via ``engine=``.
+3. Classical inferences (``cls.NEURAL = False``) are constructed
+   directly with ``variant.inference_kwargs``. Neural ones get an
+   :class:`InferenceEngine` built around the entry-point file and
+   passed via ``engine=``.
 
 ``engine_slug`` defaults to :func:`recommend_engine` (best engine
-available on this host). ``download_progress_cb`` controls the
-cache-fill reporter — see :meth:`InferenceVariant.resolve_files`.
+available on this host). Downloads are silent unless
+``download_progress_cb(done_bytes, total_bytes)`` is given —
+:func:`stderr_progress` returns one that draws a console progress
+line.
+
+To pass engine options (``cache_dir``, ``nireq``, …) build the
+engine yourself: ``cls(engine=make_engine(slug, path, **options))``.
+
+### stderr_progress
+
+```python
+stderr_progress() -> Callable[[int, int], NoneType]
+```
+
+A ``download_progress_cb`` that draws a one-line progress display
+on stderr — for scripts and CLIs; the library itself never prints.
+Throttled to ~10 Hz; ends the line when the download completes.
+Make a fresh one per :func:`build_inference` /
+:meth:`InferenceVariant.resolve_files` call::
+
+    build_inference(slug, variant, download_progress_cb=stderr_progress())
 
 ### available_inferences
 
@@ -2400,6 +2579,16 @@ available_inferences() -> tuple[typing.Type[depz_camera_sdk.inference.base.Depth
 Every registered inference class, sorted by slug for
 deterministic UI listing.
 
+### get_inference
+
+```python
+get_inference(slug: str) -> Type[depz_camera_sdk.inference.base.DepthInferenceBase]
+```
+
+Look up an inference class by slug. Raises ``KeyError`` with a
+friendly message listing the registered slugs if the slug is
+unknown.
+
 ### register_inference
 
 ```python
@@ -2407,10 +2596,472 @@ register_inference(slug: str)
 ```
 
 Decorator: register a concrete :class:`DepthInferenceBase`
-subclass under ``slug``. Stamps :attr:`SLUG`, wraps
-:meth:`variants` to bind the slug onto each yielded
-:class:`InferenceVariant`, and adds the class to
-:data:`_INFERENCE_REGISTRY`.
+subclass under ``slug`` and set its :attr:`SLUG`. Nothing is
+changed on the class if registration is refused.
+
+### InferenceVariant
+
+```python
+class InferenceVariant(slug: str, label: str, files_to_download: tuple[depz_camera_sdk.inference.base.ModelFile, ...] = (), input_size: Optional[tuple[int, int]] = None, inference_kwargs: dict[str, typing.Any] = <factory>, configurations: dict[str, typing.Any] = <factory>, _inference_slug: str = '') -> None
+```
+
+One concrete configuration of an inference.
+
+``slug`` is the second identifier in the (inference, variant)
+pair — stable, URL-safe, unique within the inference's catalog.
+``label`` is the human-facing string the UI shows in the dropdown.
+
+``files_to_download`` lists every file the variant needs on disk.
+Empty tuple = nothing to fetch (classical algorithms — SGBM,
+StereoBM, rectify-only). For neural variants the **first** entry
+is the entry point the engine loads.
+
+``input_size`` is the ``(H, W)`` canvas the variant runs at — the
+model's fixed input size for neural variants, the chosen working
+size for classical ones. ``None`` when a variant does not pin one.
+
+``inference_kwargs`` are forwarded verbatim to the inference's
+constructor by :func:`build_inference`
+(``cls(engine=..., **variant.inference_kwargs)``). Use this for
+per-variant ctor args — SGBM/StereoBM/RectifyOnly ``canvas_size``,
+etc.
+
+``configurations`` is opaque to the framework — free-form metadata
+for consumers; the catalog stores the viewer's model-picker facts
+under ``"selector_meta"``. Not passed to the constructor or the
+engine.
+
+``inference_slug`` is bound by :meth:`DepthInferenceBase.variants`
+when the inference enumerates its catalog — concrete classes don't
+pass it when constructing the dataclass.
+
+#### InferenceVariant.inference_slug *(property)*
+
+Inference identifier (e.g. ``"lightstereo"``). Raises
+``ValueError`` when read on a variant whose registry binding
+hasn't happened (``_inference_slug`` is empty).
+
+#### InferenceVariant.cache_dir *(property)*
+
+Deterministic cache directory for this variant. Read-only
+path computation — does NOT create the directory. Layout:
+``<cache_root>/<inference_slug>/<slug>/``.
+
+#### InferenceVariant.inference *(property)*
+
+The inference class this variant belongs to — looked up
+via :func:`get_inference` from :attr:`inference_slug`.
+
+#### InferenceVariant.is_cached *(property)*
+
+True iff every file in :attr:`files_to_download` passes
+:meth:`ModelFile.is_cached` (present, size consistent). Cheap:
+``stat()`` calls and small sidecar reads only.
+
+#### InferenceVariant.resolve_files
+
+```python
+resolve_files(self, *, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> list[pathlib.Path]
+```
+
+Ensure the variant's cache directory is populated, then
+return absolute paths of every file in
+:attr:`files_to_download` (entry-point first).
+
+Silent by default. ``download_progress_cb(done_bytes,
+total_bytes)`` is called while a file is being transferred
+(never on a cache hit); pass :func:`stderr_progress` for a
+ready-made console progress line.
+
+### ModelFile
+
+```python
+class ModelFile(slug: str, filename: str, sha256: Optional[str] = None, size_bytes: Optional[int] = None, archive_member: Optional[str] = None) -> None
+```
+
+One file an :class:`InferenceVariant` needs at runtime.
+
+``slug`` is the model-registry identifier; the SDK resolves it
+to a public download URL at fetch time via the catalog service.
+Slugs are stable — moving a model between mirrors / CDNs / buckets
+is a server-side edit, not a client-side code change.
+
+``filename`` is the on-disk basename inside the variant cache
+directory. For archive downloads (``archive_member`` set), this
+is the *extracted* filename — the archive itself is discarded.
+
+``sha256`` and ``size_bytes`` are optional declarations of what the
+stored file must be; both are verified when the file is downloaded
+(a mismatch fails the download and caches nothing). ``size_bytes``
+also gives the UI a progress total before the HTTP response is read.
+
+``archive_member`` extracts a single file from an archive payload
+(zip currently supported). The resolved URL points at an archive,
+we open it in-memory / via tempfile, copy the named member into
+``filename``, and discard the archive — variant cache stays small.
+
+#### ModelFile.is_cached
+
+```python
+is_cached(self, target: pathlib.Path) -> bool
+```
+
+True iff ``target`` is on disk and passes the cheap integrity
+checks. Read-only — never opens a socket, never hashes.
+
+Checked: the file exists; its size equals :attr:`size_bytes`
+(when declared); and, when the SDK's ``<file>.meta.json`` sidecar
+is present, the size equals the one recorded at download time
+and the sidecar was written for this same :attr:`slug`. A file
+without a sidecar (placed by hand, or cached by an older SDK) is
+accepted on the size check alone.
+
+sha256 is NOT recomputed here — it is verified once, at download
+time, before the file enters the cache.
+
+#### ModelFile.resolve
+
+```python
+resolve(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> None
+```
+
+Ensure the file is on disk at ``target``: no-op if
+:meth:`is_cached`, otherwise download it. Safe to call from
+several processes at once — one downloads, the others wait and
+then find the file cached.
+
+#### ModelFile.download
+
+```python
+download(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None, *, timeout: float = 30.0) -> None
+```
+
+Fetch the file and land it at ``target`` atomically, replacing
+whatever is there. Direct download by default; archive-extract
+flow when :attr:`archive_member` is set.
+
+The stored file is verified against :attr:`size_bytes` and
+:attr:`sha256` (when declared) and, for direct downloads,
+against the server's Content-Length; on any mismatch nothing is
+cached and ``RuntimeError`` is raised. ``timeout`` bounds each
+connect / read, not the whole transfer. Concurrent downloads of
+the same target — other threads or other processes — are
+serialized by a lock file next to it.
+
+### LiteAnyStereoInference
+
+```python
+class LiteAnyStereoInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
+```
+
+LiteAnyStereo V2 S — fast disparity stereo. Takes RGB 0..255 (the
+network normalises internally); the ONNX exports have concrete H×W
+dims.
+
+The M size is :class:`LiteAnyStereoMInference` — a separate family,
+because the viewer keys the active preset card, its resolution list
+and the chosen resolution by family.
+
+#### LiteAnyStereoInference.preprocess
+
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
+```
+
+#### LiteAnyStereoInference.postprocess
+
+```python
+postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
+```
+
+#### LiteAnyStereoInference.make_blob_params *(classmethod)*
+
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
+
+#### LiteAnyStereoInference.engine_slug *(property)*
+
+Engine slug (e.g. ``"openvino-CPU"``). Read from the engine
+instance, which :func:`make_engine` stamps at construction.
+
+#### LiteAnyStereoInference.model_path *(property)*
+
+Resolved absolute path of the .onnx file.
+
+#### LiteAnyStereoInference.input_size *(property)*
+
+#### LiteAnyStereoInference.label *(property)*
+
+#### LiteAnyStereoInference.warmup
+
+```python
+warmup(self) -> None
+```
+
+#### LiteAnyStereoInference.abort
+
+```python
+abort(self) -> None
+```
+
+#### LiteAnyStereoInference.shutdown
+
+```python
+shutdown(self, abandon: bool = False) -> None
+```
+
+#### LiteAnyStereoInference.submit
+
+```python
+submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
+```
+
+#### LiteAnyStereoInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
+
+#### LiteAnyStereoInference.get_variant *(classmethod)*
+
+```python
+get_variant(cls, slug: str)
+```
+
+Look up a single variant by slug. Convenience over
+``next(v for v in cls.variants() if v.slug == slug)``. Raises
+``KeyError`` with a helpful message listing the inference's
+known variant slugs.
+
+#### LiteAnyStereoInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
+
+#### LiteAnyStereoInference.control_get
+
+```python
+control_get(self, name: str) -> Any
+```
+
+Return the current value of one control by name — reads its
+``_control_<name>`` backing attribute. Equivalent to ``host.<name>``
+(the descriptor) but takes the name as a string.
+
+#### LiteAnyStereoInference.control_set
+
+```python
+control_set(self, name: str, value: Any) -> Any
+```
+
+Apply one control update: look up descriptor, coerce + clamp by
+``kind``/``value_type``/``min``/``max``/``step``, ``setattr``
+onto ``_control_<name>``. Returns the value actually stored.
+
+Subclasses override to add side effects (e.g. SGBM rebuilds
+its matcher when controls change) — call ``super().control_set(...)``
+for the coerce/store, then act on the new value.
+
+#### LiteAnyStereoInference.controls_to_dict
+
+```python
+controls_to_dict(self) -> dict
+```
+
+Snapshot every current control value — for the UI live-state
+pane, recorder sidecar, etc.
+
+#### LiteAnyStereoInference.controls
+
+```python
+controls(self) -> tuple[depz_camera_sdk._controls.Control, ...]
+```
+
+This host's control descriptors — the class-level
+:data:`_CONTROL_SPECS` tuple (same object every call, no per-call
+allocation). The single public accessor shared by every
+ControlOwner: filters, inference, calibration, pipeline.
+
+### LiteAnyStereoMInference
+
+```python
+class LiteAnyStereoMInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
+```
+
+LiteAnyStereo V2 M — the same network with a deeper cost
+aggregation: about a third slower than S and clearly more accurate
+(Middlebury zero-shot Bad2.0 5.47 vs 8.87 in the paper). Same input
+and output contract as S.
+
+#### LiteAnyStereoMInference.preprocess
+
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
+```
+
+#### LiteAnyStereoMInference.postprocess
+
+```python
+postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
+```
+
+#### LiteAnyStereoMInference.make_blob_params *(classmethod)*
+
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
+
+#### LiteAnyStereoMInference.engine_slug *(property)*
+
+Engine slug (e.g. ``"openvino-CPU"``). Read from the engine
+instance, which :func:`make_engine` stamps at construction.
+
+#### LiteAnyStereoMInference.model_path *(property)*
+
+Resolved absolute path of the .onnx file.
+
+#### LiteAnyStereoMInference.input_size *(property)*
+
+#### LiteAnyStereoMInference.label *(property)*
+
+#### LiteAnyStereoMInference.warmup
+
+```python
+warmup(self) -> None
+```
+
+#### LiteAnyStereoMInference.abort
+
+```python
+abort(self) -> None
+```
+
+#### LiteAnyStereoMInference.shutdown
+
+```python
+shutdown(self, abandon: bool = False) -> None
+```
+
+#### LiteAnyStereoMInference.submit
+
+```python
+submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
+```
+
+#### LiteAnyStereoMInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
+
+#### LiteAnyStereoMInference.get_variant *(classmethod)*
+
+```python
+get_variant(cls, slug: str)
+```
+
+Look up a single variant by slug. Convenience over
+``next(v for v in cls.variants() if v.slug == slug)``. Raises
+``KeyError`` with a helpful message listing the inference's
+known variant slugs.
+
+#### LiteAnyStereoMInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
+
+#### LiteAnyStereoMInference.control_get
+
+```python
+control_get(self, name: str) -> Any
+```
+
+Return the current value of one control by name — reads its
+``_control_<name>`` backing attribute. Equivalent to ``host.<name>``
+(the descriptor) but takes the name as a string.
+
+#### LiteAnyStereoMInference.control_set
+
+```python
+control_set(self, name: str, value: Any) -> Any
+```
+
+Apply one control update: look up descriptor, coerce + clamp by
+``kind``/``value_type``/``min``/``max``/``step``, ``setattr``
+onto ``_control_<name>``. Returns the value actually stored.
+
+Subclasses override to add side effects (e.g. SGBM rebuilds
+its matcher when controls change) — call ``super().control_set(...)``
+for the coerce/store, then act on the new value.
+
+#### LiteAnyStereoMInference.controls_to_dict
+
+```python
+controls_to_dict(self) -> dict
+```
+
+Snapshot every current control value — for the UI live-state
+pane, recorder sidecar, etc.
+
+#### LiteAnyStereoMInference.controls
+
+```python
+controls(self) -> tuple[depz_camera_sdk._controls.Control, ...]
+```
+
+This host's control descriptors — the class-level
+:data:`_CONTROL_SPECS` tuple (same object every call, no per-call
+allocation). The single public accessor shared by every
+ControlOwner: filters, inference, calibration, pipeline.
 
 ### DepzStereoInference
 
@@ -2418,20 +3069,14 @@ subclass under ``slug``. Stamps :attr:`SLUG`, wraps
 class DepzStereoInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
 ```
 
-DEPZ Stereo — fast disparity stereo, DEPZ's own model. ImageNet-
-norm preprocess, squeeze-and-crop postprocess. ONNX exports pin
-(H, W) in the graph, so no INPUT_SIZE override needed.
-
-#### DepzStereoInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
+DEPZ Stereo — fast disparity stereo, DEPZ's own model.
+ImageNet-normalised input; the ONNX exports pin (H, W) in the
+graph.
 
 #### DepzStereoInference.preprocess
 
 ```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
 ```
 
 #### DepzStereoInference.postprocess
@@ -2440,11 +3085,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[nump
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### DepzStereoInference.architecture_slug *(property)*
+#### DepzStereoInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### DepzStereoInference.engine_slug *(property)*
 
@@ -2477,21 +3128,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### DepzStereoInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### DepzStereoInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### DepzStereoInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### DepzStereoInference.get_variant *(classmethod)*
 
@@ -2503,6 +3157,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### DepzStereoInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### DepzStereoInference.control_get
 
@@ -2554,20 +3224,13 @@ ControlOwner: filters, inference, calibration, pipeline.
 class LightStereoInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
 ```
 
-LightStereo — fast disparity stereo. ImageNet-norm preprocess,
-squeeze-and-crop postprocess. ONNX exports pin (H, W) in the
-graph, so no INPUT_SIZE override needed.
-
-#### LightStereoInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
+LightStereo — fast disparity stereo. ImageNet-normalised input;
+the ONNX exports pin (H, W) in the graph.
 
 #### LightStereoInference.preprocess
 
 ```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
 ```
 
 #### LightStereoInference.postprocess
@@ -2576,11 +3239,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[nump
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### LightStereoInference.architecture_slug *(property)*
+#### LightStereoInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### LightStereoInference.engine_slug *(property)*
 
@@ -2613,21 +3282,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### LightStereoInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### LightStereoInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### LightStereoInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### LightStereoInference.get_variant *(classmethod)*
 
@@ -2639,6 +3311,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### LightStereoInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### LightStereoInference.control_get
 
@@ -2692,16 +3380,10 @@ class CREStereoInitialInference(engine: depz_camera_sdk.engines.base.InferenceEn
 
 High-accuracy stereo (CREStereo iter2 init export).
 
-#### CREStereoInitialInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### CREStereoInitialInference.preprocess
 
 ```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
 ```
 
 #### CREStereoInitialInference.postprocess
@@ -2710,11 +3392,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[nump
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### CREStereoInitialInference.architecture_slug *(property)*
+#### CREStereoInitialInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### CREStereoInitialInference.engine_slug *(property)*
 
@@ -2747,21 +3435,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### CREStereoInitialInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### CREStereoInitialInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### CREStereoInitialInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### CREStereoInitialInference.get_variant *(classmethod)*
 
@@ -2773,6 +3464,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### CREStereoInitialInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### CREStereoInitialInference.control_get
 
@@ -2826,17 +3533,14 @@ class CREStereoCombinedInference(engine: depz_camera_sdk.engines.base.InferenceE
 
 CREStereo combined-stage stereo (init + next, single graph).
 
-#### CREStereoCombinedInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### CREStereoCombinedInference.preprocess
 
 ```python
 preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, ...]
 ```
+
+Four blobs: the pair at half resolution for the init stage,
+then at full resolution for the refinement stage.
 
 #### CREStereoCombinedInference.postprocess
 
@@ -2844,11 +3548,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[nump
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### CREStereoCombinedInference.architecture_slug *(property)*
+#### CREStereoCombinedInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### CREStereoCombinedInference.engine_slug *(property)*
 
@@ -2881,21 +3591,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### CREStereoCombinedInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### CREStereoCombinedInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### CREStereoCombinedInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### CREStereoCombinedInference.get_variant *(classmethod)*
 
@@ -2907,6 +3620,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### CREStereoCombinedInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### CREStereoCombinedInference.control_get
 
@@ -2959,21 +3688,14 @@ class CFastFoundationStereoInference(engine: depz_camera_sdk.engines.base.Infere
 ```
 
 C-Fast-FoundationStereo — real-time zero-shot stereo disparity.
-ImageNet-norm preprocess (the export strips in-graph normalization),
-squeeze-and-crop postprocess. The ONNX exports pin (H, W) in the graph
-and emit a single ``disparity`` output, so no INPUT_SIZE / OUTPUT_NAME
-override is needed.
-
-#### CFastFoundationStereoInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
+ImageNet-normalised input (the export strips in-graph
+normalisation). The ONNX exports pin (H, W) in the graph and emit a
+single ``disparity`` output.
 
 #### CFastFoundationStereoInference.preprocess
 
 ```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[numpy.ndarray, numpy.ndarray]
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
 ```
 
 #### CFastFoundationStereoInference.postprocess
@@ -2982,11 +3704,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray) -> tuple[nump
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### CFastFoundationStereoInference.architecture_slug *(property)*
+#### CFastFoundationStereoInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### CFastFoundationStereoInference.engine_slug *(property)*
 
@@ -3019,21 +3747,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### CFastFoundationStereoInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### CFastFoundationStereoInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### CFastFoundationStereoInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### CFastFoundationStereoInference.get_variant *(classmethod)*
 
@@ -3045,6 +3776,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### CFastFoundationStereoInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### CFastFoundationStereoInference.control_get
 
@@ -3096,8 +3843,8 @@ ControlOwner: filters, inference, calibration, pipeline.
 class DepthAnythingV2SmallInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
 ```
 
-Monocular relative-depth via DPT-S backbone. ImageNet-norm
-preprocess; relative-depth output → user-tunable scale + offset.
+Monocular relative-depth via DPT-S backbone. ImageNet-normalised
+input; relative-depth output → user-tunable scale + offset.
 
 **Runtime controls** — read via the attribute, set via the owner's `set_*` API:
 
@@ -3106,16 +3853,10 @@ preprocess; relative-depth output → user-tunable scale + offset.
 | `depth_scale` | float | `1.0` | 0.001…1000.0 step 0.001 | — |
 | `depth_offset` | float | `0.0` | -100.0…100.0 step 0.01 | m |
 
-#### DepthAnythingV2SmallInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### DepthAnythingV2SmallInference.preprocess
 
 ```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: 'np.ndarray | None') -> tuple[numpy.ndarray]
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
 ```
 
 #### DepthAnythingV2SmallInference.postprocess
@@ -3124,11 +3865,17 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: 'np.ndarray | None') -> tupl
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### DepthAnythingV2SmallInference.architecture_slug *(property)*
+#### DepthAnythingV2SmallInference.make_blob_params *(classmethod)*
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### DepthAnythingV2SmallInference.engine_slug *(property)*
 
@@ -3161,21 +3908,24 @@ abort(self) -> None
 shutdown(self, abandon: bool = False) -> None
 ```
 
-#### DepthAnythingV2SmallInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Optional hook — focus-aware mono networks (e.g. Metric3D
-V2) override to remember the values for use in
-:meth:`preprocess`. Default no-op.
-
 #### DepthAnythingV2SmallInference.submit
 
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### DepthAnythingV2SmallInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### DepthAnythingV2SmallInference.get_variant *(classmethod)*
 
@@ -3187,6 +3937,22 @@ Look up a single variant by slug. Convenience over
 ``next(v for v in cls.variants() if v.slug == slug)``. Raises
 ``KeyError`` with a helpful message listing the inference's
 known variant slugs.
+
+#### DepthAnythingV2SmallInference.set_intrinsics
+
+```python
+set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
+```
+
+Push canvas-space intrinsics to the inference. Default
+no-op — most backends don't need them (classical matchers,
+relative-depth nets, stereo nets that already consume a
+rectified pair).
+
+Called by the pipeline whenever the canvas remap is rebuilt
+(start, calibration update, fit-mode change). Focus-aware
+monocular metric-depth networks (Metric3D) override to remember
+them and scale their output to metric depth.
 
 #### DepthAnythingV2SmallInference.control_get
 
@@ -3248,22 +4014,10 @@ ViT-S/14 backbone).
 | `depth_scale` | float | `1.0` | 0.001…1000.0 step 0.001 | — |
 | `depth_offset` | float | `0.0` | -100.0…100.0 step 0.01 | m |
 
-#### Metric3DV2VitSmallInference.variants *(classmethod)*
-
-```python
-variants(cls_) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
 #### Metric3DV2VitSmallInference.set_intrinsics
 
 ```python
 set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-#### Metric3DV2VitSmallInference.preprocess
-
-```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: 'np.ndarray | None') -> tuple[numpy.ndarray]
 ```
 
 #### Metric3DV2VitSmallInference.postprocess
@@ -3272,11 +4026,23 @@ preprocess(self, canvas_l: numpy.ndarray, canvas_r: 'np.ndarray | None') -> tupl
 postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
 ```
 
-#### Metric3DV2VitSmallInference.architecture_slug *(property)*
+#### Metric3DV2VitSmallInference.preprocess
 
-Network identity slug (e.g. ``"lightstereo"``). Set by the
-``@register_inference("...")`` decorator on the concrete
-subclass.
+```python
+preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
+```
+
+#### Metric3DV2VitSmallInference.make_blob_params *(classmethod)*
+
+```python
+make_blob_params(cls) -> cv2.dnn.Image2BlobParams
+```
+
+The network's input recipe as ``cv2.dnn.Image2BlobParams``:
+BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
+float32, no resize. A classmethod so tools can preprocess for a
+network without building an engine:
+``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
 
 #### Metric3DV2VitSmallInference.engine_slug *(property)*
 
@@ -3314,6 +4080,19 @@ shutdown(self, abandon: bool = False) -> None
 ```python
 submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
 ```
+
+#### Metric3DV2VitSmallInference.variants *(classmethod)*
+
+```python
+variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
+```
+
+Catalog of every supported variant, each bound to this
+inference's :data:`SLUG` (the cache layout, the download flow
+and :func:`build_inference` need that back-pointer). Pure — no
+I/O, cheap to recompute.
+
+Do not override: declare the variants in :meth:`_variants`.
 
 #### Metric3DV2VitSmallInference.get_variant *(classmethod)*
 
@@ -3370,142 +4149,18 @@ This host's control descriptors — the class-level
 allocation). The single public accessor shared by every
 ControlOwner: filters, inference, calibration, pipeline.
 
-### InferenceVariant
+### onnx_variant
 
 ```python
-class InferenceVariant(slug: str, label: str, files_to_download: tuple[depz_camera_sdk.inference.base.ModelFile, ...] = (), inference_kwargs: dict[str, typing.Any] = <factory>, engine_kwargs: dict[str, typing.Any] = <factory>, configurations: dict[str, typing.Any] = <factory>, _inference_slug: str = '') -> None
+onnx_variant(*, slug: str, label: str, input_size: tuple[int, int], model_slug: str, selector_meta: dict, archive_member: Optional[str] = None, sha256: Optional[str] = None, size_bytes: Optional[int] = None) -> depz_camera_sdk.inference.base.InferenceVariant
 ```
 
-One concrete configuration of an inference.
-
-``slug`` is the second identifier in the (inference, variant)
-pair — stable, URL-safe, unique within the inference's catalog.
-``label`` is the human-facing string the UI shows in the dropdown.
-
-``files_to_download`` lists every file the variant needs on disk.
-Empty tuple = nothing to fetch (classical algorithms — SGBM,
-StereoBM, rectify-only). For neural variants the **first** entry
-is the entry point the engine loads.
-
-``inference_kwargs`` are forwarded verbatim to the inference's
-constructor by :func:`build_inference`
-(``cls(engine=..., **variant.inference_kwargs)``). Use this for
-per-variant ctor args — SGBM/StereoBM/RectifyOnly ``canvas_size``,
-etc.
-
-``engine_kwargs`` are forwarded to :func:`make_engine` when the
-engine is built (``make_engine(slug, model_path, **engine_kwargs)``).
-Use this for per-variant engine controls (``input_shape`` for
-dynamic-shape ONNXes, ``providers``, ``cache_dir``).
-
-``configurations`` is opaque to the framework — free-form metadata for the
-UI / debugging (``size``, ``dataset``, ``input_size``, …). Not
-passed to either the constructor or the engine.
-
-``inference_slug`` is filled in by ``register_inference`` when the
-inference enumerates its variants — concrete subclasses don't pass
-it when constructing the dataclass.
-
-#### InferenceVariant.inference_slug *(property)*
-
-Inference identifier (e.g. ``"lightstereo"``). Raises
-``ValueError`` when read on a variant whose registry binding
-hasn't happened (``_inference_slug`` is empty).
-
-#### InferenceVariant.cache_dir *(property)*
-
-Deterministic cache directory for this variant. Read-only
-path computation — does NOT create the directory. Layout:
-``<cache_root>/<inference_slug>/<slug>/``.
-
-#### InferenceVariant.inference *(property)*
-
-The inference class this variant belongs to — looked up
-via :func:`get_inference` from :attr:`inference_slug`.
-
-#### InferenceVariant.is_cached *(property)*
-
-True iff every file in :attr:`files_to_download` is on disk
-with matching size + sha256 (when declared).
-
-#### InferenceVariant.resolve_files
-
-```python
-resolve_files(self, *, download_progress_cb: Union[Callable[[int, int], NoneType], bool, NoneType] = None) -> list[pathlib.Path]
-```
-
-Ensure the variant's cache directory is populated, then
-return absolute paths of every file in
-:attr:`files_to_download` (entry-point first).
-
-### ModelFile
-
-```python
-class ModelFile(slug: str, filename: str, sha256: Optional[str] = None, size_bytes: Optional[int] = None, archive_member: Optional[str] = None) -> None
-```
-
-One file an :class:`InferenceVariant` needs at runtime.
-
-``slug`` is the model-registry identifier; the SDK resolves it
-to a public download URL at fetch time via the catalog service.
-Slugs are stable — moving a model between mirrors / CDNs / buckets
-is a server-side edit, not a client-side code change.
-
-``filename`` is the on-disk basename inside the variant cache
-directory. For archive downloads (``archive_member`` set), this
-is the *extracted* filename — the archive itself is discarded.
-
-``sha256`` is optional but strongly recommended — it's the only
-way :meth:`InferenceVariant.resolve_files` can tell a corrupted-
-but-right-size file from a good one. ``size_bytes`` is advisory:
-surfaced to the UI for download-progress totals before the HTTP
-response is read.
-
-``archive_member`` extracts a single file from an archive payload
-(zip currently supported). The resolved URL points at an archive,
-we open it in-memory / via tempfile, copy the named member into
-``filename``, and discard the archive — variant cache stays small.
-
-#### ModelFile.is_cached
-
-```python
-is_cached(self, target: pathlib.Path) -> bool
-```
-
-True iff ``target`` exists with matching size + sha256
-(when declared). Read-only — never opens a socket. On the hot
-read path we don't recompute sha256: it's verified at download
-time, and a corrupted-but-right-size file is rare enough that
-it surfaces as an ONNX-load error one layer up.
-
-#### ModelFile.resolve
-
-```python
-resolve(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> None
-```
-
-Ensure the file is on disk at ``target``: no-op if
-:meth:`is_cached`, otherwise :meth:`download`.
-
-#### ModelFile.download
-
-```python
-download(self, target: pathlib.Path, download_progress_cb: Optional[Callable[[int, int], NoneType]] = None) -> None
-```
-
-Resolve :attr:`slug` to a URL, fetch it, and land the result
-at ``target`` atomically. Direct file download by default;
-archive-extract flow when :attr:`archive_member` is set.
-
-### get_inference
-
-```python
-get_inference(slug: str) -> Type[depz_camera_sdk.inference.base.DepthInferenceBase]
-```
-
-Look up an inference class by slug. Raises ``KeyError`` with a
-friendly message listing the registered slugs if the slug is
-unknown.
+The common catalog entry: one ONNX file, stored as ``model.onnx``
+in the variant's cache directory, running at a fixed ``input_size``
+``(H, W)``. ``model_slug`` is the model-registry identifier of the
+download (see :class:`ModelFile`); ``archive_member`` names the
+``.onnx`` inside it when the download is a zip. ``selector_meta``
+lands in ``configurations["selector_meta"]``.
 
 ### cache_root
 
@@ -3513,10 +4168,33 @@ unknown.
 cache_root() -> pathlib.Path
 ```
 
-Root directory for downloaded variant cache. Sub-directory of
+Root directory of the downloaded-model cache: ``models/`` under
 the SDK-wide cache root (:func:`depz_camera_sdk.get_cache_dir`), so
-every consumer benefits from the same redirect. Created lazily by
-:meth:`InferenceVariant.resolve_files` when the first variant lands.
+one :func:`depz_camera_sdk.set_cache_dir` call moves everything.
+Created lazily by :meth:`InferenceVariant.resolve_files` when the
+first variant lands.
+
+### IMAGENET_BLOB_MEAN
+
+`tuple` constant.
+
+Built-in immutable sequence.
+
+If no argument is given, the constructor returns an empty tuple.
+If iterable is specified the tuple is initialized from iterable's items.
+
+If the argument is a tuple, the return value is the same object.
+
+### IMAGENET_BLOB_SCALE
+
+`tuple` constant.
+
+Built-in immutable sequence.
+
+If no argument is given, the constructor returns an empty tuple.
+If iterable is specified the tuple is initialized from iterable's items.
+
+If the argument is a tuple, the return value is the same object.
 
 ## Engines
 
@@ -3773,11 +4451,15 @@ in any case — both kind and device/EP tail are normalized to the
 canonical form each backend expects (OpenVINO devices uppercase,
 ONNX EPs lowercase).
 
-Extra kwargs are passed through to the backend constructor.
-The most useful one is ``cache_dir=`` — backends that cache
-compiled models on disk (currently OpenVINO) will use
-``<cache_dir>/<backend>/`` as the cache root. Defaults to
-:func:`depz_camera_sdk.get_cache_dir` when omitted.
+Keyword options go to the engine constructor. Both kinds accept
+``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick
+one output of a multi-head model) and ``cache_dir`` (override
+:func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk
+cache: ``<cache_dir>/openvino/`` compiled blobs,
+``<cache_dir>/onnx-opt/`` optimized graphs). ``nireq`` and
+``do_models_cache`` are OpenVINO-only; ``num_threads`` is
+ONNX-only. An option the chosen kind does not have raises
+``TypeError`` naming it and listing the ones that apply.
 
 ### parse_engine_slug
 
@@ -3819,7 +4501,7 @@ sort keys (lower = higher priority); only relative order matters.
 ### Calibration
 
 ```python
-class Calibration(*, canvas_fit_mode: 'str | None' = None) -> None
+class Calibration(*, canvas_fit_mode: str | None = None) -> None
 ```
 
 Calibration: rectifier + canvas-fit remap + depth/cloud projection.
@@ -3854,14 +4536,6 @@ math, and depth-projection math — that all lives on this base.
 | control | type | default | range / values | unit |
 |---|---|---|---|---|
 | `canvas_fit_mode` | str | `fit-with-padding-middle` | `fit-with-padding-middle`, `fit-with-padding-upper-left`, `fill-with-cropping` | — |
-
-#### Calibration.SDK_PARAMS *(property)*
-
-Names of every runtime control. Derived from :meth:`controls`
-— kept as a property (not ClassVar any more) for backwards
-compatibility with callers that snapshot the namespace.
-
-#### Calibration.is_loaded *(property)*
 
 #### Calibration.baseline_m *(property)*
 
@@ -3905,7 +4579,7 @@ no ``kind`` tag, no structural sniffing.
 #### Calibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> 'Calibration'
+from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
@@ -3955,6 +4629,11 @@ Two forms supported:
     everything and recompute rectification.
   • Partial — class-specific subset; dispatched to
     :meth:`_apply_partial`.
+
+Either form is all-or-nothing: if the patch is malformed or
+the rectification cannot be computed from it, the calibration
+is restored to exactly what it was (canvas remap included) and
+the error propagates.
 
 Pipeline drains in-flight inference + resets stateful filters
 BEFORE calling this, so impls can rebuild eagerly without locks.
@@ -4058,19 +4737,6 @@ Costs one extra allocation pair per call (~3 MB at
 canvas 1280×720); negligible vs the cv2.remap itself for
 correctness-critical or low-fps consumers.
 
-#### Calibration.rectify
-
-```python
-rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
-```
-
-Native-res rectified pair. Fresh arrays each call.
-
-Diagnostic / API-parity utility. The pipeline worker uses
-:meth:`canvas_remap` instead — it fuses rectify + canvas-fit
-into one cv2.remap. On mono calibrations (or when ``right`` is
-None) returns ``(rectified_left, None)``.
-
 #### Calibration.disparity_to_depth
 
 ```python
@@ -4091,7 +4757,15 @@ Override for non-pinhole models. Raises on mono calibrations
 depth_to_point_cloud(self, depth_m: numpy.ndarray) -> numpy.ndarray
 ```
 
-Back-project depth to a 3D point cloud (h, w, 3) in meters.
+Back-project depth to a 3D point cloud (h, w, 3) in meters,
+in the rectified-left camera frame (X right, Y down, Z forward).
+
+``depth_m`` is normally the VALID region of the canvas —
+``valid_h × valid_w``, what every inference ``postprocess``
+returns after cropping the letterbox padding away; its pixel
+(0, 0) is canvas pixel (``pad_x``, ``pad_y``), and the
+principal point is shifted accordingly. A full-canvas-sized map
+is back-projected with the canvas intrinsics as they are.
 
 Default: pinhole unprojection using rectified P_left intrinsics.
 Override for fisheye / omnidir.
@@ -4144,7 +4818,7 @@ downstream stages don't see padding.
 ### OpenCVBasicCalibration
 
 ```python
-class OpenCVBasicCalibration(*, rectify_alpha: 'float | None' = None, canvas_fit_mode: 'str | None' = None) -> None
+class OpenCVBasicCalibration(*, rectify_alpha: float | None = None, canvas_fit_mode: str | None = None) -> None
 ```
 
 Pinhole + 8-coefficient radtan distortion.
@@ -4168,14 +4842,6 @@ Rectification: ``cv2.stereoRectify`` + ``cv2.initUndistortRectifyMap``.
 ```python
 control_set(self, key: str, value: Any) -> Any
 ```
-
-#### OpenCVBasicCalibration.SDK_PARAMS *(property)*
-
-Names of every runtime control. Derived from :meth:`controls`
-— kept as a property (not ClassVar any more) for backwards
-compatibility with callers that snapshot the namespace.
-
-#### OpenCVBasicCalibration.is_loaded *(property)*
 
 #### OpenCVBasicCalibration.baseline_m *(property)*
 
@@ -4219,7 +4885,7 @@ no ``kind`` tag, no structural sniffing.
 #### OpenCVBasicCalibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> 'Calibration'
+from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
@@ -4269,6 +4935,11 @@ Two forms supported:
     everything and recompute rectification.
   • Partial — class-specific subset; dispatched to
     :meth:`_apply_partial`.
+
+Either form is all-or-nothing: if the patch is malformed or
+the rectification cannot be computed from it, the calibration
+is restored to exactly what it was (canvas remap included) and
+the error propagates.
 
 Pipeline drains in-flight inference + resets stateful filters
 BEFORE calling this, so impls can rebuild eagerly without locks.
@@ -4353,19 +5024,6 @@ Costs one extra allocation pair per call (~3 MB at
 canvas 1280×720); negligible vs the cv2.remap itself for
 correctness-critical or low-fps consumers.
 
-#### OpenCVBasicCalibration.rectify
-
-```python
-rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
-```
-
-Native-res rectified pair. Fresh arrays each call.
-
-Diagnostic / API-parity utility. The pipeline worker uses
-:meth:`canvas_remap` instead — it fuses rectify + canvas-fit
-into one cv2.remap. On mono calibrations (or when ``right`` is
-None) returns ``(rectified_left, None)``.
-
 #### OpenCVBasicCalibration.disparity_to_depth
 
 ```python
@@ -4386,7 +5044,15 @@ Override for non-pinhole models. Raises on mono calibrations
 depth_to_point_cloud(self, depth_m: numpy.ndarray) -> numpy.ndarray
 ```
 
-Back-project depth to a 3D point cloud (h, w, 3) in meters.
+Back-project depth to a 3D point cloud (h, w, 3) in meters,
+in the rectified-left camera frame (X right, Y down, Z forward).
+
+``depth_m`` is normally the VALID region of the canvas —
+``valid_h × valid_w``, what every inference ``postprocess``
+returns after cropping the letterbox padding away; its pixel
+(0, 0) is canvas pixel (``pad_x``, ``pad_y``), and the
+principal point is shifted accordingly. A full-canvas-sized map
+is back-projected with the canvas intrinsics as they are.
 
 Default: pinhole unprojection using rectified P_left intrinsics.
 Override for fisheye / omnidir.
@@ -4424,7 +5090,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### OpenCVFisheyeCalibration
 
 ```python
-class OpenCVFisheyeCalibration(*, horizontal_fov_rad: 'float | None' = None, vertical_fov_rad: 'float | None' = None, canvas_fit_mode: 'str | None' = None) -> None
+class OpenCVFisheyeCalibration(*, horizontal_fov_rad: float | None = None, vertical_fov_rad: float | None = None, canvas_fit_mode: str | None = None) -> None
 ```
 
 Kannala–Brandt fisheye, lon/lat-rectified.
@@ -4473,14 +5139,6 @@ depth_to_point_cloud(self, range_m: numpy.ndarray) -> numpy.ndarray
 Back-project ERP slant range to 3D points in the rectified-
 left frame (X right along baseline, Y down, Z forward).
 
-#### OpenCVFisheyeCalibration.SDK_PARAMS *(property)*
-
-Names of every runtime control. Derived from :meth:`controls`
-— kept as a property (not ClassVar any more) for backwards
-compatibility with callers that snapshot the namespace.
-
-#### OpenCVFisheyeCalibration.is_loaded *(property)*
-
 #### OpenCVFisheyeCalibration.baseline_m *(property)*
 
 #### OpenCVFisheyeCalibration.focal_native_px *(property)*
@@ -4523,7 +5181,7 @@ no ``kind`` tag, no structural sniffing.
 #### OpenCVFisheyeCalibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> 'Calibration'
+from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
@@ -4573,6 +5231,11 @@ Two forms supported:
     everything and recompute rectification.
   • Partial — class-specific subset; dispatched to
     :meth:`_apply_partial`.
+
+Either form is all-or-nothing: if the patch is malformed or
+the rectification cannot be computed from it, the calibration
+is restored to exactly what it was (canvas remap included) and
+the error propagates.
 
 Pipeline drains in-flight inference + resets stateful filters
 BEFORE calling this, so impls can rebuild eagerly without locks.
@@ -4661,19 +5324,6 @@ Costs one extra allocation pair per call (~3 MB at
 canvas 1280×720); negligible vs the cv2.remap itself for
 correctness-critical or low-fps consumers.
 
-#### OpenCVFisheyeCalibration.rectify
-
-```python
-rectify(self, left: numpy.ndarray, right: Optional[numpy.ndarray] = None) -> tuple[numpy.ndarray, typing.Optional[numpy.ndarray]]
-```
-
-Native-res rectified pair. Fresh arrays each call.
-
-Diagnostic / API-parity utility. The pipeline worker uses
-:meth:`canvas_remap` instead — it fuses rectify + canvas-fit
-into one cv2.remap. On mono calibrations (or when ``right`` is
-None) returns ``(rectified_left, None)``.
-
 #### OpenCVFisheyeCalibration.control_get
 
 ```python
@@ -4747,9 +5397,10 @@ Lifecycle (per pipeline):
   - per-frame: pipeline calls ``apply(frame)`` (no-op when disabled).
   - on seek / canvas resize / disable→enable flip: pipeline calls
     ``reset()``.
-  - param change: caller goes through pipeline command queue, which
-    ultimately calls ``set(name, value)`` on the filter from the
-    worker thread.
+  - param change: caller goes through the pipeline
+    (``set_filter_control``), which calls
+    ``control_set(name, value)`` on the filter from the worker
+    thread.
 
 Subclass contract:
   - set ``SLUG`` (canonical id, e.g. ``"median"``) — the stable
@@ -4759,9 +5410,10 @@ Subclass contract:
     :class:`DepthFilter` / :class:`PointCloudFilter` to declare
     ``OPERATES_ON``; do not set ``OPERATES_ON`` directly.
   - optional ``LABEL`` (defaults to ``SLUG`` if empty).
-  - declare ``_CONTROL_SPECS`` (a tuple of :class:`Control`); its first
-    entry MUST be the ``"enabled"`` boolean. Read-only properties
-    and default seeding are generated from it.
+  - declare the controls as class attributes — typed descriptors
+    (:class:`BoolControl`, :class:`IntControl`, …); the first one
+    MUST be the ``enabled`` boolean. Reading ``self.<name>`` gives
+    the current value; defaults are seeded from the descriptors.
   - implement ``apply()``.
 
 ``control_get``/``control_set``/``controls_to_dict`` and the default
@@ -5569,8 +6221,9 @@ identifier (from :meth:`PlatformBackend.list_cameras`).
 
 The calibration block is read from ``payload["base_calibration"]``
 (the inner cereal shape — same one :meth:`Calibration.to_dict`
-emits). Server device-info payloads are normalized to this
-shape inside :func:`fetch_camera_info_json` before reaching here.
+emits). That is the shape the device-info endpoint returns
+(:func:`fetch_camera_info_json` passes it through unchanged) and
+the shape :meth:`to_dict` writes into recordings.
 
 Returns ``None`` if any required piece is missing or unrecognized:
 ``serial_number`` / ``sku`` not in payload, SKU not in the device
@@ -5765,10 +6418,12 @@ get_mode(self, slug: str) -> depz_camera_sdk.cameras.camera_spec.CaptureMode
 
 Look up one :class:`CaptureMode` by its :attr:`CaptureMode.slug`.
 
-Slug format is ``"{W}x{H}@{fps}/{FOURCC}"`` with optional
-``/mono`` suffix. Use this when round-tripping a mode through
-the wire (UI dropdown values, RPC params, MKV sidecar) — saves
-re-introspecting the spec by tuple-matching W/H/fps/fourcc/mono.
+Slug format is ``"{eye_W}x{eye_H}@{fps}/{FOURCC}"``, with
+``/stereo`` appended for stereo modes (see
+:attr:`CaptureMode.slug`). Use this when round-tripping a mode
+through the wire (UI dropdown values, RPC params, the
+``CAPTURE_MODE`` tag of an MKV recording) — saves
+re-introspecting the spec by matching W/H/fps/fourcc/stereo.
 
 Raises :class:`KeyError` if no mode matches; the message lists
 every available slug for the spec so a typo is easy to spot.
@@ -5792,6 +6447,24 @@ serial to a SKU, and :func:`spec_by_sku` walks that SKU back to
 the matching spec.
 
 ### DEPZ_CLARITY
+
+`CameraSpec` constant.
+
+Curated description of one camera firmware-class. Identified
+by its :attr:`skus` — the camera-info endpoint maps a unit's
+serial to a SKU, and :func:`spec_by_sku` walks that SKU back to
+the matching spec.
+
+### DEPZ_MONO
+
+`CameraSpec` constant.
+
+Curated description of one camera firmware-class. Identified
+by its :attr:`skus` — the camera-info endpoint maps a unit's
+serial to a SKU, and :func:`spec_by_sku` walks that SKU back to
+the matching spec.
+
+### DEPZ_MONO_MINI
 
 `CameraSpec` constant.
 
@@ -5934,7 +6607,8 @@ class CameraControls()
 
 Per-camera handle for reading/writing camera controls (exposure,
 gain, brightness, ...). Distinct from the streaming source — uses a
-parallel handle (V4L2 second fd / cv2 with CAP_*).
+parallel handle (Linux: a second V4L2 fd; Windows: a second
+DirectShow filter; macOS: UVC control requests to the USB device).
 
 Range/default/availability come from the matched
 :class:`~depz_camera_sdk.cameras.camera_spec.CameraSpec` (single source of
@@ -6013,6 +6687,65 @@ subclass directly.
 to_dict(self) -> dict
 ```
 
+### IntControl
+
+```python
+class IntControl(kind: str, value_type: str = 'int', default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '') -> None
+```
+
+A control whose value is an ``int`` (``"number"`` slider or
+``"enum"`` dropdown of integer codes).
+
+#### IntControl.to_dict
+
+```python
+to_dict(self) -> dict
+```
+
+### FloatControl
+
+```python
+class FloatControl(kind: str, value_type: str = 'float', default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '') -> None
+```
+
+A control whose value is a ``float`` (``"number"`` slider).
+
+#### FloatControl.to_dict
+
+```python
+to_dict(self) -> dict
+```
+
+### BoolControl
+
+```python
+class BoolControl(kind: str = 'boolean', value_type: str = 'bool', default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '') -> None
+```
+
+A control whose value is a ``bool`` (a checkbox). ``kind`` defaults
+to ``"boolean"``.
+
+#### BoolControl.to_dict
+
+```python
+to_dict(self) -> dict
+```
+
+### StrControl
+
+```python
+class StrControl(kind: str = 'enum', value_type: str = 'str', default: Any = None, label: str = '', min: float | None = None, max: float | None = None, step: float | None = None, enum_values: tuple[tuple[int | float | str, str], ...] = (), unit: str = '', name: str = '') -> None
+```
+
+A control whose value is a ``str``. ``kind`` defaults to ``"enum"``
+(string controls are always dropdowns of a fixed value set).
+
+#### StrControl.to_dict
+
+```python
+to_dict(self) -> dict
+```
+
 ## Cache
 
 ### get_cache_dir
@@ -6021,9 +6754,10 @@ to_dict(self) -> dict
 get_cache_dir() -> pathlib.Path
 ```
 
-Return the active SDK cache root. See module docstring for
-resolution order. Caller is responsible for creating the directory
-if it doesn't exist (it's lazy).
+Return the active SDK cache root (always an absolute path): the
+:func:`set_cache_dir` override if one is set, else
+:func:`default_cache_dir`. The directory is not created here —
+whoever writes into it creates it.
 
 ### set_cache_dir
 
@@ -6031,10 +6765,11 @@ if it doesn't exist (it's lazy).
 set_cache_dir(path: Union[str, pathlib.Path]) -> None
 ```
 
-Override the SDK-default cache root for the current process.
-Hosting apps (e.g. the web viewer) call this at startup to redirect
-cache into a platform-standard application data dir. Pass an
-absolute path; ``~``-prefix expanded automatically.
+Override the cache root for the current process, e.g. to keep
+everything on a data volume. ``~`` and environment variables in
+``path`` are expanded, and a relative path is made absolute against
+the working directory at the time of the call — later ``chdir``\ s
+do not move the cache. Child processes do not inherit the override.
 
 ## Logging_Setup
 

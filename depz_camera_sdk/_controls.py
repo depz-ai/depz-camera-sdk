@@ -443,12 +443,36 @@ class ControlOwner:
     def _coerce(control: Control, value: Any) -> Any:
         """Coerce ``value`` for ``control`` — dispatch by ``kind``."""
         if control.kind == "boolean":
-            return bool(value)
+            return ControlOwner._coerce_bool(control, value)
         if control.kind == "enum":
             return ControlOwner._coerce_enum(control, value)
         if control.kind == "number":
             return ControlOwner._coerce_number(control, value)
         raise ValueError(f"unknown control kind {control.kind!r}")
+
+    _TRUE_STRINGS = frozenset({"true", "1", "yes", "on"})
+    _FALSE_STRINGS = frozenset({"false", "0", "no", "off", ""})
+
+    @staticmethod
+    def _coerce_bool(control: Control, value: Any) -> bool:
+        """``kind="boolean"``: bools and numbers by truthiness; strings
+        by meaning. Values arriving over RPC / from config files are
+        often strings, and ``bool("false")`` is ``True`` — so the common
+        spellings are parsed (case-insensitive) and anything else is
+        rejected rather than guessed."""
+        if isinstance(value, str):
+            text = value.strip().lower()
+            if text in ControlOwner._TRUE_STRINGS:
+                return True
+            if text in ControlOwner._FALSE_STRINGS:
+                return False
+            raise ValueError(
+                f"control {control.name!r} is boolean; cannot interpret "
+                f"{value!r} (use true/false, 1/0, yes/no, on/off)")
+        if value is None:
+            raise ValueError(
+                f"control {control.name!r} is boolean; got None")
+        return bool(value)
 
     @staticmethod
     def _coerce_number(control: Control, value: Any) -> "int | float":

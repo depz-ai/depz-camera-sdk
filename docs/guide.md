@@ -15,6 +15,8 @@ they are the source of truth.
   - [Sources](#sources)
   - [Models — the inference / variant catalog](#models--the-inference--variant-catalog)
   - [Inference engines](#inference-engines)
+  - [NVIDIA Jetson (TensorRT)](#nvidia-jetson-tensorrt)
+  - [Rockchip NPU (RKNN)](#rockchip-npu-rknn)
   - [Calibration](#calibration)
   - [Recording](#recording)
   - [Camera controls (live only)](#camera-controls-live-only)
@@ -55,7 +57,9 @@ to a `DepthPipeline`:
    three intermediate bases (`NeuralStereoInferenceBase`,
    `NeuralMonoInferenceBase`, `ClassicStereoInferenceBase`), and a
    set of concrete inferences, each its own class:
-   - `LightStereoInference`, `CREStereoInitialInference`,
+   - `LiteAnyStereoInference` / `LiteAnyStereoMInference` (the default
+     model is Lite Any Stereo V2 S), `DepzStereoInference`,
+     `LightStereoInference`, `CREStereoInitialInference`,
      `CREStereoCombinedInference`, `CFastFoundationStereoInference` —
      neural stereo nets producing canvas-pixel **disparity**
      (preprocess + postprocess + the `.onnx` weights + the runtime
@@ -79,30 +83,63 @@ inference, hand both to a pipeline.
 
 ## Installation
 
-The SDK ships on PyPI as `depz-camera-sdk` for Windows x64, Linux x86_64,
-Linux ARM64 (aarch64) and macOS 11+ (Intel + Apple Silicon, one universal2 wheel), any Python ≥ 3.11
-(stable-ABI wheels). A bare install is "pure" — no inference engines at all;
+The SDK ships on PyPI as `depz-camera-sdk` for Windows 10+ x64, Windows 11
+ARM64, Linux x86_64 and ARM64 (aarch64) with glibc 2.28+, and macOS 14+ on
+Apple Silicon, for any Python ≥ 3.10 (stable-ABI wheels). A bare install is
+"pure" — no inference engines at all;
 add extras for your hardware. `[openvino]` covers Intel CPU/iGPU/NPU and
 AMD CPU (Windows/Linux x86_64 only). The ONNX Runtime extras are mutually
 exclusive — pick at most one:
 
 ```bash
-pip install depz-camera-sdk                       # pure: no engines
-pip install depz-camera-sdk[openvino]             # the x86_64 default
-pip install depz-camera-sdk[openvino,cuda-bundled] # + NVIDIA GPU, self-contained (~1.5 GB)
-pip install depz-camera-sdk[openvino,cuda]        # + NVIDIA GPU, you provide the CUDA 12 runtime
-pip install depz-camera-sdk[openvino,dml]         # + AMD GPU on Windows (any DX12 GPU)
-pip install depz-camera-sdk[openvino,migraphx]    # + AMD GPU on Linux (system ROCm + MIGraphX)
-pip install depz-camera-sdk[cpu]                  # Linux ARM64 / macOS baseline
+pip install "depz-camera-sdk"                     # pure: no engines
+pip install "depz-camera-sdk[openvino]"           # the x86_64 default
+pip install "depz-camera-sdk[openvino,cuda12-bundled]" # + NVIDIA GPU, CUDA 12, self-contained (~1.5 GB)
+pip install "depz-camera-sdk[openvino,cuda12]"    # + NVIDIA GPU, you provide the CUDA 12 runtime
+pip install "depz-camera-sdk[openvino,cuda13-bundled]" # + NVIDIA GPU, CUDA 13, self-contained (~1.5 GB)
+pip install "depz-camera-sdk[openvino,cuda13]"    # + NVIDIA GPU, you provide the CUDA 13 runtime
+pip install "depz-camera-sdk[openvino,dml]"       # + AMD GPU on Windows (any DX12 GPU)
+pip install "depz-camera-sdk[openvino,migraphx]"  # + AMD GPU on Linux (system ROCm + MIGraphX)
+pip install "depz-camera-sdk[cpu]"                # Linux ARM64 / macOS / Windows ARM64 baseline
+pip install "depz-camera-sdk[qnn]"                # Windows ARM64 with a Qualcomm NPU (instead of [cpu])
+pip install "depz-camera-sdk[cpu,rknn]"           # Rockchip boards: + the NPU (RKNN2 runtime)
+pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt]"  # x86_64: + NVIDIA TensorRT, used directly
 ```
+
+(The quotes matter in zsh, the default macOS shell, where bare `[...]`
+is a glob pattern.)
+
+NVIDIA has two CUDA lines; an environment is on exactly one of them.
+`cuda12*` (ONNX Runtime 1.19–1.26) runs on every supported GPU — GTX
+10-series and newer, driver 525.60+ on Linux / 527.41+ on Windows.
+`cuda13*` (ONNX Runtime 1.27+) needs a GTX 16-series / RTX 20-series or
+newer GPU, driver 580+ and Python 3.11+. `-bundled` ships the CUDA + cuDNN
+libraries (~1.5 GB); without it you provide that CUDA's Toolkit and cuDNN 9.
+The SDK reads the line off the installed ONNX Runtime — there is nothing to
+configure. To switch lines, recreate the environment.
+
+Two ARM64 board families have their own accelerator and their own
+section below: [NVIDIA Jetson](#nvidia-jetson-tensorrt) (JetPack 6 and 7,
+GPU through TensorRT — `[cpu]` in an environment that can see JetPack's
+packages) and [Rockchip](#rockchip-npu-rknn) (NPU through RKNN2 —
+`[cpu,rknn]`).
 
 On macOS there is no CUDA/DirectML/OpenVINO: `[cpu]` installs the stock
 ONNX Runtime wheel, which on Apple Silicon includes the CoreML EP
 (GPU/ANE) — and everything else in this guide (live capture, recording,
 replay, all inferences) works the same as on Linux and Windows.
 
+On Windows ARM64, PyPI has no OpenCV wheel, so the SDK depends on
+`opencv-python-headless` there and every GitHub release carries a
+`win_arm64` build of it. Tell pip where to find it (`X.Y.Z` = the version
+you install; use a native ARM64 Python):
+
+```powershell
+pip install "depz-camera-sdk[cpu]==X.Y.Z" --find-links https://github.com/depz-ai/depz-camera-sdk/releases/expanded_assets/vX.Y.Z
+```
+
 If you want the browser viewer rather than the raw SDK, either
-`pip install depz-camera-viewer[cpu]` (same extras) or use the no-Python
+`pip install "depz-camera-viewer[cpu]"` (same extras) or use the no-Python
 one-click installers from
 [depz-camera-sdk](https://github.com/depz-ai/depz-camera-sdk/releases/latest).
 
@@ -141,9 +178,10 @@ Stage by stage:
 - ① **`FrameSource.grab()`** — produces a `RawFrame` (jpeg/yuyv
   bytes + `pts_us` source-relative microseconds). Live cameras run a
   pump thread internally; replay paces from disk.
-- ② **`Calibration.canvas_remap_pair()`** — decodes wire bytes to
-  BGR, splits SBS halves (stereo) or passes through (mono), then
-  rectifies onto the inference canvas in one `cv2.remap` per eye.
+- ② **`FrameSource.decode_to_bgr()` + `Calibration.canvas_remap()`**
+  — decodes wire bytes to BGR, splits SBS halves (stereo) or passes
+  through (mono), then rectifies onto the inference canvas in one
+  `cv2.remap` per eye.
 - ③ **`DepthInferenceBase.submit()`** — for neural backends, composes
   architecture-specific preprocess (BGR → NCHW float32) with the
   engine's async `submit` and returns a future. The worker
@@ -177,6 +215,21 @@ objects; the worker drains them between iterations. Public methods
 like `set_calibration_control`, `set_filter_control`, `seek`, `pause`
 are safe to call from any thread without explicit locking.
 
+Every setter returns once the worker has applied the change, and says
+so when it could not: if the worker does not pick the command up in
+time (2 s for cheap controls, 10 s for calibration rebuilds and seeks)
+the command is withdrawn and `TimeoutError` is raised — it will not be
+applied later behind your back. On a pipeline that is not running the
+setters apply directly, so you can configure filters, streams and
+calibration controls before `start()`; `seek` / `step_replay` need a
+running pipeline and raise `RuntimeError` otherwise.
+
+`start()` either succeeds or leaves nothing behind (source closed,
+engine shut down). If the worker dies — a camera that stops delivering
+makes `grab()` raise — `is_running` turns False and `last_error` holds
+the reason; call `stop()` to release the device. A pipeline is
+single-shot: after `stop()` build a new one.
+
 Camera-control writes (`set_camera_control`) bypass the command
 queue intentionally — they hit a separate fd / ioctl, no race.
 Recording fanout runs on the source's pump thread.
@@ -192,6 +245,12 @@ for frame in DepthPipeline():
     print(f"frame {frame.frame_number}, depth shape {frame.depth.shape}")
 ```
 
+With no arguments the pipeline takes the first connected DEPZ camera
+and `DepthPipeline.DEFAULT_INFERENCE` — Lite Any Stereo V2 S at 640×384
+(MIT-licensed, runs on a CPU). The model is downloaded on first use;
+that happens inside the constructor, so build the inference yourself
+(next section) if you want to show progress or choose the engine.
+
 ### Five-minute, fully-explicit form
 
 ```python
@@ -204,7 +263,7 @@ camera_info  = list_connected_depz_cameras()[0]
 capture_mode = camera_info.spec.get_mode("1280x720@30/MJPG/stereo")
 camera_source = CameraSource(camera_info, capture_mode)
 
-inference = build_inference("lightstereo", "s-sceneflow-opt-256x512",
+inference = build_inference("lite-any-stereo", "v2-s-640x384",
                             engine_slug="openvino-CPU")
 
 pipeline = DepthPipeline(
@@ -265,10 +324,9 @@ print(f"{result.frames} frames, {result.bytes} bytes, {result.duration_s:.1f}s")
 ```
 
 The pipeline derives the embedded `camera_info.json` automatically
-from `source.depz_info` (live) or the input MKV's attachment (when
-re-recording from replay). No sidecar files — calibration history,
-camera-prop snapshots, and pipeline config are all embedded as MKV
-attachments.
+from `source.camera_info` (live) or the input MKV's attachment (when
+re-recording from replay). No sidecar files — the calibration and its
+history and the camera-state snapshots all travel inside the MKV.
 
 ## I want to…
 
@@ -318,10 +376,18 @@ exactly what `DepzCameraInfo` carries. Resolve via
 `DepzCameraInfo.from_dict(payload, os_id=...)` if you have a
 server-shape payload on hand.
 
-Internally runs a **pump thread** that reads from V4L2 / DShow at
-full rate and hands the latest frame to the pipeline (drop-to-latest
-— older frames inference didn't pick up are discarded). `grab()`
-blocks on a condition variable, so there's no wasteful polling.
+Internally runs a **pump thread** that reads from V4L2 / DirectShow /
+AVFoundation at full rate and hands the latest frame to the pipeline
+(drop-to-latest — older frames inference didn't pick up are
+discarded). `grab()` blocks on a condition variable, so there's no
+wasteful polling; it returns `None` on a timeout and raises
+`RuntimeError` once the pump thread has died (device unplugged, stream
+ended), so a dead camera is an error rather than an endless silence.
+
+`CameraSource(cam, output_eye=(w, h))` delivers frames downscaled to
+that per-eye size while capturing at the mode's size;
+`src.capture_size` is the captured `(width, height)` — the size
+recordings are made at.
 
 The bound `DepzCameraInfo` lets `DepthPipeline.start_recording`
 derive the `camera_info.json` MKV attachment automatically.
@@ -335,6 +401,10 @@ src = MkvSource("/path/to/recording.mkv",
                 replay_mode="realtime",    # "every_frame" = block on consumer
                 loop=False,
                 build_frame_index=True)    # default; needed for step API
+src.open()
+src.frame_count                            # exact, from the frame index
+src.loop = True                            # can be switched while playing
+src.embedded_camera_info                   # the camera_info.json payload
 src.pause(); src.resume()
 src.seek_relative_us(5_000_000)            # 5 s into the file
 src.step_one_forward()                     # exact ±1 frame (paused only)
@@ -343,6 +413,21 @@ src.step_one_forward()                     # exact ±1 frame (paused only)
 The pipeline mirrors the same API — `pipeline.pause()` / `resume()` /
 `is_pausable` / `is_paused` / `step_replay("forward"|"backward")` —
 so application code rarely needs to touch the source directly.
+
+**End of file.** Without `loop=True` a replay is finite: `for frame in
+pipeline:` ends after the last recorded frame, and a blocking
+`pipeline.get()` returns `None`. `pipeline.at_eof` tells "finished"
+apart from "nothing yet" when you poll with a timeout. The pipeline
+itself keeps running at EOF, so you can seek back and continue:
+
+```python
+pipeline = DepthPipeline(source=MkvSource(path, replay_mode="every_frame"),
+                         inference=inference)
+with pipeline:
+    while (frame := pipeline.get()) is not None:   # every frame, once
+        ...
+    pipeline.seek(fraction=0.0)                    # rewind — frames flow again
+```
 
 `MkvSource` extracts calibration + camera-props snapshot embedded by
 the recorder. The `active_calibration` property is **stateful**: it
@@ -366,28 +451,41 @@ catalog handles:
 - listing what's available without hitting the network,
 - resolving variant slugs to download URLs (one tiny HTTP call,
   cached per process),
-- downloading + sha256-verifying weights into a local cache,
-- atomic writes (no half-downloaded files on Ctrl-C),
+- downloading weights into a local cache — with a socket timeout, the
+  byte count checked against what the server announced, and the
+  declared size / sha256 verified where the catalog has them,
+- atomic writes (no half-downloaded files on Ctrl-C) and a per-file
+  lock, so several processes can ask for the same model at once,
 - handing back a ready-to-use `DepthInferenceBase` for the pipeline.
 
 **No models are bundled in the wheel.** First use fetches on demand.
 
 #### Where models live on disk
 
-By default models cache under
-`./depz_sdk_cache/models/<inference>/<variant>/<file>` in the current
-working directory. Hosting apps redirect this once at startup:
+Models cache under `<cache>/models/<inference>/<variant>/<file>`, where
+`<cache>` is the per-user cache directory:
+
+| OS | Default cache root |
+| --- | --- |
+| Linux | `$XDG_CACHE_HOME/depz`, else `~/.cache/depz` |
+| macOS | `~/Library/Caches/depz` |
+| Windows | `%LOCALAPPDATA%\depz\Cache` |
+
+It does not depend on the working directory. To keep everything
+somewhere else (a data volume, a read-only image), redirect it once at
+startup — before building any inference:
 
 ```python
-from depz_camera_sdk import set_cache_dir
+from depz_camera_sdk import get_cache_dir, set_cache_dir
 
-set_cache_dir("~/.cache/depz")                  # Linux
-# set_cache_dir("~/Library/Caches/depz")        # macOS
-# set_cache_dir(r"%LOCALAPPDATA%\depz\Cache")   # Windows
+set_cache_dir("/data/depz-cache")     # ~ and $VARS are expanded
+print(get_cache_dir())                # always an absolute path
 ```
 
-After that, every component (engines, model downloader, camera-info
-store) writes under `<cache>/...`.
+Every component (model downloader, engine caches, the viewer's
+camera-info store) writes under that root. Next to each downloaded
+file sits `<file>.meta.json` (size, sha256, source slug) — the cache
+check uses it to notice a damaged file — and `<file>.lock`.
 
 #### Walking the catalog
 
@@ -396,54 +494,67 @@ from depz_camera_sdk.inference import available_inferences
 
 for cls in available_inferences():
     domain = "depth" if cls.OUTPUTS_DEPTH else "disparity"
-    fam = f"  [{cls.ARCHITECTURE_FAMILY}]" if cls.ARCHITECTURE_FAMILY else ""
-    print(f"{cls.SLUG} — {cls.LABEL} ({domain}){fam}")
+    print(f"{cls.SLUG} — {cls.LABEL} ({domain})")
     for v in cls.variants():
         mark = "✓ cached" if v.is_cached else "  needs download"
-        print(f"   {v.slug:<32} {v.label}   {mark}")
+        h, w = v.input_size
+        print(f"   {v.slug:<32} {v.label:<32} {w}×{h}   {mark}")
 ```
+
+Each `InferenceVariant` carries `slug`, `label`, `input_size` (H, W),
+the `files_to_download`, and `configurations["selector_meta"]` — the
+facts the viewer's model picker shows (speed / accuracy tier, license,
+measured disparity range, …).
 
 Typical printout (truncated — CREStereo Combined alone has 20 variants):
 
 ```
-c-fast-foundationstereo — C-Fast-FoundationStereo (disparity)  [FoundationStereo]
-   iters8-576x960                      iters 8 / 576×960                    needs download
-   iters4-576x960                      iters 4 / 576×960                    needs download
-crestereo-combined — CREStereo Combined (disparity)  [CREStereo]
-   iter2-240x320                       iter 2 / 240×320                     needs download
-   iter2-320x480                       iter 2 / 320×480                     needs download
+c-fast-foundationstereo — C-Fast-FoundationStereo (disparity)
+   iters4-640x384                   iters 4 / 640×384                  needs download
+   iters4-1920x1088                 iters 4 / 1920×1088                needs download
    ...
-crestereo-initial — CREStereo Initial (disparity)  [CREStereo]
-   iter2-160x240                       iter 2 / 160×240                   ✓ cached
-   iter2-180x320                       iter 2 / 180×320                     needs download
+crestereo-combined — CREStereo Combined (disparity)
+   iter2-240x320                    iter 2 / 240×320                   needs download
+   iter2-320x480                    iter 2 / 320×480                   needs download
+   ...
+crestereo-initial — CREStereo Initial (disparity)
+   iter2-160x240                    iter 2 / 160×240                   needs download
    ...
 depth-anything-v2-small — Depth Anything V2 Small (depth)
-   518x518                             518×518 (default)                    needs download
+   518x518                          518×518 (default)                  needs download
+depz-stereo — DEPZ Stereo (disparity)
+   depz-stereo-320x192              320×192                            needs download
+   depz-stereo-1920x1088            1920×1088                          needs download
+   ...
 lightstereo — LightStereo (disparity)
-   s-sceneflow-opt-256x512             S / SceneFlow / 256×512 (opt)      ✓ cached
-   s-sceneflow-opt-576x960             S / SceneFlow / 576×960 (opt)        needs download
-   s-sceneflow-origin-256x512          S / SceneFlow / 256×512 (origin)     needs download
+   s-sceneflow-opt-256x512          S / SceneFlow / 256×512 (opt)      needs download
+   s-sceneflow-opt-576x960          S / SceneFlow / 576×960 (opt)      needs download
+   s-sceneflow-origin-256x512       S / SceneFlow / 256×512 (origin)   needs download
 lite-any-stereo — Lite Any Stereo (disparity)
-   v2-s-384x640                        V2 S / 384×640                       needs download
+   v2-s-320x192                     V2 S / 320×192                     needs download
+   v2-s-640x384                     V2 S / 640×384                   ✓ cached
+   ...
+lite-any-stereo-m — Lite Any Stereo M (disparity)
+   v2-m-640x384                     V2 M / 640×384                     needs download
+   v2-m-1920x1088                   V2 M / 1920×1088                   needs download
+   ...
 metric3d-v2-vit-small — Metric3D V2 (ViT-Small) (depth)
-   vit-small-504x504                   ViT-Small / 504×504                  needs download
+   vit-small-504x504                ViT-Small / 504×504                needs download
 rectify-only — Rectify only (no inference) (disparity)
-   256x512                             256×512 (fast)                     ✓ cached  (no download)
+   256x512                          256×512 (fast)                   ✓ cached  (no download)
    ...
 sgbm — SGBM (classical, CPU) (disparity)
-   256x512                             256×512 (fast)                     ✓ cached  (no download)
-   360x640                             360×640 (balanced)                 ✓ cached  (no download)
-   480x720                             480×720 (detailed)                 ✓ cached  (no download)
+   256x512                          256×512 (fast)                   ✓ cached  (no download)
+   360x640                          360×640 (balanced)               ✓ cached  (no download)
+   480x720                          480×720 (detailed)               ✓ cached  (no download)
 stereo-bm — StereoBM (classical, CPU, fastest) (disparity)
-   256x512                             256×512 (fast)                     ✓ cached  (no download)
+   256x512                          256×512 (fast)                   ✓ cached  (no download)
    ...
 ```
 
-`ARCHITECTURE_FAMILY` is an optional grouping tag. The two CREStereo
-inferences (`crestereo-initial`, `crestereo-combined`) ship as
-separate classes but share the upstream architecture, so both set
-`ARCHITECTURE_FAMILY = "CREStereo"` — the UI can collapse them under
-one heading. Inferences without a sibling leave it as `None`.
+Licenses differ per model — `selector_meta["license"]` says which.
+Lite Any Stereo (MIT) is the default; LightStereo's upstream is
+academic-use-only.
 
 #### Building an inference from a catalog variant
 
@@ -454,10 +565,14 @@ this is what the hello-world uses.
 from depz_camera_sdk.inference import build_inference
 
 inference = build_inference(
-    "lightstereo", "s-sceneflow-opt-256x512",
+    "lite-any-stereo", "v2-s-640x384",
     download_progress_cb=lambda done, total: print(f"\r{done}/{total}", end=""),
 )
 ```
+
+Downloads are silent unless you pass `download_progress_cb(done_bytes,
+total_bytes)`. For a ready-made console progress line use
+`download_progress_cb=stderr_progress()` (from `depz_camera_sdk`).
 
 If you want to do it by hand (testing one stage in isolation):
 
@@ -466,8 +581,8 @@ from depz_camera_sdk import recommend_engine
 from depz_camera_sdk.engines import make_engine
 from depz_camera_sdk.inference import get_inference
 
-cls     = get_inference("lightstereo")
-variant = cls.get_variant("s-sceneflow-opt-256x512")
+cls     = get_inference("lite-any-stereo")
+variant = cls.get_variant("v2-s-640x384")
 
 # 1. Ensure cached + return the absolute paths of every declared
 #    file. files[0] is the entry-point (model.onnx); siblings
@@ -475,15 +590,17 @@ variant = cls.get_variant("s-sceneflow-opt-256x512")
 #    declaration order.
 files = variant.resolve_files()
 
-# 2. Build the engine around the entry-point file. ``engine_kwargs``
-#    on the variant carry per-variant engine controls (``input_shape``
-#    for dynamic-shape ONNXes, etc.).
-engine = make_engine(recommend_engine(), str(files[0]),
-                     **variant.engine_kwargs)
+# 2. Build the engine around the entry-point file. This is where
+#    engine options go (cache_dir=..., nireq=..., see "Inference
+#    engines" below). A network whose export has dynamic dimensions
+#    declares INPUT_SIZE on its class and needs
+#    input_shape=(1, 3, *cls.INPUT_SIZE) here — build_inference does
+#    that for you.
+engine = make_engine(recommend_engine(), str(files[0]))
 
 # 3. Construct the inference. ``inference_kwargs`` on the variant
-#    carry per-variant ctor args (empty for LightStereo; canvas_size
-#    for SGBM/StereoBM/RectifyOnly).
+#    carry per-variant ctor args (empty for neural networks;
+#    canvas_size for SGBM/StereoBM/RectifyOnly).
 inference = cls(engine=engine, **variant.inference_kwargs)
 ```
 
@@ -536,14 +653,22 @@ for cls in available_inferences():
         v.resolve_files()           # downloads + verifies; ignore the paths
 ```
 
-Combine with `set_cache_dir(...)` to redirect into whatever read-only
-image / squashfs / NFS share you ship.
+Call `set_cache_dir(...)` first to fill a directory you then ship as a
+read-only image / squashfs / NFS share. (A read-only cache serves
+models fine; the engines' own compile caches are simply skipped when
+they cannot be written.)
 
 ### Inference engines
 
-Two backends (OpenVINO + ONNX Runtime) with the same async
-interface, identified by **slug strings** like `"openvino-CPU"`,
-`"onnx-cuda"`:
+Four backends with the same async interface, identified by **slug
+strings** — `<backend>-<device>`:
+
+| Backend | Slugs | Hardware |
+|---|---|---|
+| OpenVINO | `openvino-CPU`, `openvino-GPU`, `openvino-NPU` | Intel CPU / GPU / NPU, AMD CPU |
+| ONNX Runtime | `onnx-cuda`, `onnx-dml`, `onnx-migraphx`, `onnx-coreml`, `onnx-qnn`, `onnx-cpu` | NVIDIA / AMD / Apple / Qualcomm, any CPU |
+| TensorRT (used directly) | `tensorrt-fp16` (`tensorrt-fp32` on request) | NVIDIA Jetson; NVIDIA desktop GPUs with the `[tensorrt]` extra |
+| RKNN2 | `rknn-npu` | Rockchip NPU |
 
 ```python
 from depz_camera_sdk import available_engines, recommend_engine
@@ -572,26 +697,122 @@ engine = make_engine("openvino-CPU", "model.onnx",
 parse_engine_slug("openvino-CPU")   # → ("openvino", "CPU")
 ```
 
-**Common engine kwargs** (forwarded via `engine_kwargs={...}` to
-neural inferences, or directly to `make_engine`):
+**Engine options** are keyword arguments of `make_engine` (to use them
+with a catalog model, build the engine yourself as shown in "Building
+an inference from a catalog variant"). `make_engine` rejects an option
+the chosen engine kind does not have, naming it:
 
-- `cache_dir` — override the SDK-wide cache root (defaults to
-  `get_cache_dir()`); compiled-model cache lives at
-  `<cache_dir>/<backend>/`.
-- `do_models_cache` (OpenVINO) — set False to disable kernel-graph
-  cache entirely (read-only filesystems / one-shot scripts).
+- `cache_dir` (both kinds) — override the SDK-wide cache root
+  (`get_cache_dir()`) for this engine's on-disk cache:
+  `<cache_dir>/openvino/` compiled blobs, `<cache_dir>/onnx-opt/`
+  optimized graphs.
+- `input_shape` (both) — pin a `(1, 3, H, W)` shape on a model exported
+  with dynamic dimensions; required for such models (Metric3D V2,
+  Depth Anything V2 — their classes declare `INPUT_SIZE` and
+  `build_inference` passes it).
+- `output_name` (both) — which output to read on a multi-head model.
+- `do_models_cache` (OpenVINO) — set False to disable the compiled-
+  model cache entirely (read-only filesystems / one-shot scripts).
 - `nireq` (OpenVINO) — async-queue depth.
-- `providers` (ONNX Runtime) — provider preference list override.
-- `input_shape` — pin a `(1, 3, H, W)` shape on dynamic-input
-  ONNXes. Most inferences already export with a fixed input;
-  Metric3D V2 et al. set `INPUT_SIZE` on the inference class and
-  `build_inference` wires this for you.
+- `num_threads` (ONNX Runtime) — how many `session.run` calls may be in
+  flight at once (default 1).
 
 OpenVINO uses `AsyncInferQueue`; ONNX Runtime uses a small thread
 pool plus `session.run()`. Either way, the pipeline never blocks on
 inference — it submits and pulls completed futures FIFO. First GPU
 compile is ~30–60 s; subsequent loads are sub-second thanks to the
 on-disk cache.
+
+### NVIDIA Jetson (TensorRT)
+
+Supported: **JetPack 6** (Ubuntu 22.04, Python 3.10, TensorRT 10.3) and
+**JetPack 7** (Ubuntu 24.04, Python 3.12, TensorRT 10.x) — the Orin
+family, and Thor on JetPack 7. The GPU is driven through TensorRT
+directly, in half precision (FP16); the engine slug is `tensorrt-fp16`.
+No ONNX Runtime GPU build is involved.
+
+TensorRT's Python package is part of JetPack and belongs to the
+**system** Python, so the environment must be created from it and be
+allowed to see system packages:
+
+```bash
+sudo apt install python3-libnvinfer        # already there on a full JetPack install
+python3 -m venv --system-site-packages .venv
+source .venv/bin/activate
+pip install "depz-camera-sdk[cpu]"
+python -c "import depz_camera_sdk as d; print(d.available_engines())"
+# ['tensorrt-fp16', 'onnx-cpu']
+```
+
+(The viewer's one-line installer does the same on its own when it finds
+a Jetson.) `[cpu]` adds ONNX Runtime for the CPU device; packages
+installed into the environment — numpy, OpenCV — take precedence over
+JetPack's older copies.
+
+What to expect:
+
+- **The first start of each model takes minutes.** TensorRT compiles the
+  ONNX file into a *plan* for this exact GPU and TensorRT version and
+  stores it in `<cache_dir>/tensorrt/`. Later starts load the plan in
+  about a second. A plan is not portable: after a JetPack upgrade, or on
+  another module, it is rebuilt automatically.
+- **Precision.** Almost every layer runs in FP16. Layers around
+  constants half precision cannot represent (an epsilon of `1e-12` in a
+  normalisation becomes zero) are kept in FP32 automatically, and a
+  freshly built plan is checked for NaN / infinity; a model that still
+  fails that check is rebuilt in FP32. `tensorrt-fp32` forces full
+  precision for one model: `make_engine("tensorrt-fp32", path)`.
+- The same engine works on x86_64 desktops with
+  `pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt]"`. There
+  it ranks below `onnx-cuda` (which starts instantly), so pick it
+  explicitly.
+
+### Rockchip NPU (RKNN)
+
+Supported: Rockchip processors served by the **RKNN2** runtime —
+RK3588, RK3588S, RK3576, RK3568, RK3566, RK3562, RV1126B, … (Rockchip
+extends the list with every release; the older RK1808 / RK3399Pro /
+RV1109 / RV1126 use the previous-generation RKNN and are not
+supported). The engine slug is `rknn-npu`.
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install "depz-camera-sdk[cpu,rknn]"     # Python 3.10 – 3.12
+python -c "import depz_camera_sdk as d; print(d.available_engines())"
+# ['rknn-npu', 'onnx-cpu']
+```
+
+The board's Linux image must provide the NPU kernel driver and
+`/usr/lib/librknnrt.so` (RKNN runtime 2.3 or newer; images from the
+board vendors include both).
+
+An NPU does not run ONNX files. Each model is converted once into an
+`.rknn` file **for one processor family** — an RK3576 file does not load
+on an RK3588. Models are converted without quantization, so the NPU
+computes in FP16 and no calibration images are needed. The converter is
+Rockchip's `rknn-toolkit2`, which pins old numpy / torch and therefore
+lives in its own environment (on the board itself or on any x86_64
+Linux PC):
+
+```bash
+# 1. download the model with the SDK (any engine, e.g. on the board)
+python -c "from depz_camera_sdk import set_cache_dir; \
+from depz_camera_sdk.inference import get_inference; \
+set_cache_dir('~/.cache/depz'); \
+print(get_inference('lite-any-stereo').get_variant('v2-s-640x384').resolve_files())"
+
+# 2. convert it, in a separate environment
+uv venv --python 3.10 ~/rknn-convert
+uv pip install --python ~/rknn-convert/bin/python rknn-toolkit2==2.5.0 "setuptools<80"
+~/rknn-convert/bin/python tools/model_export/convert_rknn.py \
+    --models-dir ~/.cache/depz/models --platform rk3576
+```
+
+The converter writes `model.<platform>.fp16.rknn` and a small `.json`
+description next to each `model.onnx` — exactly where the engine looks.
+`tools/model_export/convert_rknn.py` is a single file with no SDK
+imports; copy it anywhere. Starting a model that has not been converted
+fails with the command to run.
 
 ### Calibration
 
@@ -608,7 +829,7 @@ hands one to the pipeline. When you do need to parse a payload:
 from depz_camera_sdk import Calibration
 
 calib = Calibration.from_dict(payload)            # device-info shape
-calib.set_param("rectify_alpha", 0.0)
+calib.control_set("rectify_alpha", 0.0)
 patch_dict = calib.to_dict()                      # round-trip
 ```
 
@@ -655,21 +876,34 @@ automatically:
 
 | Source kind | Where the payload comes from |
 | --- | --- |
-| `CameraSource` | `source.depz_info.to_dict()` — server-shape, identical to the device-info endpoint response. |
+| `CameraSource` | `source.camera_info.to_dict()` — server-shape, identical to the device-info endpoint response. |
 | `MkvSource` (re-recording from replay) | The `camera_info.json` attachment of the input MKV, embedded verbatim. |
 | Custom source / mock | Reconstructed from `pipeline.active_calibration.to_dict()` plus identity off `pipeline.camera_info`. |
 
 A live camera fans out **every** captured frame to the recorder via
 the source's pump thread (so you don't lose frames if inference
-can't keep up). Replay sources fall back to feeding at worker rate —
-fine since replay is bounded.
+can't keep up); so does a `realtime` replay. An `every_frame` replay
+has no pump thread and is recorded at worker rate — every frame the
+pipeline consumes, which in that mode is every frame.
+
+The file is recorded at the size the camera **captures**
+(`source.capture_size`), also when the source delivers downscaled
+frames (`CameraSource(output_eye=...)`).
+
+If the recorder's writer fails (disk full, …) `recording_status.error`
+says so and `stop_recording()` still returns — its
+`RecordingResult.error` carries the reason and the partial file is
+left at `result.path`.
+
+`pipe.capture_single_frame("/tmp/still.mkv")` saves just the next raw
+frame as a one-frame MKV — a still that keeps its calibration and can
+be replayed through the pipeline like any recording.
 
 YUYV captures are written as `rawvideo` (FOURCC tag `YUY2`). MJPG
-is remuxed as-is. Camera-prop snapshots (one per second) and
-calibration patches are buffered in memory during recording and
-embedded as the `camera_state_history.jsonl` and
-`calibration_history.jsonl` attachments at `stop_recording()` time.
-Re-mux uses `ffmpeg` from `$PATH`.
+is remuxed as-is. Camera-state snapshots (one per second) and
+calibration updates are muxed live into two subtitle tracks
+(`camera_state`, `calibration`) alongside the video, so the file is
+written in a single pass — no re-mux, no external `ffmpeg`.
 
 A recording can also be paused and resumed without closing the
 file: `pipe.pause_recording()` stops writing frames while keeping
@@ -906,43 +1140,35 @@ construct the shipped inference class around your file and hand it to
 a pipeline — see [Bring your own .onnx file](#bring-your-own-onnx-file).
 
 **New architecture.** Subclass one of the two neural bases —
-`NeuralStereoInferenceBase` (model emits **disparity**) or
-`NeuralMonoInferenceBase` (model emits **depth**; inherits the
-`depth_scale` / `depth_offset` affine controls — call
-`self._apply_depth_affine(depth)` at the tail of your postprocess) —
-and implement the two per-network adapter methods:
+`NeuralStereoInferenceBase` (two eyes in, **disparity** out) or
+`NeuralMonoInferenceBase` (left eye in, **depth** out; inherits the
+`depth_scale` / `depth_offset` affine controls). The bases already do
+the usual pre- and post-processing, driven by class attributes:
 
-- `preprocess(canvas_l, canvas_r)` — BGR uint8 canvases → tuple of
-  NCHW float32 blobs, in the order the model declares its inputs.
-  Mono networks receive `canvas_r=None` and return a single-blob
-  tuple.
-- `postprocess(raw_output, canvas_layout)` — raw engine output → 2D
-  float32 map sliced to the unpadded canvas region
-  (`canvas_layout.pad_x/pad_y/valid_w/valid_h`). Stereo returns
-  disparity in canvas pixels; mono returns depth.
+- `BLOB_MEAN` / `BLOB_SCALE` — input normalisation,
+  `(RGB - mean) * scale` per channel. The default feeds raw RGB in
+  [0, 255] (for exports that normalise inside the graph); set both to
+  `IMAGENET_BLOB_MEAN` / `IMAGENET_BLOB_SCALE` for ImageNet-normalised
+  input.
+- `OUTPUT_CHANNEL` — for a `(1, C, H, W)` output, which channel is the
+  map (default `None`: the output squeezes to one 2-D map).
+- `INPUT_SIZE` — `(H, W)` to pin an export with dynamic dimensions.
+- `OUTPUT_NAME` — which output to read on a multi-head model.
+
+So a network with a standard interface is a class with no methods:
 
 ```python
-import cv2
-import numpy as np
-
 from depz_camera_sdk import DepthPipeline, recommend_engine
 from depz_camera_sdk.engines import make_engine
-from depz_camera_sdk.inference import NeuralStereoInferenceBase
+from depz_camera_sdk.inference import (
+    IMAGENET_BLOB_MEAN, IMAGENET_BLOB_SCALE, NeuralStereoInferenceBase,
+)
 
 
 class MyStereoNet(NeuralStereoInferenceBase):
     SLUG = "my-stereo-net"
-
-    def preprocess(self, canvas_l, canvas_r):
-        blob = lambda img: cv2.dnn.blobFromImage(
-            img, scalefactor=1 / 255.0, swapRB=True)
-        return blob(canvas_l), blob(canvas_r)
-
-    def postprocess(self, raw_output, canvas_layout):
-        disp = np.squeeze(np.asarray(raw_output)).astype(np.float32)
-        y, x = canvas_layout.pad_y, canvas_layout.pad_x
-        h, w = canvas_layout.valid_h, canvas_layout.valid_w
-        return np.ascontiguousarray(disp[y:y + h, x:x + w])
+    BLOB_MEAN = IMAGENET_BLOB_MEAN
+    BLOB_SCALE = IMAGENET_BLOB_SCALE
 
 
 inf = MyStereoNet(engine=make_engine(recommend_engine(),
@@ -956,9 +1182,24 @@ with DepthPipeline(source=src, inference=inf, enable_cloud=True) as pipe:
 The pipeline takes the instance as-is — rectification onto the
 model's input canvas, disparity → depth → point-cloud projection,
 filters, recording, and the web-viewer wiring all come for free.
-Registering in the catalog (`@register_inference` + `variants()`) is
-only needed if you also want the model listed / downloadable via
-`build_inference`; a direct instance like above skips that entirely.
+Override a method only where the network really differs:
+
+- `preprocess(canvas_l, canvas_r)` — BGR uint8 canvases → tuple of
+  NCHW float32 blobs, in the order the model declares its inputs
+  (`self._to_blob(canvas)` applies the class recipe to one canvas).
+  Mono networks receive `canvas_r=None`.
+- `postprocess(raw_output, canvas_layout)` — raw engine output → 2-D
+  float32 map of the canvas's valid region
+  (`self._extract_map(raw_output, canvas_layout)` does the squeeze /
+  channel pick / cast / crop). Stereo returns disparity in canvas
+  pixels; mono returns depth.
+
+Registering in the catalog is only needed if you also want the model
+listed / downloadable via `build_inference`: decorate the class with
+`@register_inference("slug")` (which sets `SLUG`) and declare its
+variants in a `_variants()` classmethod — `onnx_variant(...)` builds
+the usual single-file entry. A direct instance like above skips that
+entirely.
 
 ### Custom sources
 
@@ -966,8 +1207,12 @@ Both built-ins extend `FrameSource`. To plug in your own (e.g. a
 network stream): inherit `FrameSource`, implement
 `open()` / `grab()` / `close()` plus the relevant capability
 properties. Defaults already cover most things — sane no-ops for
-`add_fanout`, `controls`, `seek_relative_us`, etc. If your bytes are
-MJPG or YUYV, the default `decode_to_bgr` works.
+`add_fanout`, `camera_controls`, `seek_relative_us`, etc. If your bytes
+are MJPG or YUYV, the default `decode_to_bgr` works. `grab()` returns
+`None` when there is nothing right now and raises when the source can
+never deliver again. A source with its own capture thread returns
+`True` from `add_fanout(cb)` and calls `cb` for every frame; otherwise
+the pipeline feeds the recorder itself.
 
 ### Adding a new filter
 
@@ -996,10 +1241,10 @@ class MyFilter(DepthFilter):
 
 ### Adding a new lens model
 
-Subclass `Calibration`, set `POLYMORPHIC_NAME` and `SDK_PARAMS`,
-implement `_extract_distortion`, `_distortion_params_dict`,
-`_compute_rectification`, `set_param`, then decorate with
-`@register_calibration`. The base does the rest. Use
+Subclass `Calibration`, set `POLYMORPHIC_NAME`, declare the lens
+model's runtime controls as typed-control class attributes, implement
+`_extract_distortion`, `_distortion_params_dict` and
+`_compute_rectification`, then decorate with `@register_calibration`. The base does the rest. Use
 `registered_polymorphic_names()` to introspect what's been wired up.
 
 ---
@@ -1018,7 +1263,7 @@ the same dispatch outside a pipeline (CLI tools, tests):
 | `FrameSource` instance | Returned as-is. Use this when you want to construct `CameraSource(cam, mode=...)` with a non-default mode, or pass a custom subclass. |
 | `DepzCameraInfo` | Builds `CameraSource(cam, cam.spec.default_mode)`. Skip-the-string-roundtrip shortcut when you already have one from `list_connected_depz_cameras()`. |
 | Bare DEPZ serial string (`"RRX6L1PSJ4"`) | Looks up the live camera by serial, returns `CameraSource` at the spec's default mode. |
-| `*.mkv` path | Replay via `MkvSource`. |
+| `*.mkv` path (any case; `/` or `\` separators) | Replay via `MkvSource`. |
 | `*.json` path | A server-shape camera-info file. The SDK reads its `serial_number`, finds the matching connected camera, and builds a `CameraSource` (calibration travels inside the JSON). |
 | `None` (the constructor default) | Auto-discover: `list_connected_depz_cameras()[0]` at the spec's default mode. Fine for a quick test, not what production code should rely on. |
 
@@ -1082,7 +1327,7 @@ coefficients (`k1..k4`, no `p1`/`p2`/`k5`/`k6`), and SDK params
 
 ### Buffer aliasing
 
-`Calibration.canvas_remap_pair()` returns aliased internal buffers
+`Calibration.canvas_remap()` returns aliased internal buffers
 — the next call overwrites them. The pipeline copies what it needs
 into the inflight slot. If you call this method directly, **`.copy()`
 the returns** when retaining references.
