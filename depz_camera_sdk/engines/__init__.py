@@ -1,6 +1,7 @@
 """Stereo inference engines (OpenVINO + ONNX-multi-EP) with unified async API."""
 
 from .base import EventFuture, InferenceEngine, InferenceFuture
+from .model_policy import engine_for_model, tensorrt_precision
 from .registry import (
     ENGINE_CLASSES, available_engines, class_rank, classify_engine,
     list_engines, make_engine, parse_engine_slug, priority_rank,
@@ -12,4 +13,5 @@ __all__ = [
     "ENGINE_CLASSES", "available_engines", "class_rank",
     "classify_engine", "list_engines", "make_engine",
     "parse_engine_slug", "priority_rank", "recommend_engine",
+    "engine_for_model", "tensorrt_precision",
 ]

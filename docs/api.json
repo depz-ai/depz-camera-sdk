@@ -2666,7 +2666,7 @@
           "module": "depz_camera_sdk.inference.base",
           "source": {
             "file": "depz_camera_sdk/inference/base.py",
-            "line": 606
+            "line": 610
           },
           "exported_as": [
             "depz_camera_sdk.DepthInferenceBase",
@@ -2940,7 +2940,7 @@
           "module": "depz_camera_sdk.inference.base",
           "source": {
             "file": "depz_camera_sdk/inference/base.py",
-            "line": 927
+            "line": 931
           },
           "exported_as": [
             "depz_camera_sdk.NeuralStereoInferenceBase",
@@ -3289,7 +3289,7 @@
           "module": "depz_camera_sdk.inference.base",
           "source": {
             "file": "depz_camera_sdk/inference/base.py",
-            "line": 955
+            "line": 959
           },
           "exported_as": [
             "depz_camera_sdk.NeuralMonoInferenceBase",
@@ -4708,7 +4708,7 @@
             "depz_camera_sdk.build_inference",
             "depz_camera_sdk.inference.build_inference"
           ],
-          "doc": "One-shot: ``(inference_slug, variant_slug)`` → fully-initialized\n:class:`DepthInferenceBase`.\n\n1. :func:`get_inference` resolves the inference class, then\n   :meth:`get_variant` looks up the variant.\n2. :meth:`InferenceVariant.resolve_files` populates the cache\n   (downloads on first use; cache hit is read-only ``stat()``s).\n3. Classical inferences (``cls.NEURAL = False``) are constructed\n   directly with ``variant.inference_kwargs``. Neural ones get an\n   :class:`InferenceEngine` built around the entry-point file and\n   passed via ``engine=``.\n\n``engine_slug`` defaults to :func:`recommend_engine` (best engine\navailable on this host). Downloads are silent unless\n``download_progress_cb(done_bytes, total_bytes)`` is given —\n:func:`stderr_progress` returns one that draws a console progress\nline.\n\nTo pass engine options (``cache_dir``, ``nireq``, …) build the\nengine yourself: ``cls(engine=make_engine(slug, path, **options))``."
+          "doc": "One-shot: ``(inference_slug, variant_slug)`` → fully-initialized\n:class:`DepthInferenceBase`.\n\n1. :func:`get_inference` resolves the inference class, then\n   :meth:`get_variant` looks up the variant.\n2. :meth:`InferenceVariant.resolve_files` populates the cache\n   (downloads on first use; cache hit is read-only ``stat()``s).\n3. Classical inferences (``cls.NEURAL = False``) are constructed\n   directly with ``variant.inference_kwargs``. Neural ones get an\n   :class:`InferenceEngine` built around the entry-point file and\n   passed via ``engine=``.\n\n``engine_slug`` defaults to :func:`recommend_engine` (best engine\navailable on this host); on an NVIDIA GPU with TensorRT installed\nthat default becomes ``tensorrt-fp16`` / ``-fp32`` for the models\nverified for it (:func:`depz_camera_sdk.engines.engine_for_model`).\nAn explicit ``engine_slug`` is used as given. Downloads are silent unless\n``download_progress_cb(done_bytes, total_bytes)`` is given —\n:func:`stderr_progress` returns one that draws a console progress\nline.\n\nTo pass engine options (``cache_dir``, ``nireq``, …) build the\nengine yourself: ``cls(engine=make_engine(slug, path, **options))``."
         },
         {
           "name": "stderr_progress",
@@ -8785,6 +8785,70 @@
             "depz_camera_sdk.engines.priority_rank"
           ],
           "doc": "Public alias of :func:`_priority_rank` — the canonical engine\npriority for a slug. Exposed so downstream consumers (notably\n``depz_camera_viewer.model_selector``) can rank engines without\nduplicating :data:`_PRIORITY_ORDER` (and the ARM swap). Returns are\nsort keys (lower = higher priority); only relative order matters."
+        },
+        {
+          "name": "engine_for_model",
+          "kind": "function",
+          "parameters": [
+            {
+              "name": "inference_slug",
+              "kind": "positional_or_keyword",
+              "annotation": "str"
+            },
+            {
+              "name": "variant_slug",
+              "kind": "positional_or_keyword",
+              "annotation": "Optional[str]"
+            },
+            {
+              "name": "engine_slug",
+              "kind": "positional_or_keyword",
+              "annotation": "Optional[str]"
+            },
+            {
+              "name": "engines",
+              "kind": "positional_or_keyword",
+              "annotation": "Optional[Iterable[str]]",
+              "default": null
+            }
+          ],
+          "returns": "Optional[str]",
+          "module": "depz_camera_sdk.engines.model_policy",
+          "source": {
+            "file": "depz_camera_sdk/engines/model_policy.py",
+            "line": 78
+          },
+          "exported_as": [
+            "depz_camera_sdk.engines.engine_for_model"
+          ],
+          "doc": "The engine that should run this model when ``engine_slug`` was\nasked for.\n\nRequests for anything but an NVIDIA engine come back unchanged. For\nan NVIDIA engine the answer is ``tensorrt-<precision>`` when the\nmodel is verified for it and that engine is installed, else\n``onnx-cuda`` when that is installed, else the request itself (a\nJetson has no ``onnx-cuda`` to fall back to).\n\n``engines`` — the loadable engine slugs, hidden ones included;\ndefaults to ``list_engines(\"detected\")``."
+        },
+        {
+          "name": "tensorrt_precision",
+          "kind": "function",
+          "parameters": [
+            {
+              "name": "inference_slug",
+              "kind": "positional_or_keyword",
+              "annotation": "str"
+            },
+            {
+              "name": "variant_slug",
+              "kind": "positional_or_keyword",
+              "annotation": "Optional[str]",
+              "default": null
+            }
+          ],
+          "returns": "Optional[str]",
+          "module": "depz_camera_sdk.engines.model_policy",
+          "source": {
+            "file": "depz_camera_sdk/engines/model_policy.py",
+            "line": 66
+          },
+          "exported_as": [
+            "depz_camera_sdk.engines.tensorrt_precision"
+          ],
+          "doc": "The precision ``inference_slug`` is verified for on TensorRT\n(``\"fp16\"`` / ``\"fp32\"``), or None: not verified, stay on CUDA.\nFamilies missing from the table (a user's own model) are None."
         }
       ]
     },

@@ -103,7 +103,8 @@ pip install "depz-camera-sdk[openvino,migraphx]"  # + AMD GPU on Linux (system R
 pip install "depz-camera-sdk[cpu]"                # Linux ARM64 / macOS / Windows ARM64 baseline
 pip install "depz-camera-sdk[qnn]"                # Windows ARM64 with a Qualcomm NPU (instead of [cpu])
 pip install "depz-camera-sdk[cpu,rknn]"           # Rockchip boards: + the NPU (RKNN2 runtime)
-pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt]"  # x86_64: + NVIDIA TensorRT, used directly
+pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"  # + NVIDIA TensorRT: 3-4x faster (multi-GB download)
+pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"  # the same on the CUDA 13 line
 ```
 
 (The quotes matter in zsh, the default macOS shell, where bare `[...]`
@@ -667,7 +668,7 @@ strings** — `<backend>-<device>`:
 |---|---|---|
 | OpenVINO | `openvino-CPU`, `openvino-GPU`, `openvino-NPU` | Intel CPU / GPU / NPU, AMD CPU |
 | ONNX Runtime | `onnx-cuda`, `onnx-dml`, `onnx-migraphx`, `onnx-coreml`, `onnx-qnn`, `onnx-cpu` | NVIDIA / AMD / Apple / Qualcomm, any CPU |
-| TensorRT (used directly) | `tensorrt-fp16` (`tensorrt-fp32` on request) | NVIDIA Jetson; NVIDIA desktop GPUs with the `[tensorrt]` extra |
+| TensorRT (used directly) | `tensorrt-fp16`, `tensorrt-fp32` | NVIDIA Jetson; NVIDIA desktop GPUs with the `[tensorrt12]` / `[tensorrt13]` extra |
 | RKNN2 | `rknn-npu` | Rockchip NPU |
 
 ```python
@@ -762,10 +763,47 @@ What to expect:
   freshly built plan is checked for NaN / infinity; a model that still
   fails that check is rebuilt in FP32. `tensorrt-fp32` forces full
   precision for one model: `make_engine("tensorrt-fp32", path)`.
-- The same engine works on x86_64 desktops with
-  `pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt]"`. There
-  it ranks below `onnx-cuda` (which starts instantly), so pick it
-  explicitly.
+- The same engine runs on x86_64 desktops — see the next section.
+
+### NVIDIA desktops: TensorRT next to CUDA
+
+On Windows and Linux x86_64 an NVIDIA GPU has two engines. `onnx-cuda`
+runs every model, exactly, and starts at once. TensorRT needs three to
+four times less GPU time per frame — higher frame rates, a cooler and
+quieter GPU, less power — at the price of a large install and a build
+step the first time each model is used.
+
+```bash
+pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"   # CUDA 12 line
+pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"   # CUDA 13 line (Python 3.11+)
+```
+
+- **Install the TensorRT extra of the same CUDA line as the CUDA
+  extra**, and never without one: models TensorRT is not verified for
+  keep running on `onnx-cuda`.
+- **Size.** The TensorRT libraries are a 4.3 GB download on Linux
+  (2.2 GB on Windows) and 6.2 GB on disk — one package for every GPU
+  generation. The viewer's standalone installer deletes the parts for
+  other generations afterwards (about 1.5 GB stays); a pip install
+  keeps everything.
+- **GPU.** RTX 20-series / GTX 16-series or newer.
+- **Which model runs where** is decided per model family in
+  `depz_camera_sdk/engines/model_policy.py`, from measurements:
+
+  | Family | On an NVIDIA GPU with TensorRT |
+  |---|---|
+  | Lite Any Stereo V2 (S, M), LightStereo, CREStereo, C-Fast-FoundationStereo | `tensorrt-fp16` |
+  | Metric3D V2 | `tensorrt-fp32` (FP16 costs accuracy) |
+  | Depth Anything V2, DEPZ Stereo, your own models | `onnx-cuda` |
+
+  `build_inference(family, variant)` with no `engine_slug` applies it;
+  so does the viewer. An explicit `engine_slug` is used as given.
+  `engine_for_model(family, variant, "onnx-cuda")` answers the question
+  directly; `DEPZ_DISABLE_TENSORRT=1` keeps everything on CUDA.
+- **First start of each model and size**: 40–120 s to build the plan
+  (C-Fast-FoundationStereo up to a few minutes), then about a second.
+- If TensorRT fails for a model, the viewer runs that model on
+  `onnx-cuda` for the rest of the session.
 
 ### Rockchip NPU (RKNN)
 

@@ -10,7 +10,7 @@ docstrings in the source, not this file.
 - **Pipeline**: [`DepthPipeline`](#depthpipeline), [`FramePacket`](#framepacket), [`RecordingStatus`](#recordingstatus), [`RecordingResult`](#recordingresult), [`PipelineMetrics`](#pipelinemetrics)
 - **Sources**: [`FrameSource`](#framesource), [`CameraSource`](#camerasource), [`MkvSource`](#mkvsource), [`CameraInfo`](#camerainfo), [`RawFrame`](#rawframe), [`resolve_source_arg`](#resolve_source_arg)
 - **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`stderr_progress`](#stderr_progress), [`available_inferences`](#available_inferences), [`get_inference`](#get_inference), [`register_inference`](#register_inference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`LiteAnyStereoInference`](#liteanystereoinference), [`LiteAnyStereoMInference`](#liteanystereominference), [`DepzStereoInference`](#depzstereoinference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`onnx_variant`](#onnx_variant), [`cache_root`](#cache_root), [`IMAGENET_BLOB_MEAN`](#imagenet_blob_mean), [`IMAGENET_BLOB_SCALE`](#imagenet_blob_scale)
-- **Engines**: [`available_engines`](#available_engines), [`list_engines`](#list_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`ENGINE_CLASSES`](#engine_classes), [`class_rank`](#class_rank), [`classify_engine`](#classify_engine), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug), [`priority_rank`](#priority_rank)
+- **Engines**: [`available_engines`](#available_engines), [`list_engines`](#list_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`ENGINE_CLASSES`](#engine_classes), [`class_rank`](#class_rank), [`classify_engine`](#classify_engine), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug), [`priority_rank`](#priority_rank), [`engine_for_model`](#engine_for_model), [`tensorrt_precision`](#tensorrt_precision)
 - **Calibration**: [`Calibration`](#calibration), [`CanvasLayout`](#canvaslayout), [`OpenCVBasicCalibration`](#opencvbasiccalibration), [`OpenCVFisheyeCalibration`](#opencvfisheyecalibration), [`register_calibration`](#register_calibration), [`registered_polymorphic_names`](#registered_polymorphic_names)
 - **Filters**: [`Filter`](#filter), [`DisparityFilter`](#disparityfilter), [`DepthFilter`](#depthfilter), [`PointCloudFilter`](#pointcloudfilter), [`SpeckleFilter`](#specklefilter), [`ZClipFilter`](#zclipfilter), [`EdgeFilter`](#edgefilter), [`TemporalEmaFilter`](#temporalemafilter), [`BoundingBoxFilter`](#boundingboxfilter), [`StatisticalOutlierFilter`](#statisticaloutlierfilter), [`default_filter_chain`](#default_filter_chain)
 - **Cameras**: [`fetch_camera_info_json`](#fetch_camera_info_json), [`DepzCameraInfo`](#depzcamerainfo), [`list_connected_depz_cameras`](#list_connected_depz_cameras), [`get_first_connected_depz_camera`](#get_first_connected_depz_camera), [`get_connected_depz_camera_by_serial`](#get_connected_depz_camera_by_serial), [`CaptureMode`](#capturemode), [`CameraControl`](#cameracontrol), [`CameraSpec`](#cameraspec), [`DEPZ_VARIUS`](#depz_varius), [`DEPZ_MINIMA`](#depz_minima), [`DEPZ_CLARITY`](#depz_clarity), [`DEPZ_MONO`](#depz_mono), [`DEPZ_MONO_MINI`](#depz_mono_mini), [`REGISTRY`](#registry), [`spec_by_sku`](#spec_by_sku), [`list_connected_depz_cameras_detailed`](#list_connected_depz_cameras_detailed)
@@ -2548,7 +2548,10 @@ One-shot: ``(inference_slug, variant_slug)`` → fully-initialized
    passed via ``engine=``.
 
 ``engine_slug`` defaults to :func:`recommend_engine` (best engine
-available on this host). Downloads are silent unless
+available on this host); on an NVIDIA GPU with TensorRT installed
+that default becomes ``tensorrt-fp16`` / ``-fp32`` for the models
+verified for it (:func:`depz_camera_sdk.engines.engine_for_model`).
+An explicit ``engine_slug`` is used as given. Downloads are silent unless
 ``download_progress_cb(done_bytes, total_bytes)`` is given —
 :func:`stderr_progress` returns one that draws a console progress
 line.
@@ -4495,6 +4498,34 @@ priority for a slug. Exposed so downstream consumers (notably
 ``depz_camera_viewer.model_selector``) can rank engines without
 duplicating :data:`_PRIORITY_ORDER` (and the ARM swap). Returns are
 sort keys (lower = higher priority); only relative order matters.
+
+### engine_for_model
+
+```python
+engine_for_model(inference_slug: str, variant_slug: Optional[str], engine_slug: Optional[str], engines: Optional[Iterable[str]] = None) -> Optional[str]
+```
+
+The engine that should run this model when ``engine_slug`` was
+asked for.
+
+Requests for anything but an NVIDIA engine come back unchanged. For
+an NVIDIA engine the answer is ``tensorrt-<precision>`` when the
+model is verified for it and that engine is installed, else
+``onnx-cuda`` when that is installed, else the request itself (a
+Jetson has no ``onnx-cuda`` to fall back to).
+
+``engines`` — the loadable engine slugs, hidden ones included;
+defaults to ``list_engines("detected")``.
+
+### tensorrt_precision
+
+```python
+tensorrt_precision(inference_slug: str, variant_slug: Optional[str] = None) -> Optional[str]
+```
+
+The precision ``inference_slug`` is verified for on TensorRT
+(``"fp16"`` / ``"fp32"``), or None: not verified, stay on CUDA.
+Families missing from the table (a user's own model) are None.
 
 ## Calibration
 

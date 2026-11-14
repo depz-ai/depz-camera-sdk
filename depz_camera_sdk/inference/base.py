@@ -549,7 +549,10 @@ def build_inference(
        passed via ``engine=``.
 
     ``engine_slug`` defaults to :func:`recommend_engine` (best engine
-    available on this host). Downloads are silent unless
+    available on this host); on an NVIDIA GPU with TensorRT installed
+    that default becomes ``tensorrt-fp16`` / ``-fp32`` for the models
+    verified for it (:func:`depz_camera_sdk.engines.engine_for_model`).
+    An explicit ``engine_slug`` is used as given. Downloads are silent unless
     ``download_progress_cb(done_bytes, total_bytes)`` is given —
     :func:`stderr_progress` returns one that draws a console progress
     line.
@@ -564,8 +567,9 @@ def build_inference(
     # Pick the engine before fetching anything: without one, a neural
     # model's download (up to ~150 MB) would be for nothing.
     if cls.NEURAL and engine_slug is None:
-        from ..engines import recommend_engine
-        engine_slug = recommend_engine()
+        from ..engines import engine_for_model, recommend_engine
+        engine_slug = engine_for_model(
+            cls.SLUG, inference_variant_slug, recommend_engine())
         if engine_slug is None:
             raise RuntimeError(
                 f"no inference engine is installed, and {cls.SLUG!r} is a "
