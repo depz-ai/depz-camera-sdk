@@ -206,3 +206,45 @@ def windows_bin_dirs(nvidia_root: Path, major: int) -> list[Path]:
     return [lib_dir / "bin" for lib_dir in sorted(nvidia_root.iterdir())
             if not re.fullmatch(r"cu\d+", lib_dir.name)
             and (lib_dir / "bin").is_dir()]
+
+
+def _os_key() -> Optional[str]:
+    import sys
+    if sys.platform == "win32":
+        return "windows"
+    if sys.platform.startswith("linux"):
+        return "linux"
+    return None
+
+
+def missing_runtime_libs(major: Optional[int] = None) -> list[str]:
+    """The :data:`CUDA_SYSTEM_PROBE_LIBS` of CUDA line ``major`` (default:
+    the installed onnxruntime's) that this process cannot load — ``[]``
+    when all load or there is nothing to check (no CUDA onnxruntime, an
+    OS without CUDA).
+
+    Call it after ``import depz_camera_sdk``: a ``-bundled`` install has
+    then already loaded its libraries (Windows pre-load, Linux
+    ``onnxruntime.preload_dlls``), and loading by name finds those copies.
+    What is left missing is a lean ``cudaNN`` install on a host without
+    that CUDA line's cuBLAS / cuDNN — where onnxruntime 1.27+ still
+    creates the CUDA session and fails only at the first convolution,
+    with a message that does not say what to install."""
+    import ctypes
+
+    major = major if major is not None else installed_cuda_major()
+    os_key = _os_key()
+    if major is None or os_key is None:
+        return []
+    missing = []
+    for lib in CUDA_SYSTEM_PROBE_LIBS.get(major, {}).get(os_key, ()):
+        try:
+            if os_key == "windows":
+                # winmode=0: also search PATH, where the CUDA Toolkit and
+                # cuDNN installers put their DLLs (ctypes' default skips it).
+                ctypes.WinDLL(lib, winmode=0)  # type: ignore[attr-defined]
+            else:
+                ctypes.CDLL(lib)
+        except OSError:
+            missing.append(lib)
+    return missing

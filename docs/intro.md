@@ -9,13 +9,13 @@ raw eyes, rectified eyes, disparity, metric depth, and a 3D point cloud.
   pre-built wheels for Python 3.10 or newer. On ARM64 boards: NVIDIA Jetson (JetPack 6 and 7, GPU through
   TensorRT) and Rockchip (RK3588, RK3576, RK3568, RK3566, RK3562, …, NPU
   through RKNN2).
-- **Neural & classical stereo** — Lite Any Stereo, DEPZ Stereo,
+- **Neural & classical stereo** — Lite Any Stereo,
   C-Fast-FoundationStereo, LightStereo and CREStereo ONNX nets, OpenCV SGBM /
   StereoBM block matchers, plus monocular depth (Depth Anything V2,
   Metric3D V2).
 - **Your hardware, your backend** — OpenVINO and ONNX Runtime engines with CPU,
-  CUDA, DirectML, CoreML, MIGraphX and QNN execution, TensorRT on NVIDIA Jetson and
-  RKNN2 on Rockchip NPUs; the model catalog downloads and caches weights on
+  CUDA, DirectML, CoreML, MIGraphX and QNN execution, TensorRT on NVIDIA
+  desktop GPUs and Jetson, and RKNN2 on Rockchip NPUs; the model catalog downloads and caches weights on
   first use.
 - **Record & replay** — capture the raw camera stream to MKV and re-run the
   exact same frames through any pipeline configuration later.
@@ -48,7 +48,11 @@ Runtime extra for a GPU: `cuda12-bundled` (NVIDIA, CUDA 12, self-contained),
 `cuda13` (the same on CUDA 13 — newer GPUs and drivers, Python 3.11+), `dml`
 (Windows, any DX12 GPU) or `migraphx` (Linux AMD, system ROCm). The ONNX
 Runtime extras are mutually exclusive — pick at most one; `openvino`
-combines with any of them, e.g. `[openvino,cuda12-bundled]`. See all options
+combines with any of them, e.g. `[openvino,cuda12-bundled]`. For NVIDIA
+TensorRT (three to four times less GPU time per frame) add `tensorrt12`
+next to a `cuda12` extra or `tensorrt13` next to a `cuda13` one, e.g.
+`[openvino,cuda12-bundled,tensorrt12]` — a multi-GB download, Python
+3.10–3.13. See all options
 in the [install selector](/developers/sdk) and the
 [guide](guide.md#installation).
 

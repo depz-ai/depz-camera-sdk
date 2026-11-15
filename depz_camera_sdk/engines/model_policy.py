@@ -51,8 +51,6 @@ TENSORRT_PRECISION: "dict[str, Optional[str]]" = {
     # TensorRT cannot read the file: it contains ONNX Runtime's own
     # MultiHeadAttention operator. Needs a re-export first.
     "depth-anything-v2-small": None,
-    # Not verified on TensorRT — left on CUDA until it is.
-    "depz-stereo": None,
 }
 
 # The engines that are "this NVIDIA GPU". Only a request for one of them

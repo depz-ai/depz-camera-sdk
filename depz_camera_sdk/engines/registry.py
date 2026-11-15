@@ -143,7 +143,7 @@ _HIDDEN_ENGINES: frozenset[str] = frozenset({
 
 # ── Engine classes ─────────────────────────────────────────────────────
 #
-# Coarse hardware classes for the model wizard: model metadata declares
+# Coarse hardware classes for the model selector: model metadata declares
 # requirements as a class ("this variant needs at least igpu",
 # "recommended on nvidia"), not as engine slugs, so hosts and models can
 # be matched without either knowing the other's specifics. The mapping
@@ -446,17 +446,32 @@ def make_engine(slug: str, model_path: str, **kwargs) -> InferenceEngine:
     canonical form each backend expects (OpenVINO devices uppercase,
     ONNX EPs lowercase).
 
-    Keyword options go to the engine constructor. Both kinds accept
+    Keyword options go to the engine constructor. Every kind accepts
     ``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick
     one output of a multi-head model) and ``cache_dir`` (override
     :func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk
     cache: ``<cache_dir>/openvino/`` compiled blobs,
-    ``<cache_dir>/onnx-opt/`` optimized graphs). ``nireq`` and
+    ``<cache_dir>/onnx-opt/`` optimized graphs, ``<cache_dir>/tensorrt/``
+    TensorRT plans; the RKNN engine keeps no cache). ``nireq`` and
     ``do_models_cache`` are OpenVINO-only; ``num_threads`` is
-    ONNX-only. An option the chosen kind does not have raises
+    ONNX-only; ``builder_optimization_level`` is TensorRT-only; ``soc``
+    is RKNN-only. An option the chosen kind does not have raises
     ``TypeError`` naming it and listing the ones that apply.
     """
     kind, tail = parse_engine_slug(slug)
+    from .progress import step
+    with step("preparing", f"{kind}-{tail.lower()}"):
+        engine, tail = _construct(kind, tail, slug, model_path, kwargs)
+    # Stamp the canonical slug on the engine so callers don't have to
+    # carry it separately.
+    engine.slug = f"{kind}-{tail}"
+    return engine
+
+
+def _construct(kind: str, tail: str, slug: str, model_path: str,
+               kwargs: dict) -> "tuple[InferenceEngine, str]":
+    """The engine of ``kind`` for ``model_path`` and its normalized device
+    tail (see :func:`make_engine`)."""
     if kind == "openvino":
         from .openvino_engine import OpenVINOEngine
         tail = tail.upper()
@@ -471,6 +486,7 @@ def make_engine(slug: str, model_path: str, **kwargs) -> InferenceEngine:
     elif kind == "tensorrt":
         from .tensorrt_engine import TensorRTEngine
         tail = tail.lower()
+        _check_engine_options(kind, TensorRTEngine, kwargs)
         engine = TensorRTEngine(model_path, precision=tail, **kwargs)
     elif kind == "rknn":
         from .rknn_engine import RknnEngine
@@ -478,10 +494,8 @@ def make_engine(slug: str, model_path: str, **kwargs) -> InferenceEngine:
         if tail != "npu":
             raise ValueError(
                 f"unknown RKNN device in slug {slug!r}: expected 'rknn-npu'")
+        _check_engine_options(kind, RknnEngine, kwargs)
         engine = RknnEngine(model_path, **kwargs)
     else:
         raise ValueError(f"unknown engine kind in slug {slug!r}: {kind!r}")
-    # Stamp the canonical slug on the engine so callers don't have to
-    # carry it separately.
-    engine.slug = f"{kind}-{tail}"
-    return engine
+    return engine, tail

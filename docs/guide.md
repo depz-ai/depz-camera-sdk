@@ -58,7 +58,7 @@ to a `DepthPipeline`:
    `NeuralMonoInferenceBase`, `ClassicStereoInferenceBase`), and a
    set of concrete inferences, each its own class:
    - `LiteAnyStereoInference` / `LiteAnyStereoMInference` (the default
-     model is Lite Any Stereo V2 S), `DepzStereoInference`,
+     model is Lite Any Stereo V2 S),
      `LightStereoInference`, `CREStereoInitialInference`,
      `CREStereoCombinedInference`, `CFastFoundationStereoInference` —
      neural stereo nets producing canvas-pixel **disparity**
@@ -103,8 +103,8 @@ pip install "depz-camera-sdk[openvino,migraphx]"  # + AMD GPU on Linux (system R
 pip install "depz-camera-sdk[cpu]"                # Linux ARM64 / macOS / Windows ARM64 baseline
 pip install "depz-camera-sdk[qnn]"                # Windows ARM64 with a Qualcomm NPU (instead of [cpu])
 pip install "depz-camera-sdk[cpu,rknn]"           # Rockchip boards: + the NPU (RKNN2 runtime)
-pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"  # + NVIDIA TensorRT: 3-4x faster (multi-GB download)
-pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"  # the same on the CUDA 13 line
+pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"  # + NVIDIA TensorRT: 3-4x faster (multi-GB download; Python 3.10-3.13)
+pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"  # the same on the CUDA 13 line (Python 3.11-3.13)
 ```
 
 (The quotes matter in zsh, the default macOS shell, where bare `[...]`
@@ -523,10 +523,6 @@ crestereo-initial — CREStereo Initial (disparity)
    ...
 depth-anything-v2-small — Depth Anything V2 Small (depth)
    518x518                          518×518 (default)                  needs download
-depz-stereo — DEPZ Stereo (disparity)
-   depz-stereo-320x192              320×192                            needs download
-   depz-stereo-1920x1088            1920×1088                          needs download
-   ...
 lightstereo — LightStereo (disparity)
    s-sceneflow-opt-256x512          S / SceneFlow / 256×512 (opt)      needs download
    s-sceneflow-opt-576x960          S / SceneFlow / 576×960 (opt)      needs download
@@ -703,20 +699,28 @@ with a catalog model, build the engine yourself as shown in "Building
 an inference from a catalog variant"). `make_engine` rejects an option
 the chosen engine kind does not have, naming it:
 
-- `cache_dir` (both kinds) — override the SDK-wide cache root
+- `cache_dir` (every kind) — override the SDK-wide cache root
   (`get_cache_dir()`) for this engine's on-disk cache:
   `<cache_dir>/openvino/` compiled blobs, `<cache_dir>/onnx-opt/`
-  optimized graphs.
-- `input_shape` (both) — pin a `(1, 3, H, W)` shape on a model exported
-  with dynamic dimensions; required for such models (Metric3D V2,
-  Depth Anything V2 — their classes declare `INPUT_SIZE` and
+  optimized graphs, `<cache_dir>/tensorrt/` TensorRT plans (the RKNN
+  engine keeps no cache).
+- `input_shape` (every kind) — pin a `(1, 3, H, W)` shape on a model
+  exported with dynamic dimensions; required for such models (Metric3D
+  V2, Depth Anything V2 — their classes declare `INPUT_SIZE` and
   `build_inference` passes it).
-- `output_name` (both) — which output to read on a multi-head model.
+- `output_name` (every kind) — which output to read on a multi-head
+  model.
 - `do_models_cache` (OpenVINO) — set False to disable the compiled-
   model cache entirely (read-only filesystems / one-shot scripts).
 - `nireq` (OpenVINO) — async-queue depth.
 - `num_threads` (ONNX Runtime) — how many `session.run` calls may be in
   flight at once (default 1).
+- `builder_optimization_level` (TensorRT) — 0–5, how long a plan build
+  searches for the fastest kernels (default 1, or
+  `$DEPZ_TENSORRT_OPT_LEVEL`). Only used when a plan is built; a cached
+  plan keeps the level it was built with.
+- `soc` (RKNN) — the processor the `.rknn` file was converted for
+  (`"rk3576"`); read from the device tree when not given.
 
 OpenVINO uses `AsyncInferQueue`; ONNX Runtime uses a small thread
 pool plus `session.run()`. Either way, the pipeline never blocks on
@@ -774,8 +778,8 @@ quieter GPU, less power — at the price of a large install and a build
 step the first time each model is used.
 
 ```bash
-pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"   # CUDA 12 line
-pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"   # CUDA 13 line (Python 3.11+)
+pip install "depz-camera-sdk[openvino,cuda12-bundled,tensorrt12]"   # CUDA 12 line (Python 3.10-3.13)
+pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"   # CUDA 13 line (Python 3.11-3.13)
 ```
 
 - **Install the TensorRT extra of the same CUDA line as the CUDA
@@ -787,6 +791,8 @@ pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"   # CUDA 13 li
   other generations afterwards (about 1.5 GB stays); a pip install
   keeps everything.
 - **GPU.** RTX 20-series / GTX 16-series or newer.
+- **Python.** TensorRT 10 has no Python 3.14 build; on 3.14 the extras
+  install nothing (the SDK then runs NVIDIA models on `onnx-cuda`).
 - **Which model runs where** is decided per model family in
   `depz_camera_sdk/engines/model_policy.py`, from measurements:
 
@@ -794,7 +800,7 @@ pip install "depz-camera-sdk[openvino,cuda13-bundled,tensorrt13]"   # CUDA 13 li
   |---|---|
   | Lite Any Stereo V2 (S, M), LightStereo, CREStereo, C-Fast-FoundationStereo | `tensorrt-fp16` |
   | Metric3D V2 | `tensorrt-fp32` (FP16 costs accuracy) |
-  | Depth Anything V2, DEPZ Stereo, your own models | `onnx-cuda` |
+  | Depth Anything V2, your own models | `onnx-cuda` |
 
   `build_inference(family, variant)` with no `engine_slug` applies it;
   so does the viewer. An explicit `engine_slug` is used as given.

@@ -15,13 +15,13 @@
             {
               "name": "source",
               "kind": "positional_or_keyword",
-              "annotation": "depz_camera_sdk.sources.base.FrameSource | str | pathlib.Path | typing.Any | None",
+              "annotation": "FrameSource | str | Path | Any | None",
               "default": null
             },
             {
               "name": "inference",
               "kind": "keyword_only",
-              "annotation": "depz_camera_sdk.inference.base.DepthInferenceBase | tuple[str, str] | None",
+              "annotation": "DepthInferenceBase | tuple[str, str] | None",
               "default": null
             },
             {
@@ -87,10 +87,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.pipeline.depth_pipeline",
-          "source": {
-            "file": "depz_camera_sdk/pipeline/depth_pipeline.py",
-            "line": 144
-          },
           "exported_as": [
             "depz_camera_sdk.DepthPipeline",
             "depz_camera_sdk.pipeline.DepthPipeline"
@@ -822,7 +818,7 @@
                 {
                   "name": "path",
                   "kind": "positional_or_keyword",
-                  "annotation": "str | pathlib.Path"
+                  "annotation": "str | Path"
                 },
                 {
                   "name": "timeout",
@@ -1095,6 +1091,24 @@
               "default": false
             },
             {
+              "name": "width",
+              "kind": "positional_or_keyword",
+              "annotation": "int",
+              "default": 0
+            },
+            {
+              "name": "height",
+              "kind": "positional_or_keyword",
+              "annotation": "int",
+              "default": 0
+            },
+            {
+              "name": "capture_mode",
+              "kind": "positional_or_keyword",
+              "annotation": "str",
+              "default": ""
+            },
+            {
               "name": "error",
               "kind": "positional_or_keyword",
               "annotation": "Optional[str]",
@@ -1149,6 +1163,24 @@
               "doc": "True while recording is paused (frames not being written) but the\noutput file is still open — a subsequent ``resume_recording()``\ncontinues the same recording."
             },
             {
+              "name": "width",
+              "type": "int",
+              "default": 0,
+              "doc": "Width of the recorded frames in pixels — the camera's capture size,\nboth eyes side by side for a stereo camera (``0`` if unknown)."
+            },
+            {
+              "name": "height",
+              "type": "int",
+              "default": 0,
+              "doc": "Height of the recorded frames in pixels (``0`` if unknown)."
+            },
+            {
+              "name": "capture_mode",
+              "type": "str",
+              "default": "",
+              "doc": "The camera mode being recorded, as a :attr:`CaptureMode.slug`\n(``\"640x360@30/MJPG/stereo\"`` — per-eye size, frame rate, format);\nempty if unknown."
+            },
+            {
               "name": "error",
               "type": "Optional[str]",
               "default": null,
@@ -1188,6 +1220,24 @@
               "annotation": "int"
             },
             {
+              "name": "width",
+              "kind": "positional_or_keyword",
+              "annotation": "int",
+              "default": 0
+            },
+            {
+              "name": "height",
+              "kind": "positional_or_keyword",
+              "annotation": "int",
+              "default": 0
+            },
+            {
+              "name": "capture_mode",
+              "kind": "positional_or_keyword",
+              "annotation": "str",
+              "default": ""
+            },
+            {
               "name": "error",
               "kind": "positional_or_keyword",
               "annotation": "Optional[str]",
@@ -1198,7 +1248,7 @@
           "module": "depz_camera_sdk.pipeline.types",
           "source": {
             "file": "depz_camera_sdk/pipeline/types.py",
-            "line": 106
+            "line": 118
           },
           "exported_as": [
             "depz_camera_sdk.RecordingResult",
@@ -1229,6 +1279,24 @@
               "name": "dropped",
               "type": "int",
               "doc": "Frames the recorder dropped (writer back-pressure). 0 in\nhealthy runs."
+            },
+            {
+              "name": "width",
+              "type": "int",
+              "default": 0,
+              "doc": "Width of the recorded frames in pixels (see\n:attr:`RecordingStatus.width`)."
+            },
+            {
+              "name": "height",
+              "type": "int",
+              "default": 0,
+              "doc": "Height of the recorded frames in pixels."
+            },
+            {
+              "name": "capture_mode",
+              "type": "str",
+              "default": "",
+              "doc": "The recorded camera mode (see :attr:`RecordingStatus.capture_mode`)."
             },
             {
               "name": "error",
@@ -1319,7 +1387,7 @@
           "module": "depz_camera_sdk.pipeline.types",
           "source": {
             "file": "depz_camera_sdk/pipeline/types.py",
-            "line": 130
+            "line": 152
           },
           "exported_as": [
             "depz_camera_sdk.PipelineMetrics",
@@ -1413,10 +1481,6 @@
           ],
           "parameters": [],
           "module": "depz_camera_sdk.sources.base",
-          "source": {
-            "file": "depz_camera_sdk/sources/base.py",
-            "line": 63
-          },
           "exported_as": [
             "depz_camera_sdk.FrameSource",
             "depz_camera_sdk.sources.FrameSource"
@@ -1742,10 +1806,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.sources.camera_source",
-          "source": {
-            "file": "depz_camera_sdk/sources/camera_source.py",
-            "line": 45
-          },
           "exported_as": [
             "depz_camera_sdk.CameraSource",
             "depz_camera_sdk.sources.CameraSource"
@@ -1894,7 +1954,7 @@
                   "annotation": "depz_camera_sdk.sources.types.RawFrame"
                 }
               ],
-              "returns": "Optional[numpy.ndarray]",
+              "returns": "Optional[np.ndarray]",
               "doc": "Decode wire bytes to BGR, then resize to the delivered size\nwhen an ``output_eye`` target is set. Overrides the base impl\nbecause YUYV reshape must use the CAPTURED dims (``_info`` may\nalready report the scaled size)."
             },
             {
@@ -2101,10 +2161,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.sources.mkv_source",
-          "source": {
-            "file": "depz_camera_sdk/sources/mkv_source.py",
-            "line": 188
-          },
           "exported_as": [
             "depz_camera_sdk.MkvSource",
             "depz_camera_sdk.sources.MkvSource"
@@ -2641,10 +2697,6 @@
           ],
           "returns": "depz_camera_sdk.sources.base.FrameSource",
           "module": "depz_camera_sdk.sources.factory",
-          "source": {
-            "file": "depz_camera_sdk/sources/factory.py",
-            "line": 38
-          },
           "exported_as": [
             "depz_camera_sdk.sources.resolve_source_arg"
           ],
@@ -3656,10 +3708,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.sgbm",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/sgbm.py",
-            "line": 31
-          },
           "exported_as": [
             "depz_camera_sdk.SgbmInference",
             "depz_camera_sdk.inference.SgbmInference"
@@ -4035,10 +4083,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.stereo_bm",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/stereo_bm.py",
-            "line": 24
-          },
           "exported_as": [
             "depz_camera_sdk.StereoBMInference",
             "depz_camera_sdk.inference.StereoBMInference"
@@ -4412,10 +4456,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.rectify_only",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/rectify_only.py",
-            "line": 12
-          },
           "exported_as": [
             "depz_camera_sdk.RectifyOnlyInference",
             "depz_camera_sdk.inference.RectifyOnlyInference"
@@ -5760,356 +5800,6 @@
           ]
         },
         {
-          "name": "DepzStereoInference",
-          "kind": "class",
-          "bases": [
-            "depz_camera_sdk.inference.base.NeuralStereoInferenceBase"
-          ],
-          "parameters": [
-            {
-              "name": "engine",
-              "kind": "positional_or_keyword",
-              "annotation": "depz_camera_sdk.engines.base.InferenceEngine"
-            }
-          ],
-          "returns": "None",
-          "module": "depz_camera_sdk.inference.inferences.depz_stereo",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/depz_stereo.py",
-            "line": 29
-          },
-          "exported_as": [
-            "depz_camera_sdk.inference.DepzStereoInference"
-          ],
-          "doc": "DEPZ Stereo — fast disparity stereo, DEPZ's own model.\nImageNet-normalised input; the ONNX exports pin (H, W) in the\ngraph.",
-          "attributes": [
-            {
-              "name": "SLUG",
-              "type": "ClassVar[str]",
-              "value": "depz-stereo"
-            },
-            {
-              "name": "LABEL",
-              "type": "ClassVar[str]",
-              "value": "DEPZ Stereo"
-            },
-            {
-              "name": "OUTPUTS_DEPTH",
-              "type": "ClassVar[bool]",
-              "value": false
-            },
-            {
-              "name": "NEURAL",
-              "type": "ClassVar[bool]",
-              "value": true
-            },
-            {
-              "name": "BLOB_MEAN",
-              "type": "ClassVar[tuple]",
-              "value": "(123.675, 116.28, 103.53, 0.0)"
-            },
-            {
-              "name": "BLOB_SCALE",
-              "type": "ClassVar[tuple]",
-              "value": "(0.017124753831663668, 0.01750700280112045, 0.017429193899782137, 0.0)"
-            },
-            {
-              "name": "OUTPUT_CHANNEL",
-              "type": "ClassVar[ForwardRef('int | None')]",
-              "value": null
-            },
-            {
-              "name": "INPUT_SIZE",
-              "type": "ClassVar[ForwardRef('tuple[int, int] | None')]",
-              "value": null
-            },
-            {
-              "name": "OUTPUT_NAME",
-              "type": "ClassVar[ForwardRef('str | None')]",
-              "value": null
-            }
-          ],
-          "members": [
-            {
-              "name": "preprocess",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "canvas_l",
-                  "kind": "positional_or_keyword",
-                  "annotation": "numpy.ndarray"
-                },
-                {
-                  "name": "canvas_r",
-                  "kind": "positional_or_keyword",
-                  "annotation": "numpy.ndarray | None"
-                }
-              ],
-              "returns": "tuple[numpy.ndarray, ...]",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralStereoInferenceBase"
-            },
-            {
-              "name": "postprocess",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "raw_output",
-                  "kind": "positional_or_keyword",
-                  "annotation": "numpy.ndarray"
-                },
-                {
-                  "name": "canvas_layout",
-                  "kind": "positional_or_keyword",
-                  "annotation": "depz_camera_sdk.calibration.base.CanvasLayout"
-                }
-              ],
-              "returns": "numpy.ndarray",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralStereoInferenceBase"
-            },
-            {
-              "name": "make_blob_params",
-              "kind": "classmethod",
-              "parameters": [
-                {
-                  "name": "cls",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "cv2.dnn.Image2BlobParams",
-              "doc": "The network's input recipe as ``cv2.dnn.Image2BlobParams``:\nBGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW\nfloat32, no resize. A classmethod so tools can preprocess for a\nnetwork without building an engine:\n``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "engine_slug",
-              "kind": "property",
-              "returns": "str",
-              "doc": "Engine slug (e.g. ``\"openvino-CPU\"``). Read from the engine\ninstance, which :func:`make_engine` stamps at construction.",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "model_path",
-              "kind": "property",
-              "returns": "str",
-              "doc": "Resolved absolute path of the .onnx file.",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "input_size",
-              "kind": "property",
-              "returns": "tuple[int, int]",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "label",
-              "kind": "property",
-              "returns": "str",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "warmup",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "None",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "abort",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "None",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "shutdown",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "abandon",
-                  "kind": "positional_or_keyword",
-                  "annotation": "bool",
-                  "default": false
-                }
-              ],
-              "returns": "None",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "submit",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "canvas_l",
-                  "kind": "positional_or_keyword",
-                  "annotation": "numpy.ndarray"
-                },
-                {
-                  "name": "canvas_r",
-                  "kind": "positional_or_keyword",
-                  "annotation": "numpy.ndarray | None"
-                }
-              ],
-              "returns": "depz_camera_sdk.engines.base.InferenceFuture",
-              "defined_in": "depz_camera_sdk.inference.base.NeuralInferenceBase"
-            },
-            {
-              "name": "variants",
-              "kind": "classmethod",
-              "parameters": [
-                {
-                  "name": "cls",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]",
-              "doc": "Catalog of every supported variant, each bound to this\ninference's :data:`SLUG` (the cache layout, the download flow\nand :func:`build_inference` need that back-pointer). Pure — no\nI/O, cheap to recompute.\n\nDo not override: declare the variants in :meth:`_variants`.",
-              "defined_in": "depz_camera_sdk.inference.base.DepthInferenceBase"
-            },
-            {
-              "name": "get_variant",
-              "kind": "classmethod",
-              "parameters": [
-                {
-                  "name": "cls",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "slug",
-                  "kind": "positional_or_keyword",
-                  "annotation": "str"
-                }
-              ],
-              "doc": "Look up a single variant by slug. Convenience over\n``next(v for v in cls.variants() if v.slug == slug)``. Raises\n``KeyError`` with a helpful message listing the inference's\nknown variant slugs.",
-              "defined_in": "depz_camera_sdk.inference.base.DepthInferenceBase"
-            },
-            {
-              "name": "set_intrinsics",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "fx",
-                  "kind": "positional_or_keyword",
-                  "annotation": "float"
-                },
-                {
-                  "name": "fy",
-                  "kind": "positional_or_keyword",
-                  "annotation": "float"
-                },
-                {
-                  "name": "cx",
-                  "kind": "positional_or_keyword",
-                  "annotation": "float"
-                },
-                {
-                  "name": "cy",
-                  "kind": "positional_or_keyword",
-                  "annotation": "float"
-                }
-              ],
-              "returns": "None",
-              "doc": "Push canvas-space intrinsics to the inference. Default\nno-op — most backends don't need them (classical matchers,\nrelative-depth nets, stereo nets that already consume a\nrectified pair).\n\nCalled by the pipeline whenever the canvas remap is rebuilt\n(start, calibration update, fit-mode change). Focus-aware\nmonocular metric-depth networks (Metric3D) override to remember\nthem and scale their output to metric depth.",
-              "defined_in": "depz_camera_sdk.inference.base.DepthInferenceBase"
-            },
-            {
-              "name": "control_get",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "name",
-                  "kind": "positional_or_keyword",
-                  "annotation": "str"
-                }
-              ],
-              "returns": "Any",
-              "doc": "Return the current value of one control by name — reads its\n``_control_<name>`` backing attribute. Equivalent to ``host.<name>``\n(the descriptor) but takes the name as a string.",
-              "defined_in": "depz_camera_sdk._controls.ControlOwner"
-            },
-            {
-              "name": "control_set",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                },
-                {
-                  "name": "name",
-                  "kind": "positional_or_keyword",
-                  "annotation": "str"
-                },
-                {
-                  "name": "value",
-                  "kind": "positional_or_keyword",
-                  "annotation": "Any"
-                }
-              ],
-              "returns": "Any",
-              "doc": "Apply one control update: look up descriptor, coerce + clamp by\n``kind``/``value_type``/``min``/``max``/``step``, ``setattr``\nonto ``_control_<name>``. Returns the value actually stored.\n\nSubclasses override to add side effects (e.g. SGBM rebuilds\nits matcher when controls change) — call ``super().control_set(...)``\nfor the coerce/store, then act on the new value.",
-              "defined_in": "depz_camera_sdk._controls.ControlOwner"
-            },
-            {
-              "name": "controls_to_dict",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "dict",
-              "doc": "Snapshot every current control value — for the UI live-state\npane, recorder sidecar, etc.",
-              "defined_in": "depz_camera_sdk._controls.ControlOwner"
-            },
-            {
-              "name": "controls",
-              "kind": "method",
-              "parameters": [
-                {
-                  "name": "self",
-                  "kind": "positional_or_keyword"
-                }
-              ],
-              "returns": "tuple[depz_camera_sdk._controls.Control, ...]",
-              "doc": "This host's control descriptors — the class-level\n:data:`_CONTROL_SPECS` tuple (same object every call, no per-call\nallocation). The single public accessor shared by every\nControlOwner: filters, inference, calibration, pipeline.",
-              "defined_in": "depz_camera_sdk._controls.ControlOwner"
-            }
-          ]
-        },
-        {
           "name": "LightStereoInference",
           "kind": "class",
           "bases": [
@@ -6124,10 +5814,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.lightstereo",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/lightstereo.py",
-            "line": 18
-          },
           "exported_as": [
             "depz_camera_sdk.inference.LightStereoInference"
           ],
@@ -6474,10 +6160,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.crestereo_initial",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/crestereo_initial.py",
-            "line": 136
-          },
           "exported_as": [
             "depz_camera_sdk.inference.CREStereoInitialInference"
           ],
@@ -6824,10 +6506,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.crestereo_combined",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/crestereo_combined.py",
-            "line": 184
-          },
           "exported_as": [
             "depz_camera_sdk.inference.CREStereoCombinedInference"
           ],
@@ -7524,10 +7202,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.depth_anything_v2_small",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/depth_anything_v2_small.py",
-            "line": 23
-          },
           "exported_as": [
             "depz_camera_sdk.inference.DepthAnythingV2SmallInference"
           ],
@@ -7894,10 +7568,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.inference.inferences.metric3d_v2_vit_small",
-          "source": {
-            "file": "depz_camera_sdk/inference/inferences/metric3d_v2_vit_small.py",
-            "line": 33
-          },
           "exported_as": [
             "depz_camera_sdk.inference.Metric3DV2VitSmallInference"
           ],
@@ -8742,7 +8412,7 @@
           "exported_as": [
             "depz_camera_sdk.engines.make_engine"
           ],
-          "doc": "Construct the engine identified by `slug` against `model_path`.\n`slug` is one of the strings returned by :func:`available_engines`,\ne.g. ``\"openvino-CPU\"`` or ``\"onnx-cuda\"``. User input is accepted\nin any case — both kind and device/EP tail are normalized to the\ncanonical form each backend expects (OpenVINO devices uppercase,\nONNX EPs lowercase).\n\nKeyword options go to the engine constructor. Both kinds accept\n``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick\none output of a multi-head model) and ``cache_dir`` (override\n:func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk\ncache: ``<cache_dir>/openvino/`` compiled blobs,\n``<cache_dir>/onnx-opt/`` optimized graphs). ``nireq`` and\n``do_models_cache`` are OpenVINO-only; ``num_threads`` is\nONNX-only. An option the chosen kind does not have raises\n``TypeError`` naming it and listing the ones that apply."
+          "doc": "Construct the engine identified by `slug` against `model_path`.\n`slug` is one of the strings returned by :func:`available_engines`,\ne.g. ``\"openvino-CPU\"`` or ``\"onnx-cuda\"``. User input is accepted\nin any case — both kind and device/EP tail are normalized to the\ncanonical form each backend expects (OpenVINO devices uppercase,\nONNX EPs lowercase).\n\nKeyword options go to the engine constructor. Every kind accepts\n``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick\none output of a multi-head model) and ``cache_dir`` (override\n:func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk\ncache: ``<cache_dir>/openvino/`` compiled blobs,\n``<cache_dir>/onnx-opt/`` optimized graphs, ``<cache_dir>/tensorrt/``\nTensorRT plans; the RKNN engine keeps no cache). ``nireq`` and\n``do_models_cache`` are OpenVINO-only; ``num_threads`` is\nONNX-only; ``builder_optimization_level`` is TensorRT-only; ``soc``\nis RKNN-only. An option the chosen kind does not have raises\n``TypeError`` naming it and listing the ones that apply."
         },
         {
           "name": "parse_engine_slug",
@@ -8816,7 +8486,7 @@
           "module": "depz_camera_sdk.engines.model_policy",
           "source": {
             "file": "depz_camera_sdk/engines/model_policy.py",
-            "line": 78
+            "line": 76
           },
           "exported_as": [
             "depz_camera_sdk.engines.engine_for_model"
@@ -8843,7 +8513,7 @@
           "module": "depz_camera_sdk.engines.model_policy",
           "source": {
             "file": "depz_camera_sdk/engines/model_policy.py",
-            "line": 66
+            "line": 64
           },
           "exported_as": [
             "depz_camera_sdk.engines.tensorrt_precision"
@@ -8872,10 +8542,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.calibration.base",
-          "source": {
-            "file": "depz_camera_sdk/calibration/base.py",
-            "line": 156
-          },
           "exported_as": [
             "depz_camera_sdk.Calibration",
             "depz_camera_sdk.calibration.Calibration"
@@ -8961,7 +8627,7 @@
                   "annotation": "dict"
                 }
               ],
-              "returns": "depz_camera_sdk.calibration.base.Calibration",
+              "returns": "Calibration",
               "doc": "Build a ``Calibration`` from a cereal-shaped dict.\n\n- Called on the abstract base (``Calibration.from_dict(d)``):\n  dispatches to the registered impl whose :meth:`can_handle`\n  returns True (first match wins).\n- Called on a concrete subclass: directly constructs an\n  instance via :meth:`_populate` + :meth:`_compute_rectification`."
             },
             {
@@ -9259,10 +8925,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.calibration.base",
-          "source": {
-            "file": "depz_camera_sdk/calibration/base.py",
-            "line": 71
-          },
           "exported_as": [
             "depz_camera_sdk.CanvasLayout",
             "depz_camera_sdk.calibration.CanvasLayout"
@@ -9271,38 +8933,31 @@
           "dataclass_fields": [
             {
               "name": "scale",
-              "type": "float",
-              "doc": "Raw-eye → canvas pixel ratio (multiplicative). Scales focal\nlength and principal point when projecting to canvas coords."
+              "type": "float"
             },
             {
               "name": "valid_w",
-              "type": "int",
-              "doc": "Width in canvas pixels of the unpadded rectified region."
+              "type": "int"
             },
             {
               "name": "valid_h",
-              "type": "int",
-              "doc": "Height in canvas pixels of the unpadded rectified region."
+              "type": "int"
             },
             {
               "name": "pad_x",
-              "type": "int",
-              "doc": "Left edge (column) of the valid region inside the canvas — the\nwidth of the left padding strip in fit-with-padding mode (zero in\nfill-with-cropping, where the content fills the canvas)."
+              "type": "int"
             },
             {
               "name": "pad_y",
-              "type": "int",
-              "doc": "Top edge (row) of the valid region inside the canvas — the\nheight of the top padding strip in fit-with-padding mode (zero in\nfill-with-cropping)."
+              "type": "int"
             },
             {
               "name": "eye_h",
-              "type": "int",
-              "doc": "Original sensor height in pixels (before rectification)."
+              "type": "int"
             },
             {
               "name": "eye_w",
-              "type": "int",
-              "doc": "Original sensor width in pixels (before rectification)."
+              "type": "int"
             }
           ],
           "members": []
@@ -9329,10 +8984,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.calibration.opencv_basic",
-          "source": {
-            "file": "depz_camera_sdk/calibration/opencv_basic.py",
-            "line": 22
-          },
           "exported_as": [
             "depz_camera_sdk.OpenCVBasicCalibration",
             "depz_camera_sdk.calibration.OpenCVBasicCalibration"
@@ -9454,7 +9105,7 @@
                   "annotation": "dict"
                 }
               ],
-              "returns": "depz_camera_sdk.calibration.base.Calibration",
+              "returns": "Calibration",
               "doc": "Build a ``Calibration`` from a cereal-shaped dict.\n\n- Called on the abstract base (``Calibration.from_dict(d)``):\n  dispatches to the registered impl whose :meth:`can_handle`\n  returns True (first match wins).\n- Called on a concrete subclass: directly constructs an\n  instance via :meth:`_populate` + :meth:`_compute_rectification`.",
               "defined_in": "depz_camera_sdk.calibration.base.Calibration"
             },
@@ -9726,10 +9377,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.calibration.opencv_fisheye",
-          "source": {
-            "file": "depz_camera_sdk/calibration/opencv_fisheye.py",
-            "line": 50
-          },
           "exported_as": [
             "depz_camera_sdk.OpenCVFisheyeCalibration",
             "depz_camera_sdk.calibration.OpenCVFisheyeCalibration"
@@ -9895,7 +9542,7 @@
                   "annotation": "dict"
                 }
               ],
-              "returns": "depz_camera_sdk.calibration.base.Calibration",
+              "returns": "Calibration",
               "doc": "Build a ``Calibration`` from a cereal-shaped dict.\n\n- Called on the abstract base (``Calibration.from_dict(d)``):\n  dispatches to the registered impl whose :meth:`can_handle`\n  returns True (first match wins).\n- Called on a concrete subclass: directly constructs an\n  instance via :meth:`_populate` + :meth:`_compute_rectification`.",
               "defined_in": "depz_camera_sdk.calibration.base.Calibration"
             },
@@ -10115,10 +9762,6 @@
           ],
           "returns": "type",
           "module": "depz_camera_sdk.calibration.base",
-          "source": {
-            "file": "depz_camera_sdk/calibration/base.py",
-            "line": 116
-          },
           "exported_as": [
             "depz_camera_sdk.calibration.register_calibration"
           ],
@@ -10130,10 +9773,6 @@
           "parameters": [],
           "returns": "tuple[str, ...]",
           "module": "depz_camera_sdk.calibration.base",
-          "source": {
-            "file": "depz_camera_sdk/calibration/base.py",
-            "line": 148
-          },
           "exported_as": [
             "depz_camera_sdk.calibration.registered_polymorphic_names"
           ],
@@ -11687,10 +11326,6 @@
           ],
           "returns": "dict",
           "module": "depz_camera_sdk.cameras.web_api",
-          "source": {
-            "file": "depz_camera_sdk/cameras/web_api.py",
-            "line": 59
-          },
           "exported_as": [
             "depz_camera_sdk.fetch_camera_info_json",
             "depz_camera_sdk.cameras.fetch_camera_info_json"
@@ -11735,10 +11370,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.cameras.camera_info",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_info.py",
-            "line": 34
-          },
           "exported_as": [
             "depz_camera_sdk.DepzCameraInfo",
             "depz_camera_sdk.cameras.DepzCameraInfo"
@@ -11747,33 +11378,27 @@
           "dataclass_fields": [
             {
               "name": "os_id",
-              "type": "str",
-              "doc": "OS-level camera identifier (V4L2 ``/dev/videoN`` on Linux,\nDirectShow display name on Windows). :class:`CameraSource` reads\nthis internally — pass the whole :class:`DepzCameraInfo`, not just\nthe identifier."
+              "type": "str"
             },
             {
               "name": "serial",
-              "type": "str",
-              "doc": "Camera serial reported by the firmware."
+              "type": "str"
             },
             {
               "name": "sku",
-              "type": "str",
-              "doc": "SKU string returned by the device-info endpoint; selects which\n:class:`CameraSpec` matches."
+              "type": "str"
             },
             {
               "name": "model_name",
-              "type": "str",
-              "doc": "Full user-facing model name from the server (e.g. ``\"DEPZ\nVarius Regular Baseline Regular Lenses v2.1\"``). UI labels the\nsource picker with this string."
+              "type": "str"
             },
             {
               "name": "spec",
-              "type": "depz_camera_sdk.cameras.camera_spec.CameraSpec",
-              "doc": "Resolved :class:`CameraSpec` — capture modes, controls."
+              "type": "CameraSpec"
             },
             {
               "name": "base_calibration",
-              "type": "depz_camera_sdk.calibration.base.Calibration",
-              "doc": "Built ``Calibration`` instance (rectification computed) parsed\nonce from the device-info payload — frozen for the lifetime of\nthis info object. ``DepzCameraInfo`` has no playback timeline, so\nthere's no ``active_calibration`` companion: live consumers\n(:class:`CameraSource`) re-export this same instance under both\n``base_calibration`` and ``active_calibration`` for API symmetry\nwith replay sources."
+              "type": "Calibration"
             }
           ],
           "members": [
@@ -11819,10 +11444,6 @@
           "parameters": [],
           "returns": "list[depz_camera_sdk.cameras.camera_info.DepzCameraInfo]",
           "module": "depz_camera_sdk.cameras.camera_info",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_info.py",
-            "line": 184
-          },
           "exported_as": [
             "depz_camera_sdk.list_connected_depz_cameras",
             "depz_camera_sdk.cameras.list_connected_depz_cameras"
@@ -11835,10 +11456,6 @@
           "parameters": [],
           "returns": "depz_camera_sdk.cameras.camera_info.DepzCameraInfo",
           "module": "depz_camera_sdk.cameras.camera_info",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_info.py",
-            "line": 198
-          },
           "exported_as": [
             "depz_camera_sdk.get_first_connected_depz_camera",
             "depz_camera_sdk.cameras.get_first_connected_depz_camera"
@@ -11857,10 +11474,6 @@
           ],
           "returns": "Optional[depz_camera_sdk.cameras.camera_info.DepzCameraInfo]",
           "module": "depz_camera_sdk.cameras.camera_info",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_info.py",
-            "line": 216
-          },
           "exported_as": [
             "depz_camera_sdk.get_connected_depz_camera_by_serial",
             "depz_camera_sdk.cameras.get_connected_depz_camera_by_serial"
@@ -11912,10 +11525,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.cameras.camera_spec",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_spec.py",
-            "line": 34
-          },
           "exported_as": [
             "depz_camera_sdk.CaptureMode"
           ],
@@ -11923,40 +11532,33 @@
           "dataclass_fields": [
             {
               "name": "width",
-              "type": "int",
-              "doc": "Raw frame width in pixels — full SBS for stereo, single-eye for\nmono. Use :attr:`eye_w` for per-eye width regardless of family."
+              "type": "int"
             },
             {
               "name": "height",
-              "type": "int",
-              "doc": "Frame height in pixels (SBS doesn't split height; same for mono\nand stereo)."
+              "type": "int"
             },
             {
               "name": "fps",
-              "type": "float",
-              "doc": "Declared frame rate. Float to allow V4L2 fractional rates."
+              "type": "float"
             },
             {
               "name": "fourcc",
-              "type": "str",
-              "doc": "Wire format: ``\"MJPG\"`` (compressed) or ``\"YUYV\"`` (raw 16-bpp)."
+              "type": "str"
             },
             {
               "name": "stereo",
-              "type": "bool",
-              "doc": "**Required** — ``True`` for the usual side-by-side stereo case\n(driver delivers a 2-eye SBS frame; pipeline splits at\n``width // 2``), ``False`` when the driver delivers a single-eye\nframe at this mode (no SBS to split). Required (no default) so\nspec authors can't forget it: forgetting silently routes a mono\nframe through the SBS-split path and corrupts every downstream\nstage."
+              "type": "bool"
             },
             {
               "name": "is_default",
               "type": "bool",
-              "default": false,
-              "doc": "Exactly one mode per spec carries ``True`` — UI preselects this\non first load."
+              "default": false
             },
             {
               "name": "is_supported",
               "type": "bool",
-              "default": true,
-              "doc": "``False`` for non-16:9 per-eye geometries (firmware crops). UI\nshows them greyed out."
+              "default": true
             }
           ],
           "members": [
@@ -12078,10 +11680,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.cameras.camera_spec",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_spec.py",
-            "line": 140
-          },
           "exported_as": [
             "depz_camera_sdk.CameraControl"
           ],
@@ -12148,26 +11746,22 @@
             {
               "name": "current_value",
               "type": "Optional[float]",
-              "default": null,
-              "doc": "Last-read value of the control (numbers as-is; enum members as\ntheir int code cast to float; boolean as 0.0/1.0). ``None`` on\nspec literals and until the first read."
+              "default": null
             },
             {
               "name": "auto_companion",
               "type": "Optional[str]",
-              "default": null,
-              "doc": "Name of an AUTO/MANUAL gate that controls whether *this* ctrl\nis writable. Set on the *gated* control (e.g.\n``exposure.auto_companion = \"auto_exposure\"``), not on the gate.\n``None`` for ungated controls. Used by the UI to grey out gated\nsliders while their gate is in AUTO mode, by the server to cascade\ndependents on gate-toggle, and by ``reset_camera_controls`` to turn\ngates off first so dependents become writable."
+              "default": null
             },
             {
               "name": "updatable_by_auto",
               "type": "bool",
-              "default": true,
-              "doc": "Only relevant when ``auto_companion`` is set. ``True`` →\nfirmware writes the live AUTO-driven value back, so readback is\nmeaningful (e.g. ``exposure``, ``gain``). ``False`` → readback\nreturns a stale cached value while gated (e.g.\n``white_balance_temperature``). UI uses this to choose between\nlive readout vs an ``\"auto\"`` placeholder."
+              "default": true
             },
             {
               "name": "writable",
               "type": "bool",
-              "default": true,
-              "doc": "``False`` for read-only telemetry controls (rare). Independent\nof ``auto_companion`` gating."
+              "default": true
             }
           ],
           "members": [
@@ -12215,10 +11809,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.cameras.camera_spec",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_spec.py",
-            "line": 186
-          },
           "exported_as": [
             "depz_camera_sdk.cameras.CameraSpec"
           ],
@@ -12226,24 +11816,21 @@
           "dataclass_fields": [
             {
               "name": "modes",
-              "type": "tuple[depz_camera_sdk.cameras.camera_spec.CaptureMode, ...]"
+              "type": "tuple[CaptureMode, ...]"
             },
             {
               "name": "controls",
-              "type": "tuple[depz_camera_sdk.cameras.camera_spec.CameraControl, ...]",
-              "doc": "V4L2/Linux control table — the canonical one. ``min`` / ``max`` /\n``step`` / ``default`` are in V4L2 units."
+              "type": "tuple[CameraControl, ...]"
             },
             {
               "name": "windows_controls",
-              "type": "tuple[depz_camera_sdk.cameras.camera_spec.CameraControl, ...]",
-              "default": "()",
-              "doc": "Windows/DirectShow control table — the same controls as\n:attr:`controls`, but with the units/ranges DirectShow reports.\nNotably ``exposure`` is log2(seconds) on Windows, not V4L2's 100µs\nunits; ``power_line_frequency`` has no DirectShow property and is\nabsent. Empty ⇒ no Windows-specific table (callers fall back to\n:attr:`controls`). Never branch on this directly — read\n:attr:`platform_controls`."
+              "type": "tuple[CameraControl, ...]",
+              "default": "()"
             },
             {
               "name": "skus",
               "type": "tuple[str, ...]",
-              "default": "()",
-              "doc": "Every product variant SKU mapped to this firmware class. The\nset of strings the camera-info endpoint may return for any unit\nof this class. Required for detection to work."
+              "default": "()"
             }
           ],
           "members": [
@@ -12361,10 +11948,6 @@
           ],
           "returns": "Optional[depz_camera_sdk.cameras.camera_spec.CameraSpec]",
           "module": "depz_camera_sdk.cameras.camera_spec",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_spec.py",
-            "line": 279
-          },
           "exported_as": [
             "depz_camera_sdk.cameras.spec_by_sku"
           ],
@@ -12376,10 +11959,6 @@
           "parameters": [],
           "returns": "tuple[list[depz_camera_sdk.cameras.camera_info.DepzCameraInfo], list[dict]]",
           "module": "depz_camera_sdk.cameras.camera_info",
-          "source": {
-            "file": "depz_camera_sdk/cameras/camera_info.py",
-            "line": 140
-          },
           "exported_as": [
             "depz_camera_sdk.cameras.list_connected_depz_cameras_detailed"
           ],
@@ -12398,10 +11977,6 @@
           ],
           "parameters": [],
           "module": "depz_camera_sdk.platform.base",
-          "source": {
-            "file": "depz_camera_sdk/platform/base.py",
-            "line": 191
-          },
           "exported_as": [
             "depz_camera_sdk.platform.PlatformBackend"
           ],
@@ -12409,13 +11984,11 @@
           "attributes": [
             {
               "name": "av_input_format",
-              "type": "ClassVar[str]",
-              "doc": "libavformat input format string. Linux: ``\"v4l2\"``. Windows:\n``\"dshow\"``. macOS: ``\"avfoundation\"``. Informational — the\nstreaming caller gets the format from :meth:`av_open_args`."
+              "type": "ClassVar[str]"
             },
             {
               "name": "clock_domain",
-              "type": "ClassVar[str]",
-              "doc": "Capture-timestamp clock identifier baked into MKV recordings so\nreplay can reason about cross-host time alignment. Values:\n``\"linux_monotonic\"``, ``\"windows_qpc\"``, ``\"macos_mach\"``."
+              "type": "ClassVar[str]"
             }
           ],
           "members": [
@@ -12535,10 +12108,6 @@
           ],
           "parameters": [],
           "module": "depz_camera_sdk.platform.base",
-          "source": {
-            "file": "depz_camera_sdk/platform/base.py",
-            "line": 167
-          },
           "exported_as": [
             "depz_camera_sdk.platform.CameraControls"
           ],
@@ -12619,10 +12188,6 @@
           ],
           "returns": "None",
           "module": "depz_camera_sdk.platform.base",
-          "source": {
-            "file": "depz_camera_sdk/platform/base.py",
-            "line": 135
-          },
           "exported_as": [
             "depz_camera_sdk.platform.VideoDeviceInfo"
           ],
@@ -12630,18 +12195,15 @@
           "dataclass_fields": [
             {
               "name": "os_id",
-              "type": "str",
-              "doc": "Backend-specific opaque identifier — round-trips back into\n:meth:`PlatformBackend.open_controls` and\n:meth:`PlatformBackend.av_open_args`. Linux: ``/dev/videoN``\npath. Windows DirectShow: the device's enumerator index and\nfriendly name packed into one string. macOS AVFoundation: device\nindex as a string. Treat as opaque — never parse it."
+              "type": "str"
             },
             {
               "name": "name",
-              "type": "str",
-              "doc": "Human-readable camera name (USB iProduct descriptor on Linux\nvia ``parse_depz_iproduct``, DShow friendly name on Windows).\nUsed by the UI as a fallback label when the camera-info endpoint\ncan't resolve a server-side ``model_name`` for the unit."
+              "type": "str"
             },
             {
               "name": "serial",
-              "type": "Optional[str]",
-              "doc": "Last whitespace-separated token of the USB iProduct descriptor,\nused as the camera serial. ``None`` only if the backend couldn't\nread iProduct (some non-USB or restricted cameras); current\nbackends filter those out before returning."
+              "type": "Optional[str]"
             }
           ],
           "members": []
@@ -12652,10 +12214,6 @@
           "parameters": [],
           "returns": "depz_camera_sdk.platform.base.PlatformBackend",
           "module": "depz_camera_sdk.platform.base",
-          "source": {
-            "file": "depz_camera_sdk/platform/base.py",
-            "line": 296
-          },
           "exported_as": [
             "depz_camera_sdk.platform.current_backend"
           ],

@@ -96,6 +96,18 @@ class RecordingStatus:
     output file is still open — a subsequent ``resume_recording()``
     continues the same recording."""
 
+    width: int = 0
+    """Width of the recorded frames in pixels — the camera's capture size,
+    both eyes side by side for a stereo camera (``0`` if unknown)."""
+
+    height: int = 0
+    """Height of the recorded frames in pixels (``0`` if unknown)."""
+
+    capture_mode: str = ""
+    """The camera mode being recorded, as a :attr:`CaptureMode.slug`
+    (``"640x360@30/MJPG/stereo"`` — per-eye size, frame rate, format);
+    empty if unknown."""
+
     error: Optional[str] = None
     """Writer-crash description (``"Type: message"``) when the recorder's
     writer thread died mid-recording — the on-disk file is likely
@@ -120,6 +132,16 @@ class RecordingResult:
     dropped: int
     """Frames the recorder dropped (writer back-pressure). 0 in
     healthy runs."""
+
+    width: int = 0
+    """Width of the recorded frames in pixels (see
+    :attr:`RecordingStatus.width`)."""
+
+    height: int = 0
+    """Height of the recorded frames in pixels."""
+
+    capture_mode: str = ""
+    """The recorded camera mode (see :attr:`RecordingStatus.capture_mode`)."""
 
     error: Optional[str] = None
     """Writer-crash description when the writer thread died before

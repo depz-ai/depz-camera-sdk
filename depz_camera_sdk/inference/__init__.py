@@ -43,7 +43,6 @@ from .inferences import (
     CREStereoInitialInference,
     DepthAnythingV2SmallInference,
     CFastFoundationStereoInference,
-    DepzStereoInference,
     LightStereoInference,
     LiteAnyStereoInference,
     LiteAnyStereoMInference,
@@ -68,7 +67,6 @@ __all__ = [
     # Concrete inferences
     "LiteAnyStereoInference",
     "LiteAnyStereoMInference",
-    "DepzStereoInference",
     "LightStereoInference",
     "CREStereoInitialInference",
     "CREStereoCombinedInference",

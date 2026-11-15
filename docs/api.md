@@ -9,7 +9,7 @@ docstrings in the source, not this file.
 
 - **Pipeline**: [`DepthPipeline`](#depthpipeline), [`FramePacket`](#framepacket), [`RecordingStatus`](#recordingstatus), [`RecordingResult`](#recordingresult), [`PipelineMetrics`](#pipelinemetrics)
 - **Sources**: [`FrameSource`](#framesource), [`CameraSource`](#camerasource), [`MkvSource`](#mkvsource), [`CameraInfo`](#camerainfo), [`RawFrame`](#rawframe), [`resolve_source_arg`](#resolve_source_arg)
-- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`stderr_progress`](#stderr_progress), [`available_inferences`](#available_inferences), [`get_inference`](#get_inference), [`register_inference`](#register_inference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`LiteAnyStereoInference`](#liteanystereoinference), [`LiteAnyStereoMInference`](#liteanystereominference), [`DepzStereoInference`](#depzstereoinference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`onnx_variant`](#onnx_variant), [`cache_root`](#cache_root), [`IMAGENET_BLOB_MEAN`](#imagenet_blob_mean), [`IMAGENET_BLOB_SCALE`](#imagenet_blob_scale)
+- **Inference**: [`DepthInferenceBase`](#depthinferencebase), [`NeuralStereoInferenceBase`](#neuralstereoinferencebase), [`NeuralMonoInferenceBase`](#neuralmonoinferencebase), [`SgbmInference`](#sgbminference), [`StereoBMInference`](#stereobminference), [`RectifyOnlyInference`](#rectifyonlyinference), [`build_inference`](#build_inference), [`stderr_progress`](#stderr_progress), [`available_inferences`](#available_inferences), [`get_inference`](#get_inference), [`register_inference`](#register_inference), [`InferenceVariant`](#inferencevariant), [`ModelFile`](#modelfile), [`LiteAnyStereoInference`](#liteanystereoinference), [`LiteAnyStereoMInference`](#liteanystereominference), [`LightStereoInference`](#lightstereoinference), [`CREStereoInitialInference`](#crestereoinitialinference), [`CREStereoCombinedInference`](#crestereocombinedinference), [`CFastFoundationStereoInference`](#cfastfoundationstereoinference), [`DepthAnythingV2SmallInference`](#depthanythingv2smallinference), [`Metric3DV2VitSmallInference`](#metric3dv2vitsmallinference), [`onnx_variant`](#onnx_variant), [`cache_root`](#cache_root), [`IMAGENET_BLOB_MEAN`](#imagenet_blob_mean), [`IMAGENET_BLOB_SCALE`](#imagenet_blob_scale)
 - **Engines**: [`available_engines`](#available_engines), [`list_engines`](#list_engines), [`recommend_engine`](#recommend_engine), [`InferenceEngine`](#inferenceengine), [`InferenceFuture`](#inferencefuture), [`EventFuture`](#eventfuture), [`ENGINE_CLASSES`](#engine_classes), [`class_rank`](#class_rank), [`classify_engine`](#classify_engine), [`make_engine`](#make_engine), [`parse_engine_slug`](#parse_engine_slug), [`priority_rank`](#priority_rank), [`engine_for_model`](#engine_for_model), [`tensorrt_precision`](#tensorrt_precision)
 - **Calibration**: [`Calibration`](#calibration), [`CanvasLayout`](#canvaslayout), [`OpenCVBasicCalibration`](#opencvbasiccalibration), [`OpenCVFisheyeCalibration`](#opencvfisheyecalibration), [`register_calibration`](#register_calibration), [`registered_polymorphic_names`](#registered_polymorphic_names)
 - **Filters**: [`Filter`](#filter), [`DisparityFilter`](#disparityfilter), [`DepthFilter`](#depthfilter), [`PointCloudFilter`](#pointcloudfilter), [`SpeckleFilter`](#specklefilter), [`ZClipFilter`](#zclipfilter), [`EdgeFilter`](#edgefilter), [`TemporalEmaFilter`](#temporalemafilter), [`BoundingBoxFilter`](#boundingboxfilter), [`StatisticalOutlierFilter`](#statisticaloutlierfilter), [`default_filter_chain`](#default_filter_chain)
@@ -24,7 +24,7 @@ docstrings in the source, not this file.
 ### DepthPipeline
 
 ```python
-class DepthPipeline(source: depz_camera_sdk.sources.base.FrameSource | str | pathlib.Path | typing.Any | None = None, *, inference: depz_camera_sdk.inference.base.DepthInferenceBase | tuple[str, str] | None = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False, recalibration_enabled: bool = False) -> None
+class DepthPipeline(source: 'FrameSource | str | Path | Any | None' = None, *, inference: 'DepthInferenceBase | tuple[str, str] | None' = None, enable_raw: bool = False, enable_rectified: bool = False, enable_disparity: bool = False, enable_depth: bool = True, enable_cloud: bool = False, max_output_queue: int = 4, pipeline_depth: int = 2, output_drop_policy: str = 'drop_oldest', photo_mode: bool = False, recalibration_enabled: bool = False) -> None
 ```
 
 Depth SDK pipeline. Single-shot lifecycle. Drives any
@@ -612,7 +612,7 @@ carries the failure in :attr:`RecordingResult.error`. Raises
 #### DepthPipeline.capture_single_frame
 
 ```python
-capture_single_frame(self, path: str | pathlib.Path, *, timeout: float = 2.0) -> depz_camera_sdk.pipeline.types.RecordingResult
+capture_single_frame(self, path: 'str | Path', *, timeout: float = 2.0) -> depz_camera_sdk.pipeline.types.RecordingResult
 ```
 
 Save the next raw frame as a one-frame MKV at ``path`` — a
@@ -688,13 +688,13 @@ on each field.
 ### RecordingStatus
 
 ```python
-class RecordingStatus(is_recording: bool, path: Optional[str], frames_written: int, bytes_written: int, dropped: int, duration_s: float, is_paused: bool = False, error: Optional[str] = None) -> None
+class RecordingStatus(is_recording: bool, path: Optional[str], frames_written: int, bytes_written: int, dropped: int, duration_s: float, is_paused: bool = False, width: int = 0, height: int = 0, capture_mode: str = '', error: Optional[str] = None) -> None
 ```
 
 ### RecordingResult
 
 ```python
-class RecordingResult(path: str, frames: int, bytes: int, duration_s: float, dropped: int, error: Optional[str] = None) -> None
+class RecordingResult(path: str, frames: int, bytes: int, duration_s: float, dropped: int, width: int = 0, height: int = 0, capture_mode: str = '', error: Optional[str] = None) -> None
 ```
 
 ### PipelineMetrics
@@ -1098,7 +1098,7 @@ remove_fanout(self, cb: Callable[[depz_camera_sdk.sources.types.RawFrame], NoneT
 #### CameraSource.decode_to_bgr
 
 ```python
-decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> Optional[numpy.ndarray]
+decode_to_bgr(self, raw: depz_camera_sdk.sources.types.RawFrame) -> 'Optional[np.ndarray]'
 ```
 
 Decode wire bytes to BGR, then resize to the delivered size
@@ -2063,7 +2063,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### SgbmInference
 
 ```python
-class SgbmInference(canvas_size: tuple[int, int]) -> None
+class SgbmInference(canvas_size: 'tuple[int, int]') -> None
 ```
 
 Classical Semi-Global Block Matching (cv2.StereoSGBM).
@@ -2218,7 +2218,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### StereoBMInference
 
 ```python
-class StereoBMInference(canvas_size: tuple[int, int]) -> None
+class StereoBMInference(canvas_size: 'tuple[int, int]') -> None
 ```
 
 Classical block matching (cv2.StereoBM).
@@ -2372,7 +2372,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### RectifyOnlyInference
 
 ```python
-class RectifyOnlyInference(canvas_size: tuple[int, int]) -> None
+class RectifyOnlyInference(canvas_size: 'tuple[int, int]') -> None
 ```
 
 Inference-shaped no-op for pipelines that only need rectification.
@@ -3056,161 +3056,6 @@ Snapshot every current control value — for the UI live-state
 pane, recorder sidecar, etc.
 
 #### LiteAnyStereoMInference.controls
-
-```python
-controls(self) -> tuple[depz_camera_sdk._controls.Control, ...]
-```
-
-This host's control descriptors — the class-level
-:data:`_CONTROL_SPECS` tuple (same object every call, no per-call
-allocation). The single public accessor shared by every
-ControlOwner: filters, inference, calibration, pipeline.
-
-### DepzStereoInference
-
-```python
-class DepzStereoInference(engine: depz_camera_sdk.engines.base.InferenceEngine) -> None
-```
-
-DEPZ Stereo — fast disparity stereo, DEPZ's own model.
-ImageNet-normalised input; the ONNX exports pin (H, W) in the
-graph.
-
-#### DepzStereoInference.preprocess
-
-```python
-preprocess(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> tuple[numpy.ndarray, ...]
-```
-
-#### DepzStereoInference.postprocess
-
-```python
-postprocess(self, raw_output: numpy.ndarray, canvas_layout: depz_camera_sdk.calibration.base.CanvasLayout) -> numpy.ndarray
-```
-
-#### DepzStereoInference.make_blob_params *(classmethod)*
-
-```python
-make_blob_params(cls) -> cv2.dnn.Image2BlobParams
-```
-
-The network's input recipe as ``cv2.dnn.Image2BlobParams``:
-BGR uint8 HxWx3 → RGB, ``(x - BLOB_MEAN) * BLOB_SCALE``, NCHW
-float32, no resize. A classmethod so tools can preprocess for a
-network without building an engine:
-``cv2.dnn.blobFromImageWithParams(img, cls.make_blob_params())``.
-
-#### DepzStereoInference.engine_slug *(property)*
-
-Engine slug (e.g. ``"openvino-CPU"``). Read from the engine
-instance, which :func:`make_engine` stamps at construction.
-
-#### DepzStereoInference.model_path *(property)*
-
-Resolved absolute path of the .onnx file.
-
-#### DepzStereoInference.input_size *(property)*
-
-#### DepzStereoInference.label *(property)*
-
-#### DepzStereoInference.warmup
-
-```python
-warmup(self) -> None
-```
-
-#### DepzStereoInference.abort
-
-```python
-abort(self) -> None
-```
-
-#### DepzStereoInference.shutdown
-
-```python
-shutdown(self, abandon: bool = False) -> None
-```
-
-#### DepzStereoInference.submit
-
-```python
-submit(self, canvas_l: numpy.ndarray, canvas_r: numpy.ndarray | None) -> depz_camera_sdk.engines.base.InferenceFuture
-```
-
-#### DepzStereoInference.variants *(classmethod)*
-
-```python
-variants(cls) -> tuple[depz_camera_sdk.inference.base.InferenceVariant, ...]
-```
-
-Catalog of every supported variant, each bound to this
-inference's :data:`SLUG` (the cache layout, the download flow
-and :func:`build_inference` need that back-pointer). Pure — no
-I/O, cheap to recompute.
-
-Do not override: declare the variants in :meth:`_variants`.
-
-#### DepzStereoInference.get_variant *(classmethod)*
-
-```python
-get_variant(cls, slug: str)
-```
-
-Look up a single variant by slug. Convenience over
-``next(v for v in cls.variants() if v.slug == slug)``. Raises
-``KeyError`` with a helpful message listing the inference's
-known variant slugs.
-
-#### DepzStereoInference.set_intrinsics
-
-```python
-set_intrinsics(self, fx: float, fy: float, cx: float, cy: float) -> None
-```
-
-Push canvas-space intrinsics to the inference. Default
-no-op — most backends don't need them (classical matchers,
-relative-depth nets, stereo nets that already consume a
-rectified pair).
-
-Called by the pipeline whenever the canvas remap is rebuilt
-(start, calibration update, fit-mode change). Focus-aware
-monocular metric-depth networks (Metric3D) override to remember
-them and scale their output to metric depth.
-
-#### DepzStereoInference.control_get
-
-```python
-control_get(self, name: str) -> Any
-```
-
-Return the current value of one control by name — reads its
-``_control_<name>`` backing attribute. Equivalent to ``host.<name>``
-(the descriptor) but takes the name as a string.
-
-#### DepzStereoInference.control_set
-
-```python
-control_set(self, name: str, value: Any) -> Any
-```
-
-Apply one control update: look up descriptor, coerce + clamp by
-``kind``/``value_type``/``min``/``max``/``step``, ``setattr``
-onto ``_control_<name>``. Returns the value actually stored.
-
-Subclasses override to add side effects (e.g. SGBM rebuilds
-its matcher when controls change) — call ``super().control_set(...)``
-for the coerce/store, then act on the new value.
-
-#### DepzStereoInference.controls_to_dict
-
-```python
-controls_to_dict(self) -> dict
-```
-
-Snapshot every current control value — for the UI live-state
-pane, recorder sidecar, etc.
-
-#### DepzStereoInference.controls
 
 ```python
 controls(self) -> tuple[depz_camera_sdk._controls.Control, ...]
@@ -4454,14 +4299,16 @@ in any case — both kind and device/EP tail are normalized to the
 canonical form each backend expects (OpenVINO devices uppercase,
 ONNX EPs lowercase).
 
-Keyword options go to the engine constructor. Both kinds accept
+Keyword options go to the engine constructor. Every kind accepts
 ``input_shape`` (pin a dynamic-shape model), ``output_name`` (pick
 one output of a multi-head model) and ``cache_dir`` (override
 :func:`depz_camera_sdk.get_cache_dir` for the engine's on-disk
 cache: ``<cache_dir>/openvino/`` compiled blobs,
-``<cache_dir>/onnx-opt/`` optimized graphs). ``nireq`` and
+``<cache_dir>/onnx-opt/`` optimized graphs, ``<cache_dir>/tensorrt/``
+TensorRT plans; the RKNN engine keeps no cache). ``nireq`` and
 ``do_models_cache`` are OpenVINO-only; ``num_threads`` is
-ONNX-only. An option the chosen kind does not have raises
+ONNX-only; ``builder_optimization_level`` is TensorRT-only; ``soc``
+is RKNN-only. An option the chosen kind does not have raises
 ``TypeError`` naming it and listing the ones that apply.
 
 ### parse_engine_slug
@@ -4532,7 +4379,7 @@ Families missing from the table (a user's own model) are None.
 ### Calibration
 
 ```python
-class Calibration(*, canvas_fit_mode: str | None = None) -> None
+class Calibration(*, canvas_fit_mode: 'str | None' = None) -> None
 ```
 
 Calibration: rectifier + canvas-fit remap + depth/cloud projection.
@@ -4610,7 +4457,7 @@ no ``kind`` tag, no structural sniffing.
 #### Calibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
+from_dict(cls, d: dict) -> 'Calibration'
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
@@ -4849,7 +4696,7 @@ downstream stages don't see padding.
 ### OpenCVBasicCalibration
 
 ```python
-class OpenCVBasicCalibration(*, rectify_alpha: float | None = None, canvas_fit_mode: str | None = None) -> None
+class OpenCVBasicCalibration(*, rectify_alpha: 'float | None' = None, canvas_fit_mode: 'str | None' = None) -> None
 ```
 
 Pinhole + 8-coefficient radtan distortion.
@@ -4916,7 +4763,7 @@ no ``kind`` tag, no structural sniffing.
 #### OpenCVBasicCalibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
+from_dict(cls, d: dict) -> 'Calibration'
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
@@ -5121,7 +4968,7 @@ ControlOwner: filters, inference, calibration, pipeline.
 ### OpenCVFisheyeCalibration
 
 ```python
-class OpenCVFisheyeCalibration(*, horizontal_fov_rad: float | None = None, vertical_fov_rad: float | None = None, canvas_fit_mode: str | None = None) -> None
+class OpenCVFisheyeCalibration(*, horizontal_fov_rad: 'float | None' = None, vertical_fov_rad: 'float | None' = None, canvas_fit_mode: 'str | None' = None) -> None
 ```
 
 Kannala–Brandt fisheye, lon/lat-rectified.
@@ -5212,7 +5059,7 @@ no ``kind`` tag, no structural sniffing.
 #### OpenCVFisheyeCalibration.from_dict *(classmethod)*
 
 ```python
-from_dict(cls, d: dict) -> depz_camera_sdk.calibration.base.Calibration
+from_dict(cls, d: dict) -> 'Calibration'
 ```
 
 Build a ``Calibration`` from a cereal-shaped dict.
